@@ -5,7 +5,7 @@
 #include "Transmission.h"
 #include "Control.h"
 #include "Tests/Assert.h"
-//#include "Tests/Test_main.h"
+#include "Tests/Test_main.h"
 
 /**
  * Compiles data to a char array so that it can be pushed to the
