@@ -1,0 +1,52 @@
+Motor Controller Change Log
+
+=== 0.2.0 ===
+2018/04/22
+
+- Added change log
+- Divided motor controller code into three files to aid in organization
+- one outuput type supported with just unsigned char values (8 bits) for output values
+
+=== 0.2.1 ===
+2018/04/22
+- Added functions for obtaining data
+- Added new output data format such that 4 byte integers scaled by 2^(8) can be output
+	- Output includes motor controller time since last reset
+
+=== 0.2.2 ===
+2018/04/27
+- Implemented stepper motor control
+
+=== 0.2.3 ===
+2018/04/29
+- Implemented feature that outputs type of command sent to the Arduino
+- Implemented functions to read pressure sensor data from "sensors.h"
+- Added call to "saveDataToSD();" on line 82 of CONTROL_Prototype_0.2.3
+- Changed MODE = 4 to be a stopped mode
+- Changed "update_data()" in "Hardware.cpp" to output 1, 2, 3, 4, 5 for various data
+- Moved desicion making function to "CONTROL_Prototype_" for data reading
+
+=== 0.3.0 ===
+- Changed stopped MODE to 3 because that's what the documentation says (updated MATLAB) (Still outputs data)
+- Changed MODE 4 to be safe to approach mode
+
+=== 0.3.1 ===
+2018/05/05
+- Integrated sensors data acquisition for first pressure transducer and thermocouple
+	- Implemented Hardware::readOxidizerPressure()
+	- Implemented Hardware::readCombChamberPressure()
+	- Added skeleton code for Hardware::calcSafetyFact() 
+- Implemented Hardware::initializeSaveFile()
+- Implemented Hardware::saveDataToSD()
+- Implemented Hardware::initializeStepperMotor()
+- Implemented Hardware::openStepperMotor()
+- Implemented Hardware::closeStepperMotor()
+
+=== 0.4.0 ===
+2018/05/05
+- Added new output 0x52 so output data from three thermocouples
+- Removed output 0x50 that outputs just single byte values
+
+=== 0.4.1 ===
+2018/10/14
+- Reduced number of files in unit tests so it can upload to github
