@@ -1,0 +1,58 @@
+These are the instructions on how to compile a command line executable file to
+run unit tests for the Motor Controller on a desktop or laptop computer.
+This method is necessary because github will only let us upload up to 100 files
+and Visual Studio likes to make a ton of files whenever it compiles a solution.
+
+@author: Matt Marti
+@date: 2018-10-31
+
+1. Open Visual Studio and make a new Project
+   -> File -> New Project
+   -> Win32 Console Application (Visual C++)
+   -> Name -> something sensible (Example: Project_Name)
+   -> Location -> NOT IN THE .git DIRECTORY (or children)
+                  Make this somewhere else on your computer
+   -> OK
+   -> Finish
+2. Include directories
+   -> Project -> Properties
+   -> C/C++ -> Additional Include Directories -> <Edit>
+   -> Add the following (absolute) paths to the include directories:
+      - C:/<YourPath>/Device-Sketch
+      - C:/<YourPath>/Device-Sketch/Tests
+      - C:/<YourPath>/Device-Sketch/Desktop-tests-src
+   -> OK
+   -> OK
+3. Add files
+   -> Delete the following files from the solution
+      - <Project_Name>.cpp
+      - targetver.h (Optional)
+   -> Open stdafx.h and delete all the code
+   -> In Header Files, Add Existing files from Device-Sketch:
+      - Control.h
+	  - Transmission.h
+	  - stdafx.h
+   -> In Header Files, Add Existing files from Device-Sketch/Tests:
+      - Assert.h
+	  - stdafx.h
+	  - Test_FloatToBinary.h
+	  - Test_main.h
+	  - Test_Transmission.h
+   -> In Header Files, Add Existing files from Device-Sketch/Desktop-tests-src:
+      - Arduino.h
+	  - stdafx.h
+   -> In Source Files, Add Existing files from Device-Sketch:
+      - Control.cpp
+	  - Transmission.cpp
+   -> In Source Files, Add Existing files from Device-Sketch/Tests:
+      - Assert.cpp
+	  - Test_FloatToBinary.cpp
+	  - Test_main.cpp
+	  - Test_Transmission.cpp
+   -> In Source Files, Add Existing files from Device-Sketch/Desktop-tests-src:
+      - Arduino.cpp
+	  - Unit-Tests-PC.cpp
+4. Compile and test
+   -> To compile: [ctrl] + [shift] + B 
+   -> Go to the debug folder in your solution
+   -> Run the executable from Power Shell or command line
