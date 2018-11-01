@@ -1,6 +1,6 @@
 #include "Hardware.h"
-#include "../Default_Config.h"
-#include "../XBee_IO.h"
+#include "Default_Config.h"
+#include "XBee_IO.h"
 #include "Arduino.h"
 #include "Adafruit_MAX31855.h"
 

@@ -2,7 +2,6 @@
 
 #include <SD.h>
 #include <Adafruit_MotorShield.h>
-
 #include <Wire.h> //Wire library
 
 namespace Hardware {

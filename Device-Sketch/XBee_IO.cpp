@@ -2,7 +2,7 @@
 #include "Default_Config.h"
 #include "control_main.h"
 #include "Transmission.h"
-#include "Hardware/Hardware.h"
+#include "Hardware.h"
 #include "Arduino.h"
 
 /************ Global Variables ************/
@@ -66,7 +66,6 @@ void XBeeIO::transmit_data(unsigned int type) {
  */
 bool XBeeIO::parse_input_buffer() {
 
-	using namespace Hardware;
 	using namespace Default_Config;
 	using namespace State_Data;
 
@@ -118,10 +117,10 @@ bool XBeeIO::parse_input_buffer() {
 					transmit_data(0x00);
 				}
 				if (input_buff[i] == 0x01) { // Turn LED ON
-					turn_LED_on();
+					Hardware::turn_LED_on();
 				}
 				else if (input_buff[i] == 0x02) { // Turn LED OFF
-					turn_LED_off();
+					Hardware::turn_LED_off();
 				}
 				else if (input_buff[i] == 0x03) { // Clear input_buffer
 					clear_input_buffer();
@@ -132,11 +131,11 @@ bool XBeeIO::parse_input_buffer() {
 				}
 				else if (input_buff[i] == 0x10) {
 					// Open Stepper Motor
-					openStepperMotor();
+					Hardware::openStepperMotor();
 				}
 				else if (input_buff[i] == 0x11) {
 					// Close Stepper Motor
-					closeStepperMotor();
+					Hardware::closeStepperMotor();
 				}
 				else if (input_buff[i] == 0x20) { // Set parameters
 					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
@@ -206,8 +205,6 @@ bool XBeeIO::parse_input_buffer() {
 	}
 	else
 	{
-		//XBee.print("Error: unrecognized command\n");
-		//dispbuff();
 		return false;
 	}
 
