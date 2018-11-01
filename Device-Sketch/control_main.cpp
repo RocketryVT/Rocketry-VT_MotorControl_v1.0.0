@@ -6,8 +6,8 @@
 //#include <SoftwareSerial.h> // XBee library
 #include "Default_Config.h"
 #include "XBee_IO.h"
-#include "Hardware/Hardware.h"
-#include "Hardware/Adafruit_MAX31855.h"
+#include "Hardware.h"
+#include "Adafruit_MAX31855.h"
 
 /**
  * Rocket Motor Control Firmware
@@ -52,7 +52,6 @@ void control::setup() {
 void control::loop() {
 	using namespace Default_Config;
 	using namespace XBeeIO;
-	using namespace Hardware;
 	using namespace State_Data;
 	
 	unsigned long t;
@@ -72,7 +71,7 @@ void control::loop() {
 		// 5 - Simulation
 		if (0 < MODE && MODE < 4) {
 			// Data Collection
-			NEW_DATA = update_data();
+			NEW_DATA = Hardware::update_data();
 			transmit_data(DATA_OUT_TYPE);
 			//saveDataToSD();
 			NEW_DATA = 0;
