@@ -1,9 +1,9 @@
 
 #include "stdafx.h"
-#include "Device-Sketch.h"
+#include "control_main.h"
 #include "Arduino.h"
 #include "Transmission.h"
-#include "Control.h"
+#include "Default_Config.h"
 #include "Tests/Assert.h"
 #include "Tests/Test_main.h"
 
@@ -22,10 +22,14 @@
  */
 void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned int type) {
 
-	//using namespace Control;
+	using namespace State_Data;
+	using namespace Default_Config;
+	
+	// Header
 	str[0] = 0xAA;
 	str[1] = 0x14;
 
+	// Chars used to store float bytes
 	unsigned char a;
 	unsigned char b;
 	unsigned char c;

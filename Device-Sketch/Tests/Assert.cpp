@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "Assert.h"
-#include "../Control.h"
+#include "../Default_Config.h"
 #include <cmath>
 
 unsigned int Test::resstriter = 0;

@@ -4,5 +4,13 @@
 
 /************ Function Declarations ************/
 
-/* Reset function */
-void reset();
+namespace control {
+
+	void loop();
+	
+	void setup();
+
+	/* Reset function */
+	void reset();
+
+}
