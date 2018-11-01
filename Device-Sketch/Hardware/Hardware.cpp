@@ -1,10 +1,8 @@
-#pragma once
-
-#include "Control.h"
-#include "XBee_IO.h"
 #include "Hardware.h"
+#include "../Default_Config.h"
+#include "../XBee_IO.h"
 #include "Arduino.h"
-#include  "Adafruit_MAX31855.h"
+#include "Adafruit_MAX31855.h"
 
 /* LED pin number */
 int Hardware::pin_LED = 7;
@@ -17,8 +15,8 @@ int Hardware::combustionTransPin = A2;
 
 /*sets pins for themrocouples*/
 int8_t Hardware::preCombThermDOpin = 2;
-int8_t Hardware:: preCombThermCSpin = 3;
-int8_t Hardware ::preCombThermCLKpin = 4;
+int8_t Hardware::preCombThermCSpin = 3;
+int8_t Hardware::preCombThermCLKpin = 4;
 int8_t Hardware::combChamberThermDOpin = 5;
 int8_t Hardware::combChamberThermCSpin = 6;
 int8_t Hardware::combChamberThermCLKpin = 7;
@@ -71,6 +69,10 @@ const int Hardware::chipSelect = 4;
 */
 unsigned char Hardware::update_data() {
   //MODE = 1; //temp
+  
+  using namespace State_Data;
+  using namespace Default_Config;
+  
   int valvesOpen = 0; //flag for if valves are open
   if (MODE <= 4 && MODE > 0) {
     PRESSURE_OXIDIZER = readOxidizerPressure(); // Insert Patrick's code here
@@ -133,6 +135,8 @@ void Hardware::initializeSaveFile() {
    Saves the data values to a line on a file in the SD card
 */
 void Hardware::saveDataToSD() {
+  using namespace State_Data;
+  
   String dataString = "";
 
   dataString += String(PRESSURE_OXIDIZER);

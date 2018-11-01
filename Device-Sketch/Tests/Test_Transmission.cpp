@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "../Control.h"
+#include "../Default_Config.h"
 #include "../Transmission.h"
 #include "Assert.h"
 #include "Test_Transmission.h"

@@ -1,9 +1,9 @@
-#include "Device-Sketch.h"
-#include "Arduino.h"
-#include "CONTROL.h"
 #include "XBee_IO.h"
-#include "Hardware.h"
+#include "Default_Config.h"
+#include "control_main.h"
 #include "Transmission.h"
+#include "Hardware/Hardware.h"
+#include "Arduino.h"
 
 /************ Global Variables ************/
 const unsigned char XBeeIO::BUFF_INPUT = 1000;
@@ -46,7 +46,7 @@ bool XBeeIO::update_input_buffer() {
  */
 void XBeeIO::transmit_data(unsigned int type) {
 
-	using namespace Transmission;	
+	using namespace Transmission;
 
 	// Build packet and transmit it
 	unsigned int len = 0;
@@ -67,6 +67,8 @@ void XBeeIO::transmit_data(unsigned int type) {
 bool XBeeIO::parse_input_buffer() {
 
 	using namespace Hardware;
+	using namespace Default_Config;
+	using namespace State_Data;
 
 	// Empty buffer
 	if (buff_length < 4) return false;
@@ -130,11 +132,11 @@ bool XBeeIO::parse_input_buffer() {
 				}
 				else if (input_buff[i] == 0x10) {
 					// Open Stepper Motor
-					Hardware::openStepperMotor();
+					openStepperMotor();
 				}
 				else if (input_buff[i] == 0x11) {
 					// Close Stepper Motor
-					Hardware::closeStepperMotor();
+					closeStepperMotor();
 				}
 				else if (input_buff[i] == 0x20) { // Set parameters
 					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
@@ -164,7 +166,7 @@ bool XBeeIO::parse_input_buffer() {
 					STATUS					= input_buff[i+2];
 					PRESSURE_OXIDIZER		= input_buff[i+3];
 					PRESSURE_COMBUSTION		= input_buff[i+4];
-					TEMPERATURE_PRECOMB= input_buff[i+5];
+					TEMPERATURE_PRECOMB     = input_buff[i+5];
 					TEMPERATURE_COMBUSTION 	= input_buff[i+6];
 					THRUST					= input_buff[i+7];
 					NEW_DATA				= input_buff[i+8];
@@ -189,7 +191,7 @@ bool XBeeIO::parse_input_buffer() {
 	i = 3;
 	while (i < buff_length) { // TODO: Make this work with trash data before the header
 		if (input_buff[i] == 0xFF && input_buff[i-1] == 0xFF && input_buff[i-2] == 0xFF && input_buff[i-3] == 0xFF) { 
-			reset();
+			control::reset();
 			return true;
 		}
 		i++;

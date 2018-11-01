@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Control.h"
+#include "../Default_Config.h"
 
 namespace Test
 {
