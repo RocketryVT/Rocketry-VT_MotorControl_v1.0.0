@@ -4,6 +4,7 @@
 #include "Transmission.h"
 #include "Hardware.h"
 #include "Arduino.h"
+#include "Tests/Test_main.h"
 
 /************ Global Variables ************/
 const unsigned char XBeeIO::BUFF_INPUT = 1000;
@@ -50,6 +51,7 @@ void XBeeIO::transmit_data(unsigned int type) {
 
 	// Build packet and transmit it
 	unsigned int len = 0;
+	
 	buildPacket(output_buff, &len, type);
 	XBee.write(output_buff, len);
 	return;
@@ -128,6 +130,9 @@ bool XBeeIO::parse_input_buffer() {
 				else if (input_buff[i] == 0x04) { // Set MODE
 					MODE = input_buff[i+1];
 					transmit_data(0x10); // Transmit the current mode
+				}
+				else if (input_buff[i] == 0x05) { // Unit tests
+					Test_main(true);
 				}
 				else if (input_buff[i] == 0x10) {
 					// Open Stepper Motor

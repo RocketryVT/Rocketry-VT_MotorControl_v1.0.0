@@ -37,8 +37,8 @@ bool Test_0x51() {
 	using namespace std;
 	using namespace Test;
 	using namespace Transmission;
-	//using namespace Control;
-	//dmsg("- Begining Test for 0x51");
+	using namespace State_Data;
+	using namespace Default_Config;
 
 	bool pass = true;
 
@@ -113,8 +113,8 @@ bool Test_0x10() {
 	using namespace std;
 	using namespace Test;
 	using namespace Transmission;
-	//using namespace Control;
-	//dmsg("- Begining Test for 0x10");
+	using namespace State_Data;
+	using namespace Default_Config;
 
 	bool pass = true;
 
@@ -152,8 +152,8 @@ bool Test_0x52() {
 	using namespace std;
 	using namespace Test;
 	using namespace Transmission;
-	//using namespace Control;
-	//dmsg("- Begining Test for 0x52");
+	using namespace State_Data;
+	using namespace Default_Config;
 
 	bool pass = true;
 

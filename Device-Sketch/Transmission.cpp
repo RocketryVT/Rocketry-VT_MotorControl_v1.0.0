@@ -6,6 +6,7 @@
 #include "Default_Config.h"
 #include "Tests/Assert.h"
 #include "Tests/Test_main.h"
+#include "XBee_IO.h"
 
 /**
  * Compiles data to a char array so that it can be pushed to the
@@ -35,7 +36,7 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 	unsigned char c;
 	unsigned char d;
 	unsigned int i = 0;
-
+	
 	switch (type) {
 	case 0x00: // Initialization message
 		
@@ -48,9 +49,14 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 			i++;
 		}
 		i--;
-		str[2] = i+2; // Length
-		str[i+1] = 0; // Checksum
-		str[i+2] = 0; // Checksum
+
+		// Checksum
+		str[i] = 0;
+		str[i+1] = 0;
+		
+		 // Length
+		*len = 3 + i + 2;
+		str[2] = *len;
 		return;
 	case 0x10:
 		str[2] = 2; // Length

@@ -1,6 +1,7 @@
 #pragma once
 
-#define test_str_length 8192
+#define test_str_length 1024
+#define __PROGRAM_VERSION__ "MOTOR CONTROL 1.0.0"
 
 namespace Default_Config {
 

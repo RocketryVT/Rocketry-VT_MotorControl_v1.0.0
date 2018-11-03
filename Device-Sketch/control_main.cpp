@@ -30,13 +30,13 @@ void control::setup() {
 	using namespace Default_Config;
 	using namespace State_Data;
 	
-  // Baud rates
-  Serial.begin(baud);
-  XBee.begin(baud);
-  
-  // Initialize hardware
-  Hardware::initializeStepperMotor();
-  reset();
+	// Baud rates
+	Serial.begin(baud);
+	XBee.begin(baud);
+	
+	// Initialize hardware
+	Hardware::initializeStepperMotor();
+	reset();
 }
 
 /**
