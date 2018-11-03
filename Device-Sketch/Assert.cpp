@@ -1,11 +1,22 @@
 #include "stdafx.h"
 
 #include "Assert.h"
-#include "../Default_Config.h"
-#include <cmath>
+#include "Default_Config.h"
 
 unsigned int Test::resstriter = 0;
 char Test::resstr[test_str_length] = { 0 };
+
+/**
+ * Returns the absolute value of a double
+ */
+double Test::abs(double n) {
+	if (n >= 0) {
+		return n;
+	}
+	else {
+		return -n;
+	}
+}
 
 /**
 * Assertion function, with associated exception that it should throw
@@ -145,9 +156,6 @@ bool Test::assert_true(bool arg, const char* str, bool hard_fail)
 		}
 		resstr[resstriter] = '\n';
 		resstriter++;
-
-		// Throw exception if it's supposed to hard stop
-		if (hard_fail) throw Failed_Assertion_Exception(1);
 	}
 	return arg;
 }
@@ -197,9 +205,6 @@ bool Test::assert_equals(long a, long b, const char* str, bool hard_fail)
 		}
 		resstr[resstriter] = '\n';
 		resstriter++;
-
-		// Throw exception if it's supposed to hard stop
-		if (hard_fail) throw Failed_Assertion_Exception(1);
 	}
 
 	return a == b;
@@ -222,7 +227,7 @@ bool Test::assert_equals(long a, long b, const char* str, bool hard_fail)
 */
 bool Test::assert_equals(double a, double b, double prec, const char* str, bool hard_fail)
 {
-	if (std::abs(a - b) > prec)
+	if (abs(a - b) > prec)
 	{
 		// Messages
 		const char* assertionfailed = "ASSERTION FAILED: ";
@@ -251,10 +256,7 @@ bool Test::assert_equals(double a, double b, double prec, const char* str, bool 
 		}
 		resstr[resstriter] = '\n';
 		resstriter++;
-
-		// Throw exception if it's supposed to hard stop
-		if (hard_fail) throw Failed_Assertion_Exception(1);
 	}
-	return (std::abs(a - b) <= prec);
+	return (abs(a - b) <= prec);
 }
 

@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "../Transmission.h"
+#include "Transmission.h"
 #include "Assert.h"
 #include "Test_FloatToBinary.h"
 

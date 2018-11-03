@@ -1,12 +1,17 @@
 #pragma once
 
-#include "../Default_Config.h"
+#include "Default_Config.h"
 
 namespace Test
 {
 	/** Test Results String */
 	extern char resstr[test_str_length];
 	extern unsigned int resstriter;
+	
+	/**
+	 * Returns the absolute value of a double
+	 */
+	double abs(double n);
 
 	/**
 	* Assertion function, with associated exception that it should throw

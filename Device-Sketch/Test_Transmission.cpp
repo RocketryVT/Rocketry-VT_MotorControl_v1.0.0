@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
-#include "../Default_Config.h"
-#include "../Transmission.h"
+#include "Default_Config.h"
+#include "Transmission.h"
 #include "Assert.h"
 #include "Test_Transmission.h"
 
