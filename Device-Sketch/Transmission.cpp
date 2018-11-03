@@ -5,7 +5,7 @@
 #include "Transmission.h"
 #include "Default_Config.h"
 #include "Assert.h"
-#include "Test_main.h"
+#include "Test_all.h"
 #include "XBee_IO.h"
 
 /**
@@ -203,27 +203,15 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		return;
 	case 0xB0: // Do Unit Tests
 		
-		// Type
-		str[3] = 0x52;
-		
 		// Run Tests
-//		Test_main(1);
-//		
-//		// Compile string
-//		for (unsigned int i = 0; i < Test::resstriter; i++ ){
-//			str[4 + i] = Test::resstr[i];
-//		}
-//		Test::resstr;
-//		Test::resstriter;
+		run_tests(true);
 		
-		// Length
-		str[2] = 0; // TODO
+		// Compile string
+		for (unsigned int i = 0; i < Test::resstriter; i++ ){
+			str[i] = Test::resstr[i];
+		}
 		
-		// Checksum
-		//str[36] = 15;
-		//str[37] = 16;
-		
-		*len = 0; // TODO
+		*len = Test::resstriter; // TODO
 		
 		return;
 	default: // Do nothing

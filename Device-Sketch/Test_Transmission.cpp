@@ -42,6 +42,17 @@ bool Test_0x51() {
 
 	bool pass = true;
 
+	// Save current data
+	unsigned long START_TIME_old             = START_TIME;
+	int           STATUS_old                 = STATUS;
+	float         PRESSURE_OXIDIZER_old      = PRESSURE_OXIDIZER;
+	float         PRESSURE_COMBUSTION_old    = PRESSURE_COMBUSTION;
+	float         TEMPERATURE_PRECOMB_old    = TEMPERATURE_PRECOMB;
+	float         TEMPERATURE_COMBUSTION_old = TEMPERATURE_COMBUSTION;
+	float         THRUST_old                 = THRUST;
+	unsigned char NEW_DATA_old               = NEW_DATA;
+	unsigned int  MODE_old                   = MODE;
+	
 	// Initialize global data
 	START_TIME = 0;
 	STATUS = 0;
@@ -102,6 +113,17 @@ bool Test_0x51() {
 	pass &= assert_equals((long)out[32], (long)str[32], "Incorrect value on output 32");
 	pass &= assert_equals((long)out[33], (long)str[33], "Incorrect value on output 33");
 
+	// Reset Old Data
+	START_TIME             = START_TIME_old;
+	STATUS                 = STATUS_old;
+	PRESSURE_OXIDIZER      = PRESSURE_OXIDIZER_old;
+	PRESSURE_COMBUSTION    = PRESSURE_COMBUSTION_old;
+	TEMPERATURE_PRECOMB    = TEMPERATURE_PRECOMB_old;
+	TEMPERATURE_COMBUSTION = TEMPERATURE_COMBUSTION_old;
+	THRUST                 = THRUST_old;
+	NEW_DATA               = NEW_DATA_old;
+	MODE                   = MODE_old;
+	
 	return pass;
 }
 
@@ -118,6 +140,17 @@ bool Test_0x10() {
 
 	bool pass = true;
 
+	// Save current data
+	unsigned long START_TIME_old             = START_TIME;
+	int           STATUS_old                 = STATUS;
+	float         PRESSURE_OXIDIZER_old      = PRESSURE_OXIDIZER;
+	float         PRESSURE_COMBUSTION_old    = PRESSURE_COMBUSTION;
+	float         TEMPERATURE_PRECOMB_old    = TEMPERATURE_PRECOMB;
+	float         TEMPERATURE_COMBUSTION_old = TEMPERATURE_COMBUSTION;
+	float         THRUST_old                 = THRUST;
+	unsigned char NEW_DATA_old               = NEW_DATA;
+	unsigned int  MODE_old                   = MODE;
+	
 	// Initialize global data
 	MODE = 2;
 
@@ -142,6 +175,17 @@ bool Test_0x10() {
 	buildPacket(out, &len, 0x10);
 	pass &= assert_equals((long)out[4], 11, "Incorrect value on output  4");
 
+	// Reset Old Data
+	START_TIME             = START_TIME_old;
+	STATUS                 = STATUS_old;
+	PRESSURE_OXIDIZER      = PRESSURE_OXIDIZER_old;
+	PRESSURE_COMBUSTION    = PRESSURE_COMBUSTION_old;
+	TEMPERATURE_PRECOMB    = TEMPERATURE_PRECOMB_old;
+	TEMPERATURE_COMBUSTION = TEMPERATURE_COMBUSTION_old;
+	THRUST                 = THRUST_old;
+	NEW_DATA               = NEW_DATA_old;
+	MODE                   = MODE_old;
+	
 	return pass;
 }
 
@@ -157,6 +201,17 @@ bool Test_0x52() {
 
 	bool pass = true;
 
+	// Save current data
+	unsigned long START_TIME_old             = START_TIME;
+	int           STATUS_old                 = STATUS;
+	float         PRESSURE_OXIDIZER_old      = PRESSURE_OXIDIZER;
+	float         PRESSURE_COMBUSTION_old    = PRESSURE_COMBUSTION;
+	float         TEMPERATURE_PRECOMB_old    = TEMPERATURE_PRECOMB;
+	float         TEMPERATURE_COMBUSTION_old = TEMPERATURE_COMBUSTION;
+	float         THRUST_old                 = THRUST;
+	unsigned char NEW_DATA_old               = NEW_DATA;
+	unsigned int  MODE_old                   = MODE;
+	
 	// Initialize global data
 	START_TIME = 0;
 	STATUS = 0;
@@ -224,5 +279,16 @@ bool Test_0x52() {
 	pass &= assert_equals((long)out[37], (long)str[37], "Incorrect value on output 37");
 	pass &= assert_equals((long)out[38], (long)str[38], "Incorrect value on output 38");
 
+	// Reset Old Data
+	START_TIME             = START_TIME_old;
+	STATUS                 = STATUS_old;
+	PRESSURE_OXIDIZER      = PRESSURE_OXIDIZER_old;
+	PRESSURE_COMBUSTION    = PRESSURE_COMBUSTION_old;
+	TEMPERATURE_PRECOMB    = TEMPERATURE_PRECOMB_old;
+	TEMPERATURE_COMBUSTION = TEMPERATURE_COMBUSTION_old;
+	THRUST                 = THRUST_old;
+	NEW_DATA               = NEW_DATA_old;
+	MODE                   = MODE_old;
+	
 	return pass;
 }

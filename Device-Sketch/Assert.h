@@ -11,7 +11,7 @@ namespace Test
 	/**
 	 * Returns the absolute value of a double
 	 */
-	double abs(double n);
+	double absolute(double n);
 
 	/**
 	* Assertion function, with associated exception that it should throw

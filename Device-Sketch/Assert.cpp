@@ -9,7 +9,7 @@ char Test::resstr[test_str_length] = { 0 };
 /**
  * Returns the absolute value of a double
  */
-double Test::abs(double n) {
+double Test::absolute(double n) {
 	if (n >= 0) {
 		return n;
 	}
@@ -227,10 +227,10 @@ bool Test::assert_equals(long a, long b, const char* str, bool hard_fail)
 */
 bool Test::assert_equals(double a, double b, double prec, const char* str, bool hard_fail)
 {
-	if (abs(a - b) > prec)
+	if (absolute(a - b) > prec)
 	{
 		// Messages
-		const char* assertionfailed = "ASSERTION FAILED: ";
+		const char* assertionfailed = "<!>";
 		const char* testfield = "\tExpected value but was another"; // TODO
 
 //		// Command line
@@ -257,6 +257,6 @@ bool Test::assert_equals(double a, double b, double prec, const char* str, bool 
 		resstr[resstriter] = '\n';
 		resstriter++;
 	}
-	return (abs(a - b) <= prec);
+	return (absolute(a - b) <= prec);
 }
 

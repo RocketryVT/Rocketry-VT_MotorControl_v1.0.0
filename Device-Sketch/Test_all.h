@@ -8,4 +8,4 @@
  *						 1: Run the unit test for Arduino device (output through serial port)
  *						 0: Run the unit test for Desktop (output through command line)
  */
-void Test_main(bool istestondevice = 1);
+void run_tests(bool istestondevice = 1);

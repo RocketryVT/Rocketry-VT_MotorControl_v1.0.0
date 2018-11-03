@@ -19,7 +19,6 @@ and Visual Studio likes to make a ton of files whenever it compiles a solution.
    -> C/C++ -> Additional Include Directories -> <Edit>
    -> Add the following (absolute) paths to the include directories:
       - C:/<YourPath>/Device-Sketch
-      - C:/<YourPath>/Device-Sketch/Tests
       - C:/<YourPath>/Device-Sketch/Desktop-tests-src
    -> OK
    -> OK
@@ -29,26 +28,23 @@ and Visual Studio likes to make a ton of files whenever it compiles a solution.
       - targetver.h (Optional)
    -> Open stdafx.h and delete all the code
    -> In Header Files, Add Existing files from Device-Sketch:
-      - Control.h
-	  - Transmission.h
-	  - stdafx.h
-   -> In Header Files, Add Existing files from Device-Sketch/Tests:
       - Assert.h
+	  - Default_Config.h
 	  - stdafx.h
+	  - Test_all.h
 	  - Test_FloatToBinary.h
-	  - Test_main.h
 	  - Test_Transmission.h
+	  - Transmission.h
    -> In Header Files, Add Existing files from Device-Sketch/Desktop-tests-src:
       - Arduino.h
 	  - stdafx.h
    -> In Source Files, Add Existing files from Device-Sketch:
-      - Control.cpp
-	  - Transmission.cpp
-   -> In Source Files, Add Existing files from Device-Sketch/Tests:
       - Assert.cpp
+	  - Default_Config.cpp
+	  - Test_all.cpp
 	  - Test_FloatToBinary.cpp
-	  - Test_main.cpp
 	  - Test_Transmission.cpp
+	  - Transmission.cpp
    -> In Source Files, Add Existing files from Device-Sketch/Desktop-tests-src:
       - Arduino.cpp
 	  - Unit-Tests-PC.cpp
