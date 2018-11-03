@@ -2,6 +2,7 @@
 
 #define test_str_length 1024
 #define __PROGRAM_VERSION__ "MOTOR CONTROL 1.0.0"
+#define __LF__ 10 // Newline character
 
 namespace Default_Config {
 

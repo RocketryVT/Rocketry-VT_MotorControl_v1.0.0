@@ -45,18 +45,12 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		// Fill str with firmware version string
 		i = 0;
 		while (__PROGRAM_VERSION__[i]){
-			str[3+i] = __PROGRAM_VERSION__[i];
+			str[i] = __PROGRAM_VERSION__[i];
 			i++;
 		}
-		i--;
-
-		// Checksum
-		str[i] = 0;
-		str[i+1] = 0;
-		
-		 // Length
-		*len = 3 + i + 2;
-		str[2] = *len;
+		str[i] = __LF__; // '\n'
+		i++;
+		*len = i;
 		return;
 	case 0x10:
 		str[2] = 2; // Length
