@@ -4,7 +4,7 @@
 #include "Transmission.h"
 #include "Hardware.h"
 #include "Arduino.h"
-#include "Tests/Test_main.h"
+#include "Test_main.h"
 
 /************ Global Variables ************/
 const unsigned char XBeeIO::BUFF_INPUT = 1000;

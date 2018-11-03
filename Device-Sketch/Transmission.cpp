@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "Transmission.h"
 #include "Default_Config.h"
-#include "Tests/Assert.h"
-#include "Tests/Test_main.h"
+#include "Assert.h"
+#include "Test_main.h"
 #include "XBee_IO.h"
 
 /**
