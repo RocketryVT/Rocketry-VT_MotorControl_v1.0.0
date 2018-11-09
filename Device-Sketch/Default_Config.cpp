@@ -12,11 +12,11 @@ unsigned long Default_Config::START_TIME = 0;
 
 /* Data variables*/
 int State_Data::STATUS = 0;
-float State_Data::PRESSURE_OXIDIZER = 0;
-float State_Data::PRESSURE_COMBUSTION = 0;
-float State_Data::TEMPERATURE_COMBUSTION = 0;
-float State_Data::TEMPERATURE_PRECOMB = 0;
-float State_Data::TEMPERATURE_POSTCOMB = 0; //imp ltr
-float State_Data::THRUST = 0;
+float State_Data::DATA_P1 = 0;  // Pressure 1
+float State_Data::DATA_P2 = 0;  // Pressure 3
+float State_Data::DATA_T1 = 0;  // Temperature 1
+float State_Data::DATA_T2 = 0;  // Temperature 2
+float State_Data::DATA_T3 = 0;  // Temperature 3
+float State_Data::DATA_THR = 0; // Thrust / Force
 unsigned char State_Data::NEW_DATA = 0;
 unsigned int State_Data::MODE = 0;

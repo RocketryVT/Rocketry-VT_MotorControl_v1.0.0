@@ -62,5 +62,8 @@ bool clear_input_buffer(unsigned long ii = 0);
  */
 void dispbuff();
 
+/* Transmits the full data string in ASCII */
+void transmit_data_string();
+
 }
 

@@ -55,12 +55,31 @@ void control::loop() {
 	using namespace State_Data;
 	
 	unsigned long t;
+	unsigned long t_sendpacket = micros();
+	int mode_previous = MODE;
 	while (1) {
 		t = micros();
-		//NEW_DATA = update_data(); //temp
-		// Listen for input commands  
+		
+		// Update State
+		NEW_DATA = Hardware::update_data();
+		// TODO: State Control
+		
+		// Parse Input buffer and respond to commnands
 		update_input_buffer();
 		parse_input_buffer();
+		
+		// Mode changes
+		if (mode_previous == 0 && MODE > 0) {
+			Hardware::sdcard_openfile();
+		}
+		else if (mode_previous == 3 && MODE != 3) {
+			Hardware::sdcard_closefile();
+		}
+		
+		// If it is time to send packet, do so
+		
+		
+		// Wait until next iteration
 		
 		/* MODE states */
 		// 0 - Waiting
@@ -69,13 +88,15 @@ void control::loop() {
 		// 3 - Firing
 		// 4 - Stopped
 		// 5 - Simulation
-		if (0 < MODE && MODE < 4) {
+		if (MODE == 1 || MODE == 2 || MODE == 3) {
 			// Data Collection
-			NEW_DATA = Hardware::update_data();
 			transmit_data(DATA_OUT_TYPE);
+			Hardware::sdcard_write(DATA_OUT_TYPE);
 			//saveDataToSD();
-			NEW_DATA = 0;
 		}
+		
+		// Iterate
+		mode_previous = MODE;
 		
 		// Time to delay
 		unsigned long t_delta_us = micros() - t;
@@ -90,7 +111,6 @@ void control::reset() {
 	delay(data_period_ms);
 	XBeeIO::transmit_data(0x00);
 	State_Data::MODE = 0;
-	Hardware::initializeSaveFile();
 	START_TIME = micros();
 }
 

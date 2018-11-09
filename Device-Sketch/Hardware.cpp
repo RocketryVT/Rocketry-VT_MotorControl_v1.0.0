@@ -1,25 +1,37 @@
 #include "Hardware.h"
 #include "Default_Config.h"
 #include "XBee_IO.h"
+#include "Transmission.h"
 #include "Arduino.h"
 #include "Adafruit_MAX31855.h"
+#include "HX711.h"
 
 /* LED pin number */
 int Hardware::pin_LED = 7;
 
 //NEW CODE
 /*sets the analog pin for oxidizer transducer*/
-int Hardware::oxidizerTransPin = A1;
+int Hardware::pin_P1 = A1;
 /*sets up analog pin for c.chamber transducer*/
-int Hardware::combustionTransPin = A2;
+int Hardware::pin_P2 = A2;
+
+
+/* Load cell object */
+#define calibration_factor -10000.0 //This value is obtained using the SparkFun_HX711_Calibration sketch
+LS_DOUT = 11;
+LS_CLK = 12;
+HX711 loadcell(LS_DOUT, LS_CLK);
 
 /*sets pins for themrocouples*/
-int8_t Hardware::preCombThermDOpin = 2;
-int8_t Hardware::preCombThermCSpin = 3;
-int8_t Hardware::preCombThermCLKpin = 4;
-int8_t Hardware::combChamberThermDOpin = 5;
-int8_t Hardware::combChamberThermCSpin = 6;
-int8_t Hardware::combChamberThermCLKpin = 7;
+int8_t Hardware::pin_T1_DO = 2;
+int8_t Hardware::pin_T1_CS = 3;
+int8_t Hardware::pin_T1_CLK = 4;
+int8_t Hardware::pin_T2_DO = 5;
+int8_t Hardware::pin_T2_CS = 6;
+int8_t Hardware::pin_T2_CLK = 7;
+int8_t Hardware::pin_T3_DO = 8;
+int8_t Hardware::pin_T3_CS = 9;
+int8_t Hardware::pin_T3_CLK = 10;
 
 int8_t MAXDO  = 2;
 int8_t MAXCS  = 3;
@@ -29,14 +41,13 @@ int8_t MAXCLK = 4;
 //Adafruit_MAX31855 thermocouple2(MAXCLK, MAXCS, MAXDO);
 
 /*intialize both thermocouples*/
-Adafruit_MAX31855 preCombThermocouple(Hardware::preCombThermCLKpin, Hardware::preCombThermCSpin, Hardware:: preCombThermDOpin);
-Adafruit_MAX31855 combChamberThermocouple(Hardware::combChamberThermCLKpin, Hardware::combChamberThermCSpin, Hardware:: combChamberThermDOpin);
+Adafruit_MAX31855 thermocouple_1(Hardware::pin_T1_CLK, Hardware::pin_T1_CS, Hardware:: pin_T1_DO);
+Adafruit_MAX31855 thermocouple_2(Hardware::pin_T2_CLK, Hardware::pin_T2_CS, Hardware:: pin_T2_DO);
+Adafruit_MAX31855 thermocouple_3(Hardware::pin_T3_CLK, Hardware::pin_T3_CS, Hardware:: pin_T3_DO);
 
-//NEW CODE
-/*imports dataFile */
-File Hardware::dataFile;
+/*imports sdcard_datafile */
+File Hardware::sdcard_datafile;
 
-//NEW CODE
 //create motor shield object
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 /*connect stepper with 200 steps per rotation*/
@@ -48,9 +59,8 @@ Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 1);
 /* LED Data */
 bool Hardware::is_LED_on = false;
 
-//NEW CODE
 /*chip for sd card logger*/
-const int Hardware::chipSelect = 4;
+const int Hardware::sdcard_chipSelect = 4;
 
 /**
    Updates data variables by calling functions that control data
@@ -68,82 +78,50 @@ const int Hardware::chipSelect = 4;
           0x00010000 - THRUST
 */
 unsigned char Hardware::update_data() {
-  //MODE = 1; //temp
   
   using namespace State_Data;
   using namespace Default_Config;
   
-  int valvesOpen = 0; //flag for if valves are open
   if (MODE <= 4 && MODE > 0) {
-    PRESSURE_OXIDIZER = readOxidizerPressure(); // Insert Patrick's code here
-    PRESSURE_COMBUSTION = 2.f; // Insert Patrick's code here
-    TEMPERATURE_PRECOMB = preCombThermocouple.readFarenheit();
-    TEMPERATURE_COMBUSTION = combChamberThermocouple.readFarenheit(); // Insert Patrick's code here
-    // TEMPERATURE_POSTCOMB = 4; // Insert Patrick's code here, implement ltr
-    THRUST = 5.f; // Insert Patrick's code here
-    if (MODE == 1) {
-      //power to motor
-      //Serial.println("MOTOR IS ARMED");
-    }
-
-    if (MODE == 2) {
-      //Serial.println("MOTOR IS FIRING");
-      if (valvesOpen == 0) {
-        //open steppr
-        //open solenoid
-        //ignite ematch
-        valvesOpen = 1;
-      }
-      saveDataToSD();
-    }
-
-    if (MODE == 4) {
-      //Serial.println("MOTOR STOP COMMANDED");
-      //close solenoid
-      //close stepper
-      dataFile.close();
-    }
+    DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
+    DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
+    DATA_T1 = thermocouple_1.readFarenheit();
+    DATA_T2 = thermocouple_2.readFarenheit(); // Insert Patrick's code here
+	DATA_T3 = thermocouple_3.readFarenheit(); // Insert Patrick's code here
+    DATA_THR = loadcell.get_units(); // Load cell measure thrust
   }
 
-  return 0x1F; // Insert Patrick's code here, the return value is used for error checking
+  return 0x3F; // Insert Patrick's code here, the return value is used for error checking
 }
 
 /**
    Creates a file to save data to
 */
-void Hardware::initializeSaveFile() {
-  // Open serial communications and wait for port to open:
-  Serial.begin(38400);
-  Serial.print("Initializing SD card...");
+void Hardware::sdcard_openfile() {
 
   // see if the card is present and can be initialized:
-  if (!SD.begin(chipSelect)) {
-    Serial.println("Card failed, or not present");
-    // don't do anything more:
+  if (!SD.begin(sdcard_chipSelect)) {
     return;
   }
-  Serial.println("card initialized.");
-  dataFile = SD.open("datalog.txt", FILE_WRITE);
+  sdcard_datafile = SD.open("data.txt", FILE_WRITE);
+}
 
-  // throws error is file os not opened
-  if (!dataFile) {
-    Serial.println("error opening datalog.txt");
-  }
+/**
+   Closes currently open save file
+*/
+void Hardware::sdcard_closefile() {
+	sdcard_datafile.close();
 }
 
 /**
    Saves the data values to a line on a file in the SD card
 */
-void Hardware::saveDataToSD() {
-  using namespace State_Data;
-  
-  String dataString = "";
-
-  dataString += String(PRESSURE_OXIDIZER);
-  dataString += String(PRESSURE_COMBUSTION);
-  dataString += String(TEMPERATURE_PRECOMB);
-  dataString += String(TEMPERATURE_COMBUSTION);
-  dataFile.println(dataString);
+void Hardware::sdcard_write(unsigned int datatype) {
+	unsigned int len = 0;
+	Transmission::buildPacket(XBeeIO::output_buff, &len, datatype);
+	sdcard_datafile.write(XBeeIO::output_buff, len);
+	XBee.println("Writing SD");
+	XBee.write(XBeeIO::output_buff, len);
 }
 
 /**
@@ -168,13 +146,36 @@ void Hardware::closeStepperMotor() {
 }
 
 /**
+   reads pressure in oxidizer tank
+   @return float = pressure in psi
+*/
+float Hardware::get_pressure_1_data()
+{
+  int sensorVal = analogRead(pin_P1);
+  float voltage = (sensorVal * 5.0) / 1024.0;
+  float pressure_psi = (((250.0f * voltage)) - 125.0f);
+  return pressure_psi;
+
+}
+
+/**
+   reads pressure in cobustion chamber
+   @return float = pressure in psi
+*/
+float Hardware::get_pressure_2_data()
+{
+  int sensorVal = analogRead(pin_P2);
+  float voltage = (sensorVal * 5.0) / 1024.0;
+  float pressure_psi = (((250.0f * voltage)) - 125.0f);
+  return pressure_psi;
+
+}
+
+/**
    Turns on the LED
 
    INPUT
    bool output -> true to output "LED ON", true by default
-
-   RETURN
-   void
 */
 void Hardware::turn_LED_on(bool output) {
   if (output) XBee.print("LED ON\n");
@@ -189,9 +190,6 @@ void Hardware::turn_LED_on(bool output) {
 
    INPUT
    bool output -> true to output "LED OFF", true by default
-
-   RETURN
-   void
 */
 void Hardware::turn_LED_off(bool output) {
   if (output) XBee.print("LED OFF\n");
@@ -200,59 +198,5 @@ void Hardware::turn_LED_off(bool output) {
   // TOGGLE LED ON
   digitalWrite(pin_LED, LOW);
 }
-
-//NEW CODE
-/**
-   reads pressure in oxidizer tank
-   @return float = pressure in psi
-*/
-float Hardware::readOxidizerPressure()
-{
-  int sensorVal = analogRead(oxidizerTransPin);
-  float voltage = (sensorVal * 5.0) / 1024.0;
-  float pressure_psi = (((250.0f * voltage)) - 125.0f);
-  return pressure_psi;
-
-}
-
-//NEW CODE
-/**
-   reads pressure in cobustion chamber
-   @return float = pressure in psi
-*/
-float Hardware::readCombChamberPressure()
-{
-  int sensorVal = analogRead(combustionTransPin);
-  float voltage = (sensorVal * 5.0) / 1024.0;
-  float pressure_psi = (((250.0f * voltage)) - 125.0f);
-  return pressure_psi;
-
-}
-
-//NEW CODE
-/**
-   calculates motor safety factor
-   at any given time based on temp and
-   combustion chamb. pressure.
-   Uses highest temp of aluminum, assumes
-   motor is 6061 Al. Dimensisons hardcoded for now
-   @param preCombTemp = Temp of precombustion chamber
-   @param combChambTemp = temp of main combustion chamber
-   @param postCombTemp = temperature of post combustion chamber
-   @return float = calculated safety falctor
-*/
-float Hardware::calcSafetyFact(float preCombTemp, float combChambTemp, float postCombTemp)
-{
-  //Find highest temp of inputs
-  //via interpolation of data look up table, pull SigYield of aluminum
-  //based on motor dimesnsions and comb press, calc hoop stress
-  //consider making motor dimensions an input
-  //calc safety fact
-  return 0.0f;
-}
-
-
-
-
 
 

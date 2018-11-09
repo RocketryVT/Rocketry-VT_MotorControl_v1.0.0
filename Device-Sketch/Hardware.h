@@ -9,27 +9,27 @@ namespace Hardware {
 /* LED pin number */
 extern int pin_LED;
 
-//NEW STUFF----------------------
-/* Analog pin to read Voltage from for pressure tranny in oxy tank*/
-extern int oxidizerTransPin;
-/*analog pin to read off of for comb. chamber pressure*/
-extern int combustionTransPin;
+/* Pressure Transducer pins */
+extern int pin_P1; /* Analog pin to read Voltage from for pressure tranny in oxy tank*/
+extern int pin_P2; /*analog pin to read off of for comb. chamber pressure*/
 
 /*digital pins for  thermocouples*/
-extern int8_t preCombThermDOpin;
-extern int8_t preCombThermCSpin;
-extern int8_t preCombThermCLKpin;
-extern int8_t combChamberThermDOpin;
-extern int8_t combChamberThermCSpin;
-extern int8_t combChamberThermCLKpin;
+extern int8_t pin_T1_DO;
+extern int8_t pin_T1_CS;
+extern int8_t pin_T1_CLK;
+extern int8_t pin_T2_DO;
+extern int8_t pin_T2_CS;
+extern int8_t pin_T2_CLK;
+extern int8_t pin_T3_DO;
+extern int8_t pin_T3_CS;
+extern int8_t pin_T3_CLK;
 
-//NEW CODE
 /*chip select pin for SD logger*/
-extern const int chipSelect;
+extern const int sdcard_chipSelect;
 
 //NEW CODE
 /*data file for logging to sd*/
-extern File dataFile;
+extern File sdcard_datafile;
 
 /* XBee RX, TX pins */
 // Connect DIN to pin 18 ,and DOUT to pin 19
@@ -59,12 +59,17 @@ unsigned char update_data();
 /**
    Creates a file to save data to
 */
-void initializeSaveFile();
+void sdcard_openfile();
+
+/**
+   Closes currently open save file
+*/
+void sdcard_closefile();
 
 /**
    Saves the data values to a line on a file in the SD card
 */
-void saveDataToSD();
+void sdcard_write(unsigned int datatype);
 
 /**
    Initializes the stepper motor
@@ -82,13 +87,23 @@ void closeStepperMotor();
 void openStepperMotor();
 
 /**
+	reads pressure in oxidizer tank
+	@return float = pressure in oxy tank in psi
+*/
+float get_pressure_1_data();
+
+
+/**
+   reads pressure in combustion chamber in psi
+   @return float = pressure in chamber (psi)
+*/
+float get_pressure_2_data();
+
+/**
   Turns on the LED
 
   INPUT
   bool output -> true to output "LED ON", true by default
-
-  RETURN
-  void
 */
 void turn_LED_on(bool output = false);
 
@@ -97,43 +112,12 @@ void turn_LED_on(bool output = false);
 
   INPUT
   bool output -> true to output "LED OFF", true by default
-
-  RETURN
-  void
 */
 void turn_LED_off(bool output = false);
 
-//NEW CODE
-/**reads pressure in oxidizer tank*/
-/**
-   @return float = pressure in oxy tank in psi
-*/
-float readOxidizerPressure();
-
-
-//NEW CODE
-/**
-   reads pressure in combustion chamber in psi
-   @return float = pressure in chamber (psi)
-*/
-float readCombChamberPressure();
-
-//NEW CODE
-/**
-   calculates motor safety factor
-   at any given time based on temp and
-   combustion chamb. pressure.
-   Uses highest temp of aluminum, assumes
-   motor is 6061 Al. Dimensisons hardcoded for now
-   @param preCombTemp = Temp of precombustion chamber
-   @param combChambTemp = temp of main combustion chamber
-   @param postCombTemp = temperature of post combustion chamber
-   @return float = calculated safety falctor
-*/
-float calcSafetyFact(float preCombTemp, float combChambTemp, float postCombTemp);
-
-
 }
+
+
 
 
 

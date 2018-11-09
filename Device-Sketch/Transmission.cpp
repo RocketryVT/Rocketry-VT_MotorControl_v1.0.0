@@ -58,12 +58,58 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[4] = MODE; // Mode
 		*len = 5;
 		return;
+	case 0x40: // Solid Motor Static Fire Tests 2018-11-11
+		TIME = micros() - START_TIME;
+
+		// Length
+		*len = 22;
+		str[2] = *len;
+
+		// Type
+		str[3] = 0x40;
+
+		// Time
+		str[4] = (unsigned char)(TIME >> 24) & 0xFF;
+		str[5] = (unsigned char)(TIME >> 16) & 0xFF;
+		str[6] = (unsigned char)(TIME >> 8) & 0xFF;
+		str[7] = (unsigned char)(TIME >> 0) & 0xFF;
+
+		// Mode
+		str[8] = MODE;
+
+		// Status
+		str[9] = (unsigned char)(STATUS >> 8);
+		str[10] = (unsigned char)(STATUS >> 8);
+
+		// Temperature Oxidizer
+		floatToChars(DATA_T1, &a, &b, &c, &d);
+		str[11] = a;
+		str[12] = b;
+		str[13] = c;
+		str[14] = d;
+
+		// Thrust
+		floatToChars(DATA_THR, &a, &b, &c, &d);
+		str[15] = a;
+		str[16] = b;
+		str[17] = c;
+		str[18] = d;
+
+		// New Data
+		str[19] = NEW_DATA;
+
+		// Checksum
+		str[20] = 0;
+		str[21] = 0;
+
+		return;
 	case 0x51: // Cold flow test data
 		TIME = micros() - START_TIME;
 
 		// Length
-		str[2] = 31;
-
+		*len = 34;
+		str[2] = *len;
+		
 		// Type
 		str[3] = 0x51;
 
@@ -81,35 +127,35 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[10] = (unsigned char)(STATUS >> 8);
 
 		// Pressure Oxidizer
-		floatToChars(PRESSURE_OXIDIZER, &a, &b, &c, &d);
+		floatToChars(DATA_P1, &a, &b, &c, &d);
 		str[11] = a;
 		str[12] = b;
 		str[13] = c;
 		str[14] = d;
 
 		// Pressure Combustion
-		floatToChars(PRESSURE_COMBUSTION, &a, &b, &c, &d);
+		floatToChars(DATA_P2, &a, &b, &c, &d);
 		str[15] = a;
 		str[16] = b;
 		str[17] = c;
 		str[18] = d;
 
 		// Temperature Oxidizer
-		floatToChars(TEMPERATURE_PRECOMB, &a, &b, &c, &d);
+		floatToChars(DATA_T1, &a, &b, &c, &d);
 		str[19] = a;
 		str[20] = b;
 		str[21] = c;
 		str[22] = d;
 
 		// Temperature Combustion
-		floatToChars(TEMPERATURE_COMBUSTION, &a, &b, &c, &d);
+		floatToChars(DATA_T2, &a, &b, &c, &d);
 		str[23] = a;
 		str[24] = b;
 		str[25] = c;
 		str[26] = d;
 
 		// Thrust
-		floatToChars(THRUST, &a, &b, &c, &d);
+		floatToChars(DATA_THR, &a, &b, &c, &d);
 		str[27] = a;
 		str[28] = b;
 		str[29] = c;
@@ -122,15 +168,13 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[32] = 15;
 		str[33] = 16;
 
-		// Length
-		*len = 34;
-
 		return;
 	case 0x52: // Cold flow test data
 		TIME = micros() - START_TIME;
 
 		// Length
-		str[2] = 38;
+		*len = 38;
+		str[2] = *len;
 
 		// Type
 		str[3] = 0x52;
@@ -149,42 +193,42 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[10] = (unsigned char)(STATUS >> 8);
 
 		// Pressure Oxidizer
-		floatToChars(PRESSURE_OXIDIZER, &a, &b, &c, &d);
+		floatToChars(DATA_P1, &a, &b, &c, &d);
 		str[11] = a;
 		str[12] = b;
 		str[13] = c;
 		str[14] = d;
 
 		// Pressure Combustion
-		floatToChars(PRESSURE_COMBUSTION, &a, &b, &c, &d);
+		floatToChars(DATA_P2, &a, &b, &c, &d);
 		str[15] = a;
 		str[16] = b;
 		str[17] = c;
 		str[18] = d;
 
 		// Temperature Oxidizer
-		floatToChars(TEMPERATURE_PRECOMB, &a, &b, &c, &d);
+		floatToChars(DATA_T1, &a, &b, &c, &d);
 		str[19] = a;
 		str[20] = b;
 		str[21] = c;
 		str[22] = d;
 
 		// Temperature Combustion
-		floatToChars(TEMPERATURE_COMBUSTION, &a, &b, &c, &d);
+		floatToChars(DATA_T2, &a, &b, &c, &d);
 		str[23] = a;
 		str[24] = b;
 		str[25] = c;
 		str[26] = d;
 
 		// Temperature Post Combustion
-		floatToChars(TEMPERATURE_POSTCOMB, &a, &b, &c, &d);
+		floatToChars(DATA_T3, &a, &b, &c, &d);
 		str[27] = a;
 		str[28] = b;
 		str[29] = c;
 		str[30] = d;
 
 		// Thrust
-		floatToChars(THRUST, &a, &b, &c, &d);
+		floatToChars(DATA_THR, &a, &b, &c, &d);
 		str[31] = a;
 		str[32] = b;
 		str[33] = c;
@@ -196,9 +240,6 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		// Checksum
 		str[36] = 15;
 		str[37] = 16;
-
-		// Length
-		*len = 38;
 
 		return;
 	case 0xB0: // Do Unit Tests

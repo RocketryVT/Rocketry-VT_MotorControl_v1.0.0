@@ -43,29 +43,29 @@ bool Test_0x51() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long START_TIME_old             = START_TIME;
-	int           STATUS_old                 = STATUS;
-	float         PRESSURE_OXIDIZER_old      = PRESSURE_OXIDIZER;
-	float         PRESSURE_COMBUSTION_old    = PRESSURE_COMBUSTION;
-	float         TEMPERATURE_PRECOMB_old    = TEMPERATURE_PRECOMB;
-	float         TEMPERATURE_COMBUSTION_old = TEMPERATURE_COMBUSTION;
-	float         THRUST_old                 = THRUST;
-	unsigned char NEW_DATA_old               = NEW_DATA;
-	unsigned int  MODE_old                   = MODE;
+	unsigned long START_TIME_old  = START_TIME;
+	int           STATUS_old      = STATUS;
+	float         DATA_P1_old     = DATA_P1;
+	float         DATA_P2_old     = DATA_P2;
+	float         DATA_T1_old     = DATA_T1;
+	float         DATA_T2_old     = DATA_T2;
+	float         DATA_THR_old    = DATA_THR;
+	unsigned char NEW_DATA_old    = NEW_DATA;
+	unsigned int  MODE_old        = MODE;
 	
 	// Initialize global data
 	START_TIME = 0;
 	STATUS = 0;
-	PRESSURE_OXIDIZER = 1;
-	PRESSURE_COMBUSTION = 2;
-	TEMPERATURE_PRECOMB = 3;
-	TEMPERATURE_COMBUSTION = 4;
-	THRUST = 5;
+	DATA_P1 = 1;
+	DATA_P2 = 2;
+	DATA_T1 = 3;
+	DATA_T2 = 4;
+	DATA_THR = 5;
 	NEW_DATA = 0x1F;
 	MODE = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
-	unsigned char str[] = { 170, 20, 31, 81,  0,  1,   226, \
+	unsigned char str[] = { 170, 20, 34, 81,  0,  1,   226, \
 		64,  2,  0,  0,   63, 128, 0,   \
 		0,   64, 0,  0,   0,  64,  64,  \
 		0,   0,  64, 128, 0,  0,   64,  \
@@ -116,11 +116,11 @@ bool Test_0x51() {
 	// Reset Old Data
 	START_TIME             = START_TIME_old;
 	STATUS                 = STATUS_old;
-	PRESSURE_OXIDIZER      = PRESSURE_OXIDIZER_old;
-	PRESSURE_COMBUSTION    = PRESSURE_COMBUSTION_old;
-	TEMPERATURE_PRECOMB    = TEMPERATURE_PRECOMB_old;
-	TEMPERATURE_COMBUSTION = TEMPERATURE_COMBUSTION_old;
-	THRUST                 = THRUST_old;
+	DATA_P1                = DATA_P1_old;
+	DATA_P2                = DATA_P2_old;
+	DATA_T1                = DATA_T1_old;
+	DATA_T2                = DATA_T2_old;
+	DATA_THR               = DATA_THR_old;
 	NEW_DATA               = NEW_DATA_old;
 	MODE                   = MODE_old;
 	
@@ -141,15 +141,15 @@ bool Test_0x10() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long START_TIME_old             = START_TIME;
-	int           STATUS_old                 = STATUS;
-	float         PRESSURE_OXIDIZER_old      = PRESSURE_OXIDIZER;
-	float         PRESSURE_COMBUSTION_old    = PRESSURE_COMBUSTION;
-	float         TEMPERATURE_PRECOMB_old    = TEMPERATURE_PRECOMB;
-	float         TEMPERATURE_COMBUSTION_old = TEMPERATURE_COMBUSTION;
-	float         THRUST_old                 = THRUST;
-	unsigned char NEW_DATA_old               = NEW_DATA;
-	unsigned int  MODE_old                   = MODE;
+	unsigned long START_TIME_old  = START_TIME;
+	int           STATUS_old      = STATUS;
+	float         DATA_P1_old     = DATA_P1;
+	float         DATA_P2_old     = DATA_P2;
+	float         DATA_T1_old     = DATA_T1;
+	float         DATA_T2_old     = DATA_T2;
+	float         DATA_THR_old    = DATA_THR;
+	unsigned char NEW_DATA_old    = NEW_DATA;
+	unsigned int  MODE_old        = MODE;
 	
 	// Initialize global data
 	MODE = 2;
@@ -178,11 +178,11 @@ bool Test_0x10() {
 	// Reset Old Data
 	START_TIME             = START_TIME_old;
 	STATUS                 = STATUS_old;
-	PRESSURE_OXIDIZER      = PRESSURE_OXIDIZER_old;
-	PRESSURE_COMBUSTION    = PRESSURE_COMBUSTION_old;
-	TEMPERATURE_PRECOMB    = TEMPERATURE_PRECOMB_old;
-	TEMPERATURE_COMBUSTION = TEMPERATURE_COMBUSTION_old;
-	THRUST                 = THRUST_old;
+	DATA_P1                = DATA_P1_old;
+	DATA_P2                = DATA_P2_old;
+	DATA_T1                = DATA_T1_old;
+	DATA_T2                = DATA_T2_old;
+	DATA_THR               = DATA_THR_old;
 	NEW_DATA               = NEW_DATA_old;
 	MODE                   = MODE_old;
 	
@@ -202,25 +202,26 @@ bool Test_0x52() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long START_TIME_old             = START_TIME;
-	int           STATUS_old                 = STATUS;
-	float         PRESSURE_OXIDIZER_old      = PRESSURE_OXIDIZER;
-	float         PRESSURE_COMBUSTION_old    = PRESSURE_COMBUSTION;
-	float         TEMPERATURE_PRECOMB_old    = TEMPERATURE_PRECOMB;
-	float         TEMPERATURE_COMBUSTION_old = TEMPERATURE_COMBUSTION;
-	float         THRUST_old                 = THRUST;
-	unsigned char NEW_DATA_old               = NEW_DATA;
-	unsigned int  MODE_old                   = MODE;
+	unsigned long START_TIME_old   = START_TIME;
+	int           STATUS_old       = STATUS;
+	float         DATA_P1_old      = DATA_P1;
+	float         DATA_P2_old      = DATA_P2;
+	float         DATA_T1_old      = DATA_T1;
+	float         DATA_T2_old      = DATA_T2;
+	float         DATA_T3_old      = DATA_T3;
+	float         DATA_THR_old     = DATA_THR;
+	unsigned char NEW_DATA_old     = NEW_DATA;
+	unsigned int  MODE_old         = MODE;
 	
 	// Initialize global data
 	START_TIME = 0;
 	STATUS = 0;
-	PRESSURE_OXIDIZER = 1;
-	PRESSURE_COMBUSTION = 2;
-	TEMPERATURE_PRECOMB = 3;
-	TEMPERATURE_COMBUSTION = 4;
-	TEMPERATURE_POSTCOMB = 5;
-	THRUST = 6;
+	DATA_P1 = 1;
+	DATA_P2 = 2;
+	DATA_T1 = 3;
+	DATA_T2 = 4;
+	DATA_T3 = 5;
+	DATA_THR = 6;
 	NEW_DATA = 0x1F;
 	MODE = 2;
 
@@ -282,11 +283,12 @@ bool Test_0x52() {
 	// Reset Old Data
 	START_TIME             = START_TIME_old;
 	STATUS                 = STATUS_old;
-	PRESSURE_OXIDIZER      = PRESSURE_OXIDIZER_old;
-	PRESSURE_COMBUSTION    = PRESSURE_COMBUSTION_old;
-	TEMPERATURE_PRECOMB    = TEMPERATURE_PRECOMB_old;
-	TEMPERATURE_COMBUSTION = TEMPERATURE_COMBUSTION_old;
-	THRUST                 = THRUST_old;
+	DATA_P1                = DATA_P1_old;
+	DATA_P2                = DATA_P2_old;
+	DATA_T1                = DATA_T1_old;
+	DATA_T2                = DATA_T2_old;
+	DATA_T3                = DATA_T3_old;
+	DATA_THR               = DATA_THR_old;
 	NEW_DATA               = NEW_DATA_old;
 	MODE                   = MODE_old;
 	

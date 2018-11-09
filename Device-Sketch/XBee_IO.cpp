@@ -50,9 +50,13 @@ void XBeeIO::transmit_data(unsigned int type) {
 
 	using namespace Transmission;
 
+	/* For debugging only */
+	if (type == 0x10) {
+		transmit_data_string();
+	}
+	
 	// Build packet and transmit it
 	unsigned int len = 0;
-	
 	buildPacket(output_buff, &len, type);
 	XBee.write(output_buff, len);
 	return;
@@ -157,24 +161,31 @@ bool XBeeIO::parse_input_buffer() {
 					XBee.print(max_time);
 					XBee.print(" s\n");
 				}
-				else if (input_buff[i] == 0x3A) { // Pocket sand
-					XBee.print("POCKET SAND!\n");
+				else if (input_buff[i] == 0x31) { // Set parameters
+					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
+					if (data_period_ms == 0) data_period_ms = 10;
+				}
+				else if (input_buff[i] == 0x36) { // Set Output Packet Type
+					DATA_OUT_TYPE = input_buff[i+1];
+					if (input_buff[i+1] == 0x10) {
+						transmit_data_string();
+					}
 				}
 				else if (input_buff[i] == 0x44) { // Print buffer for debugging
 					dispbuff();
 				}
 				else if (input_buff[i] == 0x50) { // Simple Simulation Packet
 					// See documentation for data packet structure
-					TIME					= micros();
-					DATA_OUT_TYPE			= input_buff[i+0];
-					MODE					= input_buff[i+1]; // 5
-					STATUS					= input_buff[i+2];
-					PRESSURE_OXIDIZER		= input_buff[i+3];
-					PRESSURE_COMBUSTION		= input_buff[i+4];
-					TEMPERATURE_PRECOMB     = input_buff[i+5];
-					TEMPERATURE_COMBUSTION 	= input_buff[i+6];
-					THRUST					= input_buff[i+7];
-					NEW_DATA				= input_buff[i+8];
+					TIME           = micros();
+					DATA_OUT_TYPE  = input_buff[i+0];
+					MODE           = input_buff[i+1]; // 5
+					STATUS         = input_buff[i+2];
+					DATA_P1		   = input_buff[i+3];
+					DATA_P2        = input_buff[i+4];
+					DATA_T1        = input_buff[i+5];
+					DATA_T2        = input_buff[i+6];
+					DATA_THR       = input_buff[i+7];
+					NEW_DATA       = input_buff[i+8];
 				}
 				else { // Unrecognized command
 					i--;
@@ -256,3 +267,30 @@ void XBeeIO::dispbuff() {
 	}
 }
 
+/* Transmits the full data string in ASCII */
+void XBeeIO::transmit_data_string() {
+		using namespace State_Data;
+		Default_Config::data_period_ms = 100;
+		XBee.print(micros());
+		XBee.print(",");
+		XBee.print(STATUS);
+		XBee.print(",");
+		XBee.print(DATA_P1);
+		XBee.print(",");
+		XBee.print(DATA_P2);
+		XBee.print(",");
+		XBee.print(DATA_T1);
+		XBee.print(",");
+		XBee.print(DATA_T2);
+		XBee.print(",");
+		XBee.print(DATA_T3);
+		XBee.print(",");
+		XBee.print(DATA_THR);
+		XBee.print(",");
+		XBee.print(NEW_DATA);
+		XBee.print(",");
+		XBee.print(MODE);
+		XBee.print(",");
+		XBee.print("ENDL");
+		XBee.write(__LF__);
+}
