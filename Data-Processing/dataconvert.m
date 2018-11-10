@@ -21,8 +21,9 @@ numunrecognized = 0;
 outfile_extension = '.csv';
 
 % File name
-path = 'C:/Users/Matthew/Documents/School/Rocketry/Motor_Control/Misc/';
-fnamein = [path,'LOG00058.TXT'];
+[file, path] = uigetfile('.TXT', 'Select the data file to convert', ...
+    'Multiselect', 'on');
+fnamein = [path, file];
 
 % Open data file
 fidin = fopen(fnamein, 'r');
