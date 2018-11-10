@@ -33,11 +33,12 @@ void control::setup() {
 	// Initialize serial ports
 	SDCard.begin(SD_BAUD);
 	XBee.begin(XBEE_BAUD);
-	XBee.begin(XBEE_BAUD);
 	
 	// Initialize hardware
 	Hardware::initializeStepperMotor();
 	Hardware::initializeLoadCell();
+	
+	// Call Reset operations
 	reset();
 }
 
@@ -62,14 +63,21 @@ void control::loop() {
 	unsigned long t_lastsdwrite = t;
 	unsigned long t_lastreceivepacket = t;
 	unsigned long t_sentpacket = t;
-	delay(data_period_ms);
+	
+	/* Reset Sensor Timings */
+	update_data(t);
+	State_Data::LAST_PRESSURE_TIME_US = t;
+	State_Data::LAST_TEMPERATURE_TIME_US = t;
+	State_Data::LAST_LOADCELL_TIME_US = t;
+	
+	delay(LOOP_PERIOD_MS);
 	
 	int mode_previous = MODE;
 	while (1) {
 		t = micros();
 		
 		// Update State
-		NEW_DATA = update_data();
+		update_data(t);
 		// TODO: State Control
 		
 		// Parse Input buffer and respond to commnands
@@ -113,18 +121,24 @@ void control::loop() {
 		
 		// Time to delay
 		unsigned long deltat_us = micros() - t;
-		unsigned long t_wait = data_period_ms - ((deltat_us/1000) % data_period_ms);
+		unsigned long t_wait = LOOP_PERIOD_MS - ((deltat_us/1000) % LOOP_PERIOD_MS);
 		delay( t_wait );
 	}
 }
 
 void control::reset() {
 	using namespace Default_Config;
+	
+	// Shutdown procedure
+	
+	/* I/O Reset */
 	XBeeIO::clear_input_buffer();
-	delay(data_period_ms);
+	delay(LOOP_PERIOD_MS);
 	XBeeIO::transmit_data(0x00);
+	
+	/* Control Data */
 	State_Data::MODE = 0;
 	START_TIME = micros();
-	Hardware::sdcard_closefile();
+	//Hardware::sdcard_closefile();
 }
 

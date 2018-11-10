@@ -53,6 +53,7 @@ void XBeeIO::transmit_data(unsigned int type) {
 	/* For debugging only */
 	if (type == 0xFF) {
 		transmit_data_string();
+		return;
 	}
 	
 	// Build packet and transmit it
@@ -145,24 +146,24 @@ bool XBeeIO::parse_input_buffer() {
 					// Close Stepper Motor
 					Hardware::closeStepperMotor();
 				}
-				else if (input_buff[i] == 0x20) { // Set parameters
-					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
-					max_time = input_buff[i+3]; 
-	
-					if (data_period_ms == 0) data_period_ms = 10;
-				}
-				else if (input_buff[i] == 0x21) { // Display parameters{
-					XBee.print("DATA_PERIOD: ");
-					XBee.print(data_period_ms);
-					XBee.print(" ms\n");
-					XBee.print("MAX_TIME: ");
-					XBee.print(max_time);
-					XBee.print(" s\n");
-				}
-				else if (input_buff[i] == 0x31) { // Set parameters
-					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
-					if (data_period_ms == 0) data_period_ms = 10;
-				}
+//				else if (input_buff[i] == 0x20) { // Set parameters
+//					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
+//					max_time = input_buff[i+3]; 
+//	
+//					if (data_period_ms == 0) data_period_ms = 10;
+//				}
+//				else if (input_buff[i] == 0x21) { // Display parameters{
+//					XBee.print("DATA_PERIOD: ");
+//					XBee.print(data_period_ms);
+//					XBee.print(" ms\n");
+//					XBee.print("MAX_TIME: ");
+//					XBee.print(max_time);
+//					XBee.print(" s\n");
+//				}
+//				else if (input_buff[i] == 0x31) { // Set parameters
+//					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
+//					if (data_period_ms == 0) data_period_ms = 10;
+//				}
 				else if (input_buff[i] == 0x36) { // Set Output Packet Type
 					DATA_OUT_TYPE = input_buff[i+1];
 					if (input_buff[i+1] == 0x10) {
@@ -249,8 +250,6 @@ bool XBeeIO::clear_input_buffer(unsigned long ii) {
 	return true;
 }
 
-
-
 /**
  * Displays hex values of the buffer to the XBee port
  */
@@ -268,7 +267,6 @@ void XBeeIO::dispbuff() {
 /* Transmits the full data string in ASCII */
 void XBeeIO::transmit_data_string() {
 		using namespace State_Data;
-		Default_Config::data_period_ms = 100;
 		XBee.print(micros());
 		XBee.print(",");
 		XBee.print(STATUS);

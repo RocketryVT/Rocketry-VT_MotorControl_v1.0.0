@@ -37,19 +37,40 @@ bool Hardware::is_LED_on = false;
           0x00001000 - TEMPERATURE_COMBUSTION
           0x00010000 - THRUST
 */
-unsigned char Hardware::update_data() {
+void Hardware::update_data(unsigned long time) {
   
 	using namespace State_Data;
 	using namespace Default_Config;
 	
-    DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
-    DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
-    //DATA_T1 = thermocouple_1.readFarenheit();
-    //DATA_T2 = thermocouple_2.readFarenheit(); // Insert Patrick's code here
-	//DATA_T3 = thermocouple_3.readFarenheit(); // Insert Patrick's code here
-    DATA_THR = loadcell.get_units(); // Load cell measure thrust
+	// New Data
+	unsigned char nd = 0;
 	
-	return 0x3F; // Insert Patrick's code here, the return value is used for error checking
+	// Update Pressure
+	if (time - LAST_PRESSURE_TIME_US > PRESSURE_PERIOD_MS*1000) {
+		DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
+		DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
+		LAST_PRESSURE_TIME_US = time;
+		nd |= 0x01;
+	}
+	
+	// Update Temperature
+	if (time - LAST_TEMPERATURE_TIME_US > TEMPERATURE_PERIOD_MS*1000) {
+		//DATA_T1 = thermocouple_1.readFarenheit();
+		//DATA_T2 = thermocouple_2.readFarenheit();
+		//DATA_T3 = thermocouple_3.readFarenheit();
+		LAST_TEMPERATURE_TIME_US = time;
+		nd |= 0x02;
+	}
+	
+	// Update Load Cell
+	if (time - LAST_LOADCELL_TIME_US > LOADCELL_PERIOD_MS*1000) {
+		DATA_THR = loadcell.get_units(); // Load cell measure thrust
+		LAST_LOADCELL_TIME_US = time;
+		nd |= 0x04;
+	}
+	
+	NEW_DATA = nd;
+	return;
 }
 
 /**

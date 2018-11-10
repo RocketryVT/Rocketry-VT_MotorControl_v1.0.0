@@ -47,17 +47,15 @@ extern bool is_LED_on;
   acquisition from connected devices
 
   INPUT
-  void
+  unsigned long time - Time of Main Loop iteration
 
   OUTPUT
   Hexidecimal value, one activated for each datum obtained successfully
-         0x00000001 - PRESSURE_OXIDIZER
-         0x00000010 - PRESSURE_COMBUSTION
-         0x00000100 - TEMPERATURE_OXIDIZER
-         0x00001000 - TEMPERATURE_COMBUSTION
-         0x00010000 - THRUST
+         0x00000001 - PRESSURE
+         0x00000010 - TEMPERATURE_COMBUSTION
+         0x00000100 - Load Cell
 */
-unsigned char update_data();
+void update_data(unsigned long time);
 
 /**
    Creates a file to save data to

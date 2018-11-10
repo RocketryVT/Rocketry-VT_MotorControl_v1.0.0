@@ -11,17 +11,25 @@
 
 namespace Default_Config {
 
-	/* Device interface control variables */
+	/* Baud Rates */
+	extern unsigned long XBEE_BAUD;
+	extern unsigned long SD_BAUD;
+
+	/* Data Transmission Type */
+	extern unsigned int DATA_OUT_TYPE;
+	
+	/* Timing Control Bariables */
 	extern unsigned long TIME;
-	extern unsigned long data_period_ms;
+	extern unsigned long LOOP_PERIOD_MS;
 	extern unsigned long XBeeWrite_period_ms;
 	extern unsigned long SDWrite_period_ms;
 	extern unsigned long checkbuffer_period_ms;
-	extern unsigned long max_time; // What is this?
-	extern unsigned long XBEE_BAUD;
-	extern unsigned long SD_BAUD;
-	extern unsigned int DATA_OUT_TYPE;
 	extern unsigned long START_TIME;
+	
+	/* Data Timing */
+	extern unsigned long PRESSURE_PERIOD_MS;
+	extern unsigned long TEMPERATURE_PERIOD_MS;
+	extern unsigned long LOADCELL_PERIOD_MS;
 }
 
 namespace Pins_Config {
@@ -61,4 +69,9 @@ namespace State_Data {
 	extern float DATA_THR; // Thrust / Force
 	extern unsigned char NEW_DATA;
 	extern unsigned int MODE;
+	
+	/* Data Timing Control */
+	extern unsigned long LAST_PRESSURE_TIME_US;
+	extern unsigned long LAST_TEMPERATURE_TIME_US;
+	extern unsigned long LAST_LOADCELL_TIME_US;
 }
