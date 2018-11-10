@@ -11,7 +11,7 @@ unsigned long Default_Config::XBEE_BAUD = 38400;
 unsigned long Default_Config::SD_BAUD = 115200;
 
 /* Data Transmission Type */
-unsigned int Default_Config::DATA_OUT_TYPE = 0x40;
+unsigned int Default_Config::DATA_OUT_TYPE = 0x51;
 
 /* Device interface control variables */
 unsigned long Default_Config::TIME = 0;
