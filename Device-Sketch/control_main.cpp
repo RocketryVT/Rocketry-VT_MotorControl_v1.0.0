@@ -74,8 +74,6 @@ void control::loop() {
 	State_Data::LAST_TEMPERATURE_TIME_US = t;
 	State_Data::LAST_LOADCELL_TIME_US = t;
 	
-	delay(LOOP_PERIOD_MS);
-	
 	int mode_previous = MODE;
 	while (1) {
 		t = micros();
