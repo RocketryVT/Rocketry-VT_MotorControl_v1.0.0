@@ -30,12 +30,14 @@ void control::setup() {
 	using namespace Default_Config;
 	using namespace State_Data;
 	
-	// Baud rates
-	Serial.begin(baud);
-	XBee.begin(baud);
+	// Initialize serial ports
+	SDCard.begin(SD_BAUD);
+	XBee.begin(XBEE_BAUD);
+	XBee.begin(XBEE_BAUD);
 	
 	// Initialize hardware
 	Hardware::initializeStepperMotor();
+	Hardware::initializeLoadCell();
 	reset();
 }
 
@@ -52,34 +54,41 @@ void control::setup() {
 void control::loop() {
 	using namespace Default_Config;
 	using namespace XBeeIO;
+	using namespace Hardware;
 	using namespace State_Data;
 	
-	unsigned long t;
-	unsigned long t_sendpacket = micros();
+	unsigned long t = micros();
+	unsigned long t_lastxbeewrite = t;
+	unsigned long t_lastsdwrite = t;
+	unsigned long t_lastreceivepacket = t;
+	unsigned long t_sentpacket = t;
+	delay(data_period_ms);
+	
 	int mode_previous = MODE;
 	while (1) {
 		t = micros();
 		
 		// Update State
-		NEW_DATA = Hardware::update_data();
+		NEW_DATA = update_data();
 		// TODO: State Control
 		
 		// Parse Input buffer and respond to commnands
-		update_input_buffer();
-		parse_input_buffer();
+		if (t - t_lastreceivepacket > checkbuffer_period_ms*1000) {
+			update_input_buffer();
+			parse_input_buffer();
+			t_lastreceivepacket = t;
+		}
 		
 		// Mode changes
-		if (mode_previous == 0 && MODE > 0) {
-			Hardware::sdcard_openfile();
+		if (mode_previous == 0 && MODE != 0) {
+			//sdcard_openfile();
+			sdcard_write(0x01); // Begin of Test
 		}
-		else if (mode_previous == 3 && MODE != 3) {
-			Hardware::sdcard_closefile();
+		else if (mode_previous != 0 && MODE == 0) {
+			sdcard_write(0x02); // End of Test
+			//sdcard_closefile();
+			// Motor Shutdown Sequence
 		}
-		
-		// If it is time to send packet, do so
-		
-		
-		// Wait until next iteration
 		
 		/* MODE states */
 		// 0 - Waiting
@@ -89,18 +98,22 @@ void control::loop() {
 		// 4 - Stopped
 		// 5 - Simulation
 		if (MODE == 1 || MODE == 2 || MODE == 3) {
-			// Data Collection
-			transmit_data(DATA_OUT_TYPE);
-			Hardware::sdcard_write(DATA_OUT_TYPE);
-			//saveDataToSD();
+			if (t - t_lastsdwrite > SDWrite_period_ms*1000) {
+				sdcard_write(DATA_OUT_TYPE);
+				t_lastsdwrite = t;
+			}
+			if (t - t_lastxbeewrite > XBeeWrite_period_ms*1000) {
+				transmit_data(DATA_OUT_TYPE);
+				t_lastxbeewrite = t;
+			}
 		}
 		
 		// Iterate
 		mode_previous = MODE;
 		
 		// Time to delay
-		unsigned long t_delta_us = micros() - t;
-		unsigned long t_wait = data_period_ms - ((t_delta_us/1000) % data_period_ms);
+		unsigned long deltat_us = micros() - t;
+		unsigned long t_wait = data_period_ms - ((deltat_us/1000) % data_period_ms);
 		delay( t_wait );
 	}
 }
@@ -112,5 +125,6 @@ void control::reset() {
 	XBeeIO::transmit_data(0x00);
 	State_Data::MODE = 0;
 	START_TIME = micros();
+	Hardware::sdcard_closefile();
 }
 

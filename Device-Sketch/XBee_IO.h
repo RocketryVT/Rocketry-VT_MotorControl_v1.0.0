@@ -1,7 +1,5 @@
 #pragma once
 
-#define XBee Serial1
-
 namespace XBeeIO {
 
 /************ Global Variables ************/

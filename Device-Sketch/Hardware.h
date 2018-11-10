@@ -3,8 +3,11 @@
 #include <SD.h>
 #include <Adafruit_MotorShield.h>
 #include <Wire.h> //Wire library
+#include "Default_Config.h"
 
 namespace Hardware {
+
+using namespace Pins_Config;
 
 /* LED pin number */
 extern int pin_LED;
@@ -13,7 +16,7 @@ extern int pin_LED;
 extern int pin_P1; /* Analog pin to read Voltage from for pressure tranny in oxy tank*/
 extern int pin_P2; /*analog pin to read off of for comb. chamber pressure*/
 
-/*digital pins for  thermocouples*/
+/*digital pins for  thermocouples
 extern int8_t pin_T1_DO;
 extern int8_t pin_T1_CS;
 extern int8_t pin_T1_CLK;
@@ -22,7 +25,7 @@ extern int8_t pin_T2_CS;
 extern int8_t pin_T2_CLK;
 extern int8_t pin_T3_DO;
 extern int8_t pin_T3_CS;
-extern int8_t pin_T3_CLK;
+extern int8_t pin_T3_CLK;*/
 
 /*chip select pin for SD logger*/
 extern const int sdcard_chipSelect;
@@ -87,6 +90,11 @@ void closeStepperMotor();
 void openStepperMotor();
 
 /**
+	Sets the calibration for the Load Cell
+*/
+void initializeLoadCell();
+
+/**
 	reads pressure in oxidizer tank
 	@return float = pressure in oxy tank in psi
 */
@@ -103,7 +111,7 @@ float get_pressure_2_data();
   Turns on the LED
 
   INPUT
-  bool output -> true to output "LED ON", true by default
+  bool output -> true to output "LED ON", false by default
 */
 void turn_LED_on(bool output = false);
 
@@ -111,7 +119,7 @@ void turn_LED_on(bool output = false);
   Turns off the LED
 
   INPUT
-  bool output -> true to output "LED OFF", true by default
+  bool output -> true to output "LED OFF", false by default
 */
 void turn_LED_off(bool output = false);
 

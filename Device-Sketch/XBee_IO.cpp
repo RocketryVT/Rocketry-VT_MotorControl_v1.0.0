@@ -8,7 +8,7 @@
 #include "Assert.h"
 
 /************ Global Variables ************/
-const unsigned char XBeeIO::BUFF_INPUT = 1000;
+const unsigned char XBeeIO::BUFF_INPUT = 1024;
 unsigned char XBeeIO::input_buff[XBeeIO::BUFF_INPUT];
 unsigned long XBeeIO::buff_length = 0;
 const unsigned char XBeeIO::OUTPUT_BUFF_LENGTH = 255;
@@ -51,7 +51,7 @@ void XBeeIO::transmit_data(unsigned int type) {
 	using namespace Transmission;
 
 	/* For debugging only */
-	if (type == 0x10) {
+	if (type == 0xFF) {
 		transmit_data_string();
 	}
 	
@@ -113,9 +113,7 @@ bool XBeeIO::parse_input_buffer() {
 		
 			// If incomplete data packet, end loop
 			if ( buff_length < 4 && buff_length < (i + input_buff[i-1] - 1)) {
-        
 				return false;
-       
 			}
 	
 			// Binary Lexicon
@@ -153,7 +151,7 @@ bool XBeeIO::parse_input_buffer() {
 	
 					if (data_period_ms == 0) data_period_ms = 10;
 				}
-				else if (input_buff[i] == 0x21) { // Display parameters
+				else if (input_buff[i] == 0x21) { // Display parameters{
 					XBee.print("DATA_PERIOD: ");
 					XBee.print(data_period_ms);
 					XBee.print(" ms\n");
@@ -168,7 +166,7 @@ bool XBeeIO::parse_input_buffer() {
 				else if (input_buff[i] == 0x36) { // Set Output Packet Type
 					DATA_OUT_TYPE = input_buff[i+1];
 					if (input_buff[i+1] == 0x10) {
-						transmit_data_string();
+						//transmit_data_string();
 					}
 				}
 				else if (input_buff[i] == 0x44) { // Print buffer for debugging

@@ -197,12 +197,12 @@ bool Test::assert_equals(long a, long b, const char* str, bool hard_fail)
 			resstr[resstriter] = str[i];
 			resstriter++;
 		}
-		resstr[resstriter] = '\n';
-		resstriter++;
-		for (unsigned int i = 0; testfield[i]; i++) { // EXPECTED
-			resstr[resstriter] = testfield[i];
-			resstriter++;
-		}
+//		resstr[resstriter] = '\n';
+//		resstriter++;
+//		for (unsigned int i = 0; testfield[i]; i++) { // EXPECTED
+//			resstr[resstriter] = testfield[i];
+//			resstriter++;
+//		}
 		resstr[resstriter] = '\n';
 		resstriter++;
 	}
@@ -248,12 +248,12 @@ bool Test::assert_equals(double a, double b, double prec, const char* str, bool 
 			resstr[resstriter] = str[i];
 			resstriter++;
 		}
-		resstr[resstriter] = '\n';
-		resstriter++;
-		for (unsigned int i = 0; testfield[i]; i++) { // EXPECTED
-			resstr[resstriter] = testfield[i];
-			resstriter++;
-		}
+//		resstr[resstriter] = '\n';
+//		resstriter++;
+//		for (unsigned int i = 0; testfield[i]; i++) { // EXPECTED
+//			resstr[resstriter] = testfield[i];
+//			resstriter++;
+//		}
 		resstr[resstriter] = '\n';
 		resstriter++;
 	}

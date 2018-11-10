@@ -9,18 +9,15 @@
 #include "XBee_IO.h"
 
 /**
- * Compiles data to a char array so that it can be pushed to the
- * serial port directly. Also this makes it easier to compute a
- * checksum on the data
- *
- * INPUTS
- * char* str -> pointer to char array
- * unsigned int type -> data transmission packet type (see documentation)
- * unsigned int len -> lenght of data packet (see documentation)
- *
- * OUTPUTS
- * void (change this to checksum eventually)
- */
+* Compiles data to a char array so that it can be pushed to the
+* serial port directly. Also this makes it easier to compute a
+* checksum on the data
+*
+* INPUTS
+* char* str -> pointer to char array
+* unsigned int* len -> lenght of data packet (see documentation)
+* unsigned int type -> data transmission packet type (see documentation)
+*/
 void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned int type) {
 
 	using namespace State_Data;
@@ -35,6 +32,8 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 	unsigned char b;
 	unsigned char c;
 	unsigned char d;
+	unsigned char c0;
+	unsigned char c1;
 	unsigned int i = 0;
 	
 	switch (type) {
@@ -52,14 +51,33 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		i++;
 		*len = i;
 		return;
+	case 0x01: // SD Card Begin of Save File
+		str[2] = 6;
+		str[3] = 0x01;
+		xorchecksum(str, 4, &c0, &c1);
+		str[4] = c0; // Checksum
+		str[5] = c1; // Checksum
+		*len = 6;
+		return;
+	case 0x02: // SD Card End of Save File
+		str[2] = 6;
+		str[3] = 0x02;
+		xorchecksum(str, 4, &c0, &c1);
+		str[4] = c0; // Checksum
+		str[5] = c1; // Checksum
+		*len = 6;
+		return;
 	case 0x10:
-		str[2] = 2; // Length
+		str[2] = 7; // Length
 		str[3] = 0x10; // Type
 		str[4] = MODE; // Mode
-		*len = 5;
+		xorchecksum(str, 5, &c0, &c1);
+		str[5] = c0; // Checksum
+		str[6] = c1; // Checksum
+		*len = 7;
 		return;
 	case 0x40: // Solid Motor Static Fire Tests 2018-11-11
-		TIME = micros() - START_TIME;
+		TIME = micros();
 
 		// Length
 		*len = 22;
@@ -99,8 +117,9 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[19] = NEW_DATA;
 
 		// Checksum
-		str[20] = 0;
-		str[21] = 0;
+		xorchecksum(str, *len-2, &c0, &c1);
+		str[20] = c0;
+		str[21] = c1;
 
 		return;
 	case 0x51: // Cold flow test data
@@ -165,8 +184,9 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[31] = NEW_DATA;
 
 		// Checksum
-		str[32] = 15;
-		str[33] = 16;
+		xorchecksum(str, *len-2, &c0, &c1);
+		str[32] = c0;
+		str[33] = c1;
 
 		return;
 	case 0x52: // Cold flow test data
@@ -238,8 +258,9 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[35] = NEW_DATA;
 
 		// Checksum
-		str[36] = 15;
-		str[37] = 16;
+		xorchecksum(str, *len-2, &c0, &c1);
+		str[36] = c0;
+		str[37] = c1;
 
 		return;
 	case 0xB0: // Do Unit Tests
@@ -258,6 +279,29 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 	default: // Do nothing
 		return;
 	}
+}
+
+/**
+* Computes the exclusive or parity check of the bytes in a message
+*
+* INPUTS
+* char* str -> pointer to char array
+* unsigned int len -> lenght of str
+* unsigned char* c1 -> First byte of checksum
+* unsigned char* c2 -> Second byte of checksum
+
+*/
+void Transmission::xorchecksum(unsigned char* str, unsigned int len, unsigned char* c0, unsigned char* c1) {
+	unsigned int i = 0;
+	while (i < len-1) {
+		*c0 ^= str[i];
+		*c1 ^= str[i + 1];
+		i += 2;
+	}
+	if (i < len) {
+		*c0 ^= str[i];
+	}
+	return;
 }
 
 /**

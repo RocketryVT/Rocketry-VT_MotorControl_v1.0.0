@@ -9,13 +9,22 @@ namespace Transmission {
 	*
 	* INPUTS
 	* char* str -> pointer to char array
+	* unsigned int* len -> lenght of data packet (see documentation)
 	* unsigned int type -> data transmission packet type (see documentation)
-	* unsigned int len -> lenght of data packet (see documentation)
-	* 
-	* OUTPUTS
-	* void (change this to checksum eventually)
 	*/
 	void buildPacket(unsigned char* str, unsigned int* len, unsigned int type);
+
+	/**
+	 * Computes the exclusive or parity check of the bytes in a message
+	 *
+	 * INPUTS
+	 * char* str -> pointer to char array
+	 * unsigned int len -> lenght of str
+	 * unsigned char* c0 -> First byte of checksum
+	 * unsigned char* c1 -> Second byte of checksum
+	 
+	 */
+	void xorchecksum(unsigned char* str, unsigned int len, unsigned char* c0, unsigned char* c1);
 
 	/**
 	* Converts a series of unsigned char values to a 

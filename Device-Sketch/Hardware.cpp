@@ -6,61 +6,21 @@
 #include "Adafruit_MAX31855.h"
 #include "HX711.h"
 
-/* LED pin number */
-int Hardware::pin_LED = 7;
+/* Load Cell object */
+HX711 loadcell(Pins_Config::LOADCELL_DOUT, Pins_Config::LOADCELL_CLK);
 
-//NEW CODE
-/*sets the analog pin for oxidizer transducer*/
-int Hardware::pin_P1 = A1;
-/*sets up analog pin for c.chamber transducer*/
-int Hardware::pin_P2 = A2;
-
-
-/* Load cell object */
-#define calibration_factor -10000.0 //This value is obtained using the SparkFun_HX711_Calibration sketch
-LS_DOUT = 11;
-LS_CLK = 12;
-HX711 loadcell(LS_DOUT, LS_CLK);
-
-/*sets pins for themrocouples*/
-int8_t Hardware::pin_T1_DO = 2;
-int8_t Hardware::pin_T1_CS = 3;
-int8_t Hardware::pin_T1_CLK = 4;
-int8_t Hardware::pin_T2_DO = 5;
-int8_t Hardware::pin_T2_CS = 6;
-int8_t Hardware::pin_T2_CLK = 7;
-int8_t Hardware::pin_T3_DO = 8;
-int8_t Hardware::pin_T3_CS = 9;
-int8_t Hardware::pin_T3_CLK = 10;
-
-int8_t MAXDO  = 2;
-int8_t MAXCS  = 3;
-int8_t MAXCLK = 4;
-
-// initialize the Thermocouple
-//Adafruit_MAX31855 thermocouple2(MAXCLK, MAXCS, MAXDO);
-
-/*intialize both thermocouples*/
-Adafruit_MAX31855 thermocouple_1(Hardware::pin_T1_CLK, Hardware::pin_T1_CS, Hardware:: pin_T1_DO);
-Adafruit_MAX31855 thermocouple_2(Hardware::pin_T2_CLK, Hardware::pin_T2_CS, Hardware:: pin_T2_DO);
-Adafruit_MAX31855 thermocouple_3(Hardware::pin_T3_CLK, Hardware::pin_T3_CS, Hardware:: pin_T3_DO);
-
-/*imports sdcard_datafile */
-File Hardware::sdcard_datafile;
+/*intialize thermocouples*/
+Adafruit_MAX31855 thermocouple_1(Pins_Config::pin_T1_CLK, Pins_Config::pin_T1_CS, Pins_Config:: pin_T1_DO);
+Adafruit_MAX31855 thermocouple_2(Pins_Config::pin_T2_CLK, Pins_Config::pin_T2_CS, Pins_Config:: pin_T2_DO);
+Adafruit_MAX31855 thermocouple_3(Pins_Config::pin_T3_CLK, Pins_Config::pin_T3_CS, Pins_Config:: pin_T3_DO);
 
 //create motor shield object
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 /*connect stepper with 200 steps per rotation*/
 Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 1);
 
-/* XBee RX, TX pins */
-// Connect DIN to pin 18 ,and DOUT to pin 19
-
 /* LED Data */
 bool Hardware::is_LED_on = false;
-
-/*chip for sd card logger*/
-const int Hardware::sdcard_chipSelect = 4;
 
 /**
    Updates data variables by calling functions that control data
@@ -79,38 +39,31 @@ const int Hardware::sdcard_chipSelect = 4;
 */
 unsigned char Hardware::update_data() {
   
-  using namespace State_Data;
-  using namespace Default_Config;
-  
-  if (MODE <= 4 && MODE > 0) {
+	using namespace State_Data;
+	using namespace Default_Config;
+	
     DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
     DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
-    DATA_T1 = thermocouple_1.readFarenheit();
-    DATA_T2 = thermocouple_2.readFarenheit(); // Insert Patrick's code here
-	DATA_T3 = thermocouple_3.readFarenheit(); // Insert Patrick's code here
+    //DATA_T1 = thermocouple_1.readFarenheit();
+    //DATA_T2 = thermocouple_2.readFarenheit(); // Insert Patrick's code here
+	//DATA_T3 = thermocouple_3.readFarenheit(); // Insert Patrick's code here
     DATA_THR = loadcell.get_units(); // Load cell measure thrust
-  }
-
-  return 0x3F; // Insert Patrick's code here, the return value is used for error checking
+	
+	return 0x3F; // Insert Patrick's code here, the return value is used for error checking
 }
 
 /**
    Creates a file to save data to
 */
 void Hardware::sdcard_openfile() {
-
-  // see if the card is present and can be initialized:
-  if (!SD.begin(sdcard_chipSelect)) {
-    return;
-  }
-  sdcard_datafile = SD.open("data.txt", FILE_WRITE);
+	//SDCard.begin(Default_Config::SD_BAUD); // .doing .begin(baud) will not make a new file
 }
 
 /**
    Closes currently open save file
 */
 void Hardware::sdcard_closefile() {
-	sdcard_datafile.close();
+	//SDCard.end(); // .doing .begin(baud) will not make a new file
 }
 
 /**
@@ -119,9 +72,7 @@ void Hardware::sdcard_closefile() {
 void Hardware::sdcard_write(unsigned int datatype) {
 	unsigned int len = 0;
 	Transmission::buildPacket(XBeeIO::output_buff, &len, datatype);
-	sdcard_datafile.write(XBeeIO::output_buff, len);
-	XBee.println("Writing SD");
-	XBee.write(XBeeIO::output_buff, len);
+	SDCard.write(XBeeIO::output_buff, len);
 }
 
 /**
@@ -146,16 +97,23 @@ void Hardware::closeStepperMotor() {
 }
 
 /**
+	Sets the calibration for the Load Cell
+*/
+void Hardware::initializeLoadCell() {
+	loadcell.set_scale(Pins_Config::loadcell_calibration_factor); //This value is obtained by using the SparkFun_HX711_Calibration sketch
+	loadcell.tare(); //Assuming there is no weight on the scale at start up, reset the scale to 0
+}
+
+/**
    reads pressure in oxidizer tank
    @return float = pressure in psi
 */
 float Hardware::get_pressure_1_data()
 {
-  int sensorVal = analogRead(pin_P1);
+  int sensorVal = analogRead(Pins_Config::pin_P1);
   float voltage = (sensorVal * 5.0) / 1024.0;
   float pressure_psi = (((250.0f * voltage)) - 125.0f);
   return pressure_psi;
-
 }
 
 /**
@@ -164,39 +122,34 @@ float Hardware::get_pressure_1_data()
 */
 float Hardware::get_pressure_2_data()
 {
-  int sensorVal = analogRead(pin_P2);
+  int sensorVal = analogRead(Pins_Config::pin_P2);
   float voltage = (sensorVal * 5.0) / 1024.0;
   float pressure_psi = (((250.0f * voltage)) - 125.0f);
   return pressure_psi;
-
 }
 
 /**
    Turns on the LED
 
    INPUT
-   bool output -> true to output "LED ON", true by default
+   bool output -> true to output "LED ON", false by default
 */
 void Hardware::turn_LED_on(bool output) {
   if (output) XBee.print("LED ON\n");
   is_LED_on = true;
-
-  // TOGGLE LED ON
-  digitalWrite(pin_LED, HIGH);
+  digitalWrite(Pins_Config::pin_LED, HIGH); // TOGGLE LED ON
 }
 
 /**
    Turns off the LED
 
    INPUT
-   bool output -> true to output "LED OFF", true by default
+   bool output -> true to output "LED OFF", false by default
 */
 void Hardware::turn_LED_off(bool output) {
   if (output) XBee.print("LED OFF\n");
   is_LED_on = false;
-
-  // TOGGLE LED ON
-  digitalWrite(pin_LED, LOW);
+  digitalWrite(Pins_Config::pin_LED, LOW); // TOGGLE LED ON
 }
 
 

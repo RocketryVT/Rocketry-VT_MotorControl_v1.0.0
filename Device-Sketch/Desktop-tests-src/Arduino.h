@@ -8,3 +8,7 @@ unsigned long micros();
 
 /** Dummy print() function */
 void print(const char* str);
+
+/** Dummy analog pin numbers */
+#define A1 1;
+#define A2 2;
