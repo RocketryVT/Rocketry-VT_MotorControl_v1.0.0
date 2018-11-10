@@ -44,6 +44,7 @@ void Hardware::update_data(unsigned long time) {
 	
 	// New Data
 	unsigned char nd = 0;
+	DATA_TIME = time;
 	
 	// Update Pressure
 	if (time - LAST_PRESSURE_TIME_US > PRESSURE_PERIOD_MS*1000) {

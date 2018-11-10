@@ -38,6 +38,10 @@ void control::setup() {
 	Hardware::initializeStepperMotor();
 	Hardware::initializeLoadCell();
 	
+	// Initialize timing
+	Default_Config::START_TIME = 0;
+	Default_Config::DATA_TIME = 0;
+	
 	// Call Reset operations
 	reset();
 }

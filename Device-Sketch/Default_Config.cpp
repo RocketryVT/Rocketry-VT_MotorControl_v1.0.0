@@ -19,7 +19,8 @@ unsigned long Default_Config::LOOP_PERIOD_MS = 25;
 unsigned long Default_Config::XBeeWrite_period_ms = 200;
 unsigned long Default_Config::SDWrite_period_ms = Default_Config::LOOP_PERIOD_MS;
 unsigned long Default_Config::checkbuffer_period_ms = 10;//100;
-unsigned long Default_Config::START_TIME = 0;
+unsigned long Default_Config::START_TIME;
+unsigned long Default_Config::DATA_TIME;
 
 /* Data Timing */
 unsigned long Default_Config::PRESSURE_PERIOD_MS = 10;

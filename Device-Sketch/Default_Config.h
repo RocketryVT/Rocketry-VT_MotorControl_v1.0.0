@@ -25,6 +25,7 @@ namespace Default_Config {
 	extern unsigned long SDWrite_period_ms;
 	extern unsigned long checkbuffer_period_ms;
 	extern unsigned long START_TIME;
+	extern unsigned long DATA_TIME;
 	
 	/* Data Timing */
 	extern unsigned long PRESSURE_PERIOD_MS;

@@ -32,8 +32,8 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 	unsigned char b;
 	unsigned char c;
 	unsigned char d;
-	unsigned char c0;
-	unsigned char c1;
+	unsigned char c0 = 0;
+	unsigned char c1 = 0;
 	unsigned int i = 0;
 	
 	switch (type) {
@@ -77,7 +77,7 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		*len = 7;
 		return;
 	case 0x40: // Solid Motor Static Fire Tests 2018-11-11
-		TIME = micros();
+		TIME = DATA_TIME;
 
 		// Length
 		*len = 22;
@@ -123,7 +123,7 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 
 		return;
 	case 0x51: // Cold flow test data
-		TIME = micros() - START_TIME;
+		TIME = DATA_TIME;
 
 		// Length
 		*len = 34;
@@ -190,7 +190,7 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 
 		return;
 	case 0x52: // Cold flow test data
-		TIME = micros() - START_TIME;
+		TIME = DATA_TIME;
 
 		// Length
 		*len = 38;
@@ -292,6 +292,8 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 
 */
 void Transmission::xorchecksum(unsigned char* str, unsigned int len, unsigned char* c0, unsigned char* c1) {
+	*c0 = 0;
+	*c1 = 0;
 	unsigned int i = 0;
 	while (i < len-1) {
 		*c0 ^= str[i];
