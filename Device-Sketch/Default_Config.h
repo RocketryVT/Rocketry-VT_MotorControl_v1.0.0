@@ -22,7 +22,6 @@ namespace Default_Config {
 	extern unsigned long TIME;
 	extern unsigned long LOOP_PERIOD_MS;
 	extern unsigned long XBeeWrite_period_ms;
-	extern unsigned long SDWrite_period_ms;
 	extern unsigned long checkbuffer_period_ms;
 	extern unsigned long START_TIME;
 	extern unsigned long DATA_TIME;

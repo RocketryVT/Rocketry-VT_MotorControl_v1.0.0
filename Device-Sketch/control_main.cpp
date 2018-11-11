@@ -64,7 +64,6 @@ void control::loop() {
 	
 	unsigned long t = micros();
 	unsigned long t_lastxbeewrite = t;
-	unsigned long t_lastsdwrite = t;
 	unsigned long t_lastreceivepacket = t;
 	unsigned long t_sentpacket = t;
 	
@@ -108,10 +107,7 @@ void control::loop() {
 		// 4 - Stopped
 		// 5 - Simulation
 		if (MODE == 1 || MODE == 2 || MODE == 3) {
-			if (t - t_lastsdwrite > SDWrite_period_ms*1000) {
-				sdcard_write(DATA_OUT_TYPE);
-				t_lastsdwrite = t;
-			}
+			sdcard_write(DATA_OUT_TYPE);
 			if (t - t_lastxbeewrite > XBeeWrite_period_ms*1000) {
 				transmit_data(DATA_OUT_TYPE);
 				t_lastxbeewrite = t;

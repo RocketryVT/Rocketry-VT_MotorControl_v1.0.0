@@ -17,7 +17,6 @@ unsigned int Default_Config::DATA_OUT_TYPE = 0x40;
 unsigned long Default_Config::TIME = 0;
 unsigned long Default_Config::LOOP_PERIOD_MS = 25;
 unsigned long Default_Config::XBeeWrite_period_ms = 200;
-unsigned long Default_Config::SDWrite_period_ms = Default_Config::LOOP_PERIOD_MS;
 unsigned long Default_Config::checkbuffer_period_ms = 10;//100;
 unsigned long Default_Config::START_TIME;
 unsigned long Default_Config::DATA_TIME;
