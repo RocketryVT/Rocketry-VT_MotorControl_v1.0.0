@@ -62,7 +62,6 @@ bool Test_checksum() {
 	pass &= assert_equals((long) c0_true, (long) c0, "Test 1 Incorrect c0");
 	pass &= assert_equals((long) c1_true, (long) c1, "Test 1 Incorrect c1");
 
-
 	// Test 2
 	str[0] = 0x04;
 	str[1] = 0x04;

@@ -24,7 +24,7 @@ unsigned long Default_Config::DATA_TIME;
 
 /* Data Timing */
 unsigned long Default_Config::PRESSURE_PERIOD_MS = 10;
-unsigned long Default_Config::TEMPERATURE_PERIOD_MS = 2000;
+unsigned long Default_Config::TEMPERATURE_PERIOD_MS = 100;
 unsigned long Default_Config::LOADCELL_PERIOD_MS = 10;
 
 

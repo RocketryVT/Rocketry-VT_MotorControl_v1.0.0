@@ -10,9 +10,9 @@
 HX711 loadcell(Pins_Config::LOADCELL_DOUT, Pins_Config::LOADCELL_CLK);
 
 /*intialize thermocouples*/
-Adafruit_MAX31855 thermocouple_1(Pins_Config::pin_T1_CLK, Pins_Config::pin_T1_CS, Pins_Config:: pin_T1_DO);
-Adafruit_MAX31855 thermocouple_2(Pins_Config::pin_T2_CLK, Pins_Config::pin_T2_CS, Pins_Config:: pin_T2_DO);
-Adafruit_MAX31855 thermocouple_3(Pins_Config::pin_T3_CLK, Pins_Config::pin_T3_CS, Pins_Config:: pin_T3_DO);
+Adafruit_MAX31855 thermocouple_1(Pins_Config::pin_T1_CLK, Pins_Config::pin_T1_CS, Pins_Config::pin_T1_DO);
+Adafruit_MAX31855 thermocouple_2(Pins_Config::pin_T2_CLK, Pins_Config::pin_T2_CS, Pins_Config::pin_T2_DO);
+Adafruit_MAX31855 thermocouple_3(Pins_Config::pin_T3_CLK, Pins_Config::pin_T3_CS, Pins_Config::pin_T3_DO);
 
 //create motor shield object
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
@@ -56,9 +56,15 @@ void Hardware::update_data(unsigned long time) {
 	
 	// Update Temperature
 	if (time - LAST_TEMPERATURE_TIME_US > TEMPERATURE_PERIOD_MS*1000) {
-		//DATA_T1 = thermocouple_1.readFarenheit();
-		//DATA_T2 = thermocouple_2.readFarenheit();
-		//DATA_T3 = thermocouple_3.readFarenheit();
+
+		XBee.end();
+		SDCard.end();
+		DATA_T1 = thermocouple_1.readFarenheit();
+		DATA_T2 = thermocouple_2.readFarenheit();
+		DATA_T3 = thermocouple_3.readFarenheit();
+		XBee.begin(Default_Config::XBEE_BAUD);
+		SDCard.begin(Default_Config::SD_BAUD);
+		
 		LAST_TEMPERATURE_TIME_US = time;
 		nd |= 0x02;
 	}

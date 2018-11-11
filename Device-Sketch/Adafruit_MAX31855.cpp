@@ -66,11 +66,8 @@ float Adafruit_MAX31855::readCelsius(void) {
 XBeeIO::update_input_buffer();
   
   // Close and open serial ports b/c sometimes things just mess up
-  XBee.end();
-  SDCard.end();
+  
   v = spiread32();
-  XBee.begin(Default_Config::XBEE_BAUD);
-  SDCard.begin(Default_Config::SD_BAUD);
  
   //Serial.print("0x"); Serial.println(v, HEX);
 
