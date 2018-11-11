@@ -48,8 +48,8 @@ void Hardware::update_data(unsigned long time) {
 	
 	// Update Pressure
 	if (time - LAST_PRESSURE_TIME_US > PRESSURE_PERIOD_MS*1000) {
-		DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
-		DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
+		//DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
+		//DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
 		LAST_PRESSURE_TIME_US = time;
 		nd |= 0x01;
 	}
@@ -60,8 +60,8 @@ void Hardware::update_data(unsigned long time) {
 		XBee.end();
 		SDCard.end();
 		DATA_T1 = thermocouple_1.readFarenheit();
-		DATA_T2 = thermocouple_2.readFarenheit();
-		DATA_T3 = thermocouple_3.readFarenheit();
+		//DATA_T2 = thermocouple_2.readFarenheit();
+		//DATA_T3 = thermocouple_3.readFarenheit();
 		XBee.begin(Default_Config::XBEE_BAUD);
 		SDCard.begin(Default_Config::SD_BAUD);
 		
