@@ -50,3 +50,9 @@ Motor Controller Change Log
 === 0.4.1 ===
 2018/10/14
 - Reduced number of files in unit tests so it can upload to github
+
+=== 0.5.0 ===
+2019/01/11
+- Redo file structure for linux
+- Everything is broken
+
