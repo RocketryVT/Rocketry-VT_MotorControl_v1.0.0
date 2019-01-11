@@ -8,7 +8,7 @@ and Visual Studio likes to make a ton of files whenever it compiles a solution.
 
 1. Open Visual Studio and make a new Project
    -> File -> New Project
-   -> Win32 Console Application (Visual C++)
+   -> Empty Project
    -> Name -> something sensible (Example: Project_Name)
    -> Location -> NOT IN THE .git DIRECTORY (or children)
                   Make this somewhere else on your computer
@@ -16,17 +16,13 @@ and Visual Studio likes to make a ton of files whenever it compiles a solution.
    -> Finish
 2. Include directories
    -> Project -> Properties
-   -> C/C++ -> Additional Include Directories -> <Edit>
-   -> Add the following (absolute) paths to the include directories:
-      - C:/<YourPath>/Device-Sketch
-      - C:/<YourPath>/Device-Sketch/Desktop-tests-src
+   -> VC++ Directories -> Include Directories -> <Edit>
+      -> Add the following (absolute) paths to the include directories:
+         - C:/<YourPath>/Device-Sketch
+         - C:/<YourPath>/Device-Sketch/Desktop-tests-src
    -> OK
    -> OK
 3. Add files
-   -> Delete the following files from the solution
-      - <Project_Name>.cpp
-      - targetver.h (Optional)
-   -> Open stdafx.h and delete all the code
    -> In Header Files, Add Existing files from Device-Sketch:
       - Assert.h
 	  - Default_Config.h
