@@ -1,7 +1,5 @@
-#include "stdafx.h"
 #include "Test_all.h"
 #include "Assert.h"
-#include "Arduino.h"
 #include "Test_Transmission.h"
 #include "Test_FloatToBinary.h"
 

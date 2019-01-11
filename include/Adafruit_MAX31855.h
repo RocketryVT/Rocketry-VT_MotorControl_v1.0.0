@@ -17,28 +17,22 @@
 #ifndef ADAFRUIT_MAX31855_H
 #define ADAFRUIT_MAX31855_H
 
-#if (ARDUINO >= 100)
-#include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-
 class Adafruit_MAX31855 {
  public:
-  Adafruit_MAX31855(int8_t _sclk, int8_t _cs, int8_t _miso);
+  Adafruit_MAX31855(unsigned char _sclk, unsigned char _cs, unsigned char _miso);
   
 
   void begin(void);
   
   float readCelsius(void);
   float readFarenheit(void);
-  uint8_t readError();
+  unsigned char readError();
 
  private:
-  boolean initialized;
+  bool initialized;
 
-  int8_t sclk, miso, cs;
-  uint32_t spiread32(void);
+  unsigned char sclk, miso, cs;
+  unsigned long spiread32(void);
 };
 
 #endif

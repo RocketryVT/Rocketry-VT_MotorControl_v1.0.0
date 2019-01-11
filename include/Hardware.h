@@ -1,9 +1,8 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-#include <SD.h>
-#include <Adafruit_MotorShield.h>
-#include <Wire.h> //Wire library
+#include <fstream>
+
 #include "Default_Config.h"
 
 namespace Hardware {
@@ -33,14 +32,14 @@ extern const int sdcard_chipSelect;
 
 //NEW CODE
 /*data file for logging to sd*/
-extern File sdcard_datafile;
+extern std::ofstream logfile; 
 
 /* XBee RX, TX pins */
 // Connect DIN to pin 18 ,and DOUT to pin 19
 
-/* Stepper Moteror
+/* Stepper Moter */
 
-  /* LED Data */
+/* LED Data */
 extern bool is_LED_on;
 
 /**

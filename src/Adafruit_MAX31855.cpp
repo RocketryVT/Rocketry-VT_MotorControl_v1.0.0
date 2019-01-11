@@ -20,17 +20,10 @@
 #include "Default_Config.h"
 #include "XBee_IO.h"
 
-#ifdef __AVR
-  #include <avr/pgmspace.h>
-#elif defined(ESP8266)
-  #include <pgmspace.h>
-#endif
+const unsigned char LOW = 0;
+const unsigned char HIGH = 1;
 
-#include <stdlib.h>
-#include <SPI.h>
-
-
-Adafruit_MAX31855::Adafruit_MAX31855(int8_t _sclk, int8_t _cs, int8_t _miso) {
+Adafruit_MAX31855::Adafruit_MAX31855(unsigned char _sclk, unsigned char _cs, unsigned char _miso) {
   sclk = _sclk;
   cs = _cs;
   miso = _miso;
@@ -41,17 +34,17 @@ Adafruit_MAX31855::Adafruit_MAX31855(int8_t _sclk, int8_t _cs, int8_t _miso) {
 
 
 void Adafruit_MAX31855::begin(void) {
-  //define pin modes
-  pinMode(cs, OUTPUT);
-  digitalWrite(cs, HIGH);
+  // define pin modes
+  // pinMode(cs, OUTPUT);
+  // digitalWrite(cs, HIGH);
 
   if (sclk == -1) {
     // hardware SPI
     //start and configure hardware SPI
-    SPI.begin();
+    // SPI.begin();
   } else {
-    pinMode(sclk, OUTPUT);
-    pinMode(miso, INPUT);
+    // pinMode(sclk, OUTPUT);
+    // pinMode(miso, INPUT);
   }
   initialized = true;
 }
@@ -63,7 +56,7 @@ float Adafruit_MAX31855::readCelsius(void) {
 
   int32_t v;
 
-XBeeIO::update_input_buffer();
+  // XBeeIO::update_input_buffer();
   
   // Close and open serial ports b/c sometimes things just mess up
   
@@ -100,7 +93,7 @@ XBeeIO::update_input_buffer();
   return centigrade;
 }
 
-uint8_t Adafruit_MAX31855::readError() {
+unsigned char Adafruit_MAX31855::readError() {
   return spiread32() & 0x7;
 }
 
@@ -112,21 +105,22 @@ float Adafruit_MAX31855::readFarenheit(void) {
   return f;
 }
 
-uint32_t Adafruit_MAX31855::spiread32(void) {
+unsigned long Adafruit_MAX31855::spiread32(void) {
   int i;
-  uint32_t d = 0;
+  unsigned long d = 0;
 
   // backcompatibility!
   if (! initialized) {
     begin();
   }
 
-  digitalWrite(cs, LOW);
+  //  digitalWrite(cs, LOW);
   //delay(1);
 
   if(sclk == -1) {
     // hardware SPI
-    
+  
+    /*  
     SPI.beginTransaction(SPISettings(4000000, MSBFIRST, SPI_MODE0));
 
     d = SPI.transfer(0);
@@ -138,10 +132,12 @@ uint32_t Adafruit_MAX31855::spiread32(void) {
     d |= SPI.transfer(0);
 
     SPI.endTransaction();
-    
+    */
+
   } else {
     // software SPI
 
+    /*
     digitalWrite(sclk, LOW);
     //delay(1);
 
@@ -156,9 +152,11 @@ uint32_t Adafruit_MAX31855::spiread32(void) {
       digitalWrite(sclk, HIGH);
       //delay(1);
     }
+    */
   }
 
-  digitalWrite(cs, HIGH);
-  //Serial.println(d, HEX);
+  // digitalWrite(cs, HIGH);
+    
+  // Serial.println(d, HEX);
   return d;
 }

@@ -1,7 +1,6 @@
 // TestFloatToBinary.cpp : Defines the entry point for the console application.
 //
 
-#include "stdafx.h"
 #include "Transmission.h"
 #include "Assert.h"
 #include "Test_FloatToBinary.h"

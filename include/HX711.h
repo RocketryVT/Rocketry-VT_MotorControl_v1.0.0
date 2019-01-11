@@ -1,18 +1,12 @@
 #ifndef HX711_h
 #define HX711_h
 
-#if ARDUINO >= 100
-#include "Arduino.h"
-#else
-#include "WProgram.h"
-#endif
-
 class HX711
 {
 	private:
-		byte PD_SCK;	// Power Down and Serial Clock Input Pin
-		byte DOUT;		// Serial Data Output Pin
-		byte GAIN;		// amplification factor
+		unsigned char PD_SCK;	// Power Down and Serial Clock Input Pin
+		unsigned char DOUT;		// Serial Data Output Pin
+		unsigned char GAIN;		// amplification factor
 		long OFFSET = 0;	// used for tare weight
 		float SCALE = 1;	// used to return weight in grams, kg, ounces, whatever
 
@@ -20,14 +14,12 @@ class HX711
 		// define clock and data pin, channel, and gain factor
 		// channel selection is made by passing the appropriate gain: 128 or 64 for channel A, 32 for channel B
 		// gain: 128 or 64 for channel A; channel B works with 32 gain factor only
-		HX711(byte dout, byte pd_sck, byte gain = 128);
+		HX711(unsigned char dout, unsigned char pd_sck, unsigned char gain = 128);
 
 		HX711();
 
-		virtual ~HX711();
-
 		// Allows to set the pins and gain later than in the constructor
-		void begin(byte dout, byte pd_sck, byte gain = 128);
+		void begin(unsigned char dout, unsigned char pd_sck, unsigned char gain = 128);
 
 		// check if HX711 is ready
 		// from the datasheet: When output data is not ready for retrieval, digital output pin DOUT is high. Serial clock
@@ -37,23 +29,23 @@ class HX711
 		// set the gain factor; takes effect only after a call to read()
 		// channel A can be set for a 128 or 64 gain; channel B has a fixed 32 gain
 		// depending on the parameter, the channel is also set to either A or B
-		void set_gain(byte gain = 128);
+		void set_gain(unsigned char gain = 128);
 
 		// waits for the chip to be ready and returns a reading
 		long read();
 
 		// returns an average reading; times = how many times to read
-		long read_average(byte times = 10);
+		long read_average(unsigned char times = 10);
 
 		// returns (read_average() - OFFSET), that is the current value without the tare weight; times = how many readings to do
-		double get_value(byte times = 1);
+		double get_value(unsigned char times = 1);
 
 		// returns get_value() divided by SCALE, that is the raw value divided by a value obtained via calibration
 		// times = how many readings to do
-		float get_units(byte times = 1);
+		float get_units(unsigned char times = 1);
 
 		// set the OFFSET value for tare weight; times = how many times to read the tare value
-		void tare(byte times = 10);
+		void tare(unsigned char times = 10);
 
 		// set the SCALE value; this value is used to convert the raw data to "human readable" data (measure units)
 		void set_scale(float scale = 1.f);

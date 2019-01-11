@@ -1,7 +1,4 @@
-
-#include "stdafx.h"
 #include "Default_Config.h"
-#include "Arduino.h"
 
 /* XBee RX, TX pins */
 // Connect DIN to pin 18 ,and DOUT to pin 19
@@ -30,8 +27,8 @@ unsigned long Default_Config::LOADCELL_PERIOD_MS = 10;
 /**************************** PINS ****************************/
 
 /* Pressure Transducer Pins */
-unsigned int Pins_Config::pin_P1 = A1; /* Analog pin for oxidizer transducer*/
-unsigned int Pins_Config::pin_P2 = A2; /* Analog pin for c.chamber transducer*/
+unsigned int Pins_Config::pin_P1 = 1; // A1; /* Analog pin for oxidizer transducer*/
+unsigned int Pins_Config::pin_P2 = 2; // A2; /* Analog pin for c.chamber transducer*/
 
 /* Thermocouple Pins*/
 unsigned int Pins_Config::pin_T1_DO = 2;

@@ -4,8 +4,6 @@
 #define test_str_length 1024
 #define __PROGRAM_VERSION__ "MOTOR CONTROL 1.0.0"
 #define __LF__ 10 // Newline character
-#define XBee Serial1
-#define SDCard Serial2
 
 /* XBee RX, TX pins */
 // Connect DIN to pin 18 ,and DOUT to pin 19

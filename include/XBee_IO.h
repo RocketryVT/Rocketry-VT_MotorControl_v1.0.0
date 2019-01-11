@@ -1,15 +1,17 @@
 #ifndef XBEE_IO_H
 #define XBEE_IO_H
 
+#include <fstream>
+
 namespace XBeeIO {
 
 /************ Global Variables ************/
-extern const unsigned char BUFF_INPUT;
+extern const unsigned long BUFF_INPUT;
 extern unsigned char input_buff[];
 extern unsigned long buff_length;
-extern const unsigned char OUTPUT_BUFF_LENGTH;
+extern const unsigned long OUTPUT_BUFF_LENGTH;
 extern unsigned char output_buff[];
-
+extern std::fstream XBee;
 
 /* Data */
 extern unsigned char PACKET_SIZE;

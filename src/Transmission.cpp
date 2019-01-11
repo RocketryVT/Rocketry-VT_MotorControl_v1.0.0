@@ -1,11 +1,9 @@
 
-#include "stdafx.h"
 #include "control_main.h"
-#include "Arduino.h"
 #include "Transmission.h"
 #include "Default_Config.h"
 #include "Assert.h"
-#include "Test_all.h"
+// #include "Test_all.h"
 #include "XBee_IO.h"
 
 /**
@@ -266,7 +264,7 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 	case 0xB0: // Do Unit Tests
 		
 		// Run Tests
-		run_tests(true);
+		// run_tests(true);
 		
 		// Compile string
 		for (unsigned int i = 0; i < Test::resstriter; i++ ){

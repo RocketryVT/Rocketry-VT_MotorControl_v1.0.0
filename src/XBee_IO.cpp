@@ -1,21 +1,24 @@
+#include <chrono>
+#include <cstring>
+
 #include "XBee_IO.h"
 #include "Default_Config.h"
 #include "control_main.h"
 #include "Transmission.h"
 #include "Hardware.h"
-#include "Arduino.h"
-#include "Test_all.h"
 #include "Assert.h"
 
 /************ Global Variables ************/
-const unsigned char XBeeIO::BUFF_INPUT = 1024;
+const unsigned long XBeeIO::BUFF_INPUT = 1024;
 unsigned char XBeeIO::input_buff[XBeeIO::BUFF_INPUT];
 unsigned long XBeeIO::buff_length = 0;
-const unsigned char XBeeIO::OUTPUT_BUFF_LENGTH = 255;
+const unsigned long XBeeIO::OUTPUT_BUFF_LENGTH = 255;
 unsigned char XBeeIO::output_buff[XBeeIO::OUTPUT_BUFF_LENGTH];
 
 /* Data */
 unsigned char XBeeIO::PACKET_SIZE = 30;
+
+std::fstream XBeeIO::XBee("", std::ios::binary);
 
 /**
  * Recieves input from the XBee and saves it to "input_buff"
@@ -29,10 +32,10 @@ unsigned char XBeeIO::PACKET_SIZE = 30;
 bool XBeeIO::update_input_buffer() {
 	unsigned char char_in;
 
-	if (XBee.available() == 0) return false;
+	if (XBee.tellg() == 0) return false;
  
-	while (XBee.available() > 0) {
-		char_in = XBee.read();
+	while (XBee.tellg() > 0) {
+		XBee >> char_in;
 		input_buff[buff_length] = char_in;
 		buff_length++;
 		// TODO: if buff_length is too big, then clear everything
@@ -59,7 +62,7 @@ void XBeeIO::transmit_data(unsigned int type) {
 	// Build packet and transmit it
 	unsigned int len = 0;
 	buildPacket(output_buff, &len, type);
-	XBee.write(output_buff, len);
+	XBee.write((char*) output_buff, len);
 	return;
 }
 
@@ -175,7 +178,8 @@ bool XBeeIO::parse_input_buffer() {
 				}
 				else if (input_buff[i] == 0x50) { // Simple Simulation Packet
 					// See documentation for data packet structure
-					TIME           = micros();
+					TIME = std::chrono::duration_cast<std::chrono::milliseconds>
+                           (std::chrono::steady_clock::now().time_since_epoch()).count();
 					DATA_OUT_TYPE  = input_buff[i+0];
 					MODE           = input_buff[i+1]; // 5
 					STATUS         = input_buff[i+2];
@@ -213,10 +217,10 @@ bool XBeeIO::parse_input_buffer() {
 	}
 	
 	// Text Lexicon
-	if (!strncmp(input_buff, "LED ON", 6)) {
+	if (!std::strncmp((char*) input_buff, "LED ON", 6)) {
 		Hardware::turn_LED_on();
 	}
-	else if (!strncmp(input_buff, "LED OFF", 7)) {
+	else if (!std::strncmp((char*) input_buff, "LED OFF", 7)) {
 		Hardware::turn_LED_off();
 	}
 	else
@@ -254,39 +258,23 @@ bool XBeeIO::clear_input_buffer(unsigned long ii) {
  * Displays hex values of the buffer to the XBee port
  */
 void XBeeIO::dispbuff() {
-	XBee.print("BUFFER: ");
-	XBee.print(XBeeIO::buff_length);
-	XBee.print("\n");
-	for (byte i = 0; i < buff_length; i++) {
-		XBee.print("	 ");
-		XBee.print(input_buff[i], HEX);
-		XBee.print("\n");
+	XBee << "BUFFER: ";
+	XBee << XBeeIO::buff_length;
+	XBee << "\n";
+	for (unsigned long i = 0; i < buff_length; i++) {
+		XBee << "   ";
+		XBee << input_buff[i];
+		XBee << "\n";
 	}
 }
 
 /* Transmits the full data string in ASCII */
 void XBeeIO::transmit_data_string() {
 		using namespace State_Data;
-		XBee.print(micros());
-		XBee.print(",");
-		XBee.print(STATUS);
-		XBee.print(",");
-		XBee.print(DATA_P1);
-		XBee.print(",");
-		XBee.print(DATA_P2);
-		XBee.print(",");
-		XBee.print(DATA_T1);
-		XBee.print(",");
-		XBee.print(DATA_T2);
-		XBee.print(",");
-		XBee.print(DATA_T3);
-		XBee.print(",");
-		XBee.print(DATA_THR);
-		XBee.print(",");
-		XBee.print(NEW_DATA);
-		XBee.print(",");
-		XBee.print(MODE);
-		XBee.print(",");
-		XBee.print("ENDL");
-		XBee.write(__LF__);
+        auto time = std::chrono::duration_cast<std::chrono::milliseconds>
+                    (std::chrono::steady_clock::now().time_since_epoch()).count();
+		XBee << time << "," << STATUS << "," << DATA_P1
+             << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
+             << "," << DATA_T3 << "," << DATA_THR << ","
+             << NEW_DATA << "," << MODE << "," << "ENDL" << __LF__;
 }

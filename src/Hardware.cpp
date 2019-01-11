@@ -1,10 +1,10 @@
 #include "Hardware.h"
 #include "Default_Config.h"
+#include "Adafruit_MAX31855.h"
 #include "XBee_IO.h"
 #include "Transmission.h"
-#include "Arduino.h"
-#include "Adafruit_MAX31855.h"
 #include "HX711.h"
+#include "motor.h"
 
 /* Load Cell object */
 HX711 loadcell(Pins_Config::LOADCELL_DOUT, Pins_Config::LOADCELL_CLK);
@@ -14,10 +14,8 @@ Adafruit_MAX31855 thermocouple_1(Pins_Config::pin_T1_CLK, Pins_Config::pin_T1_CS
 Adafruit_MAX31855 thermocouple_2(Pins_Config::pin_T2_CLK, Pins_Config::pin_T2_CS, Pins_Config::pin_T2_DO);
 Adafruit_MAX31855 thermocouple_3(Pins_Config::pin_T3_CLK, Pins_Config::pin_T3_CS, Pins_Config::pin_T3_DO);
 
-//create motor shield object
-Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-/*connect stepper with 200 steps per rotation*/
-Adafruit_StepperMotor *myMotor = AFMS.getStepper(200, 1);
+Motor myMotor;
+std::ofstream Hardware::logfile("log.bin");
 
 /* LED Data */
 bool Hardware::is_LED_on = false;
@@ -57,13 +55,13 @@ void Hardware::update_data(unsigned long time) {
 	// Update Temperature
 	if (time - LAST_TEMPERATURE_TIME_US > TEMPERATURE_PERIOD_MS*1000) {
 
-		XBee.end();
-		SDCard.end();
+		// XBeeIO::XBee.end();
+		// logfile.end();
 		DATA_T1 = thermocouple_1.readFarenheit();
 		//DATA_T2 = thermocouple_2.readFarenheit();
 		//DATA_T3 = thermocouple_3.readFarenheit();
-		XBee.begin(Default_Config::XBEE_BAUD);
-		SDCard.begin(Default_Config::SD_BAUD);
+		// XBee.begin(Default_Config::XBEE_BAUD);
+		// logfile.begin(Default_Config::SD_BAUD);
 		
 		LAST_TEMPERATURE_TIME_US = time;
 		nd |= 0x02;
@@ -84,14 +82,14 @@ void Hardware::update_data(unsigned long time) {
    Creates a file to save data to
 */
 void Hardware::sdcard_openfile() {
-	//SDCard.begin(Default_Config::SD_BAUD); // .doing .begin(baud) will not make a new file
+	//logfile.begin(Default_Config::SD_BAUD); // .doing .begin(baud) will not make a new file
 }
 
 /**
    Closes currently open save file
 */
 void Hardware::sdcard_closefile() {
-	//SDCard.end(); // .doing .begin(baud) will not make a new file
+	//logfile.end(); // .doing .begin(baud) will not make a new file
 }
 
 /**
@@ -100,28 +98,28 @@ void Hardware::sdcard_closefile() {
 void Hardware::sdcard_write(unsigned int datatype) {
 	unsigned int len = 0;
 	Transmission::buildPacket(XBeeIO::output_buff, &len, datatype);
-	SDCard.write(XBeeIO::output_buff, len);
+	logfile.write((char*) XBeeIO::output_buff, len);
 }
 
 /**
    Initializes the stepper motor
 */
 void Hardware::initializeStepperMotor() {
-  AFMS.begin(); //create default freq of 1.6khz
-  myMotor->setSpeed(100);  // set to 100 rpm
+  // AFMS.begin(); //create default freq of 1.6khz
+  myMotor.setSpeed(100);  // set to 100 rpm
 }
 
 /**
    Opens the stepper motor
 */
 void Hardware::openStepperMotor() {
-  myMotor->step(560, FORWARD, SINGLE); // number of steps to fully open valve
+  myMotor.step(560, FORWARD, SINGLE); // number of steps to fully open valve
 }
 /**
    Closes the stepper motor
 */
 void Hardware::closeStepperMotor() {
-  myMotor->step(560, BACKWARD, SINGLE); //close valve
+  myMotor.step(560, BACKWARD, SINGLE); //close valve
 }
 
 /**
@@ -138,7 +136,7 @@ void Hardware::initializeLoadCell() {
 */
 float Hardware::get_pressure_1_data()
 {
-  int sensorVal = analogRead(Pins_Config::pin_P1);
+  int sensorVal = 0; // analogRead(Pins_Config::pin_P1);
   float voltage = (sensorVal * 5.0) / 1024.0;
   float pressure_psi = (((250.0f * voltage)) - 125.0f);
   return pressure_psi;
@@ -150,7 +148,7 @@ float Hardware::get_pressure_1_data()
 */
 float Hardware::get_pressure_2_data()
 {
-  int sensorVal = analogRead(Pins_Config::pin_P2);
+  int sensorVal = 0; // analogRead(Pins_Config::pin_P2);
   float voltage = (sensorVal * 5.0) / 1024.0;
   float pressure_psi = (((250.0f * voltage)) - 125.0f);
   return pressure_psi;
@@ -163,9 +161,9 @@ float Hardware::get_pressure_2_data()
    bool output -> true to output "LED ON", false by default
 */
 void Hardware::turn_LED_on(bool output) {
-  if (output) XBee.print("LED ON\n");
+  if (output) XBeeIO::XBee << "LED ON\n";
   is_LED_on = true;
-  digitalWrite(Pins_Config::pin_LED, HIGH); // TOGGLE LED ON
+  // digitalWrite(Pins_Config::pin_LED, HIGH); // TOGGLE LED ON
 }
 
 /**
@@ -175,9 +173,9 @@ void Hardware::turn_LED_on(bool output) {
    bool output -> true to output "LED OFF", false by default
 */
 void Hardware::turn_LED_off(bool output) {
-  if (output) XBee.print("LED OFF\n");
+  if (output) XBeeIO::XBee << "LED OFF\n";
   is_LED_on = false;
-  digitalWrite(Pins_Config::pin_LED, LOW); // TOGGLE LED ON
+  // digitalWrite(Pins_Config::pin_LED, LOW); // TOGGLE LED ON
 }
 
 

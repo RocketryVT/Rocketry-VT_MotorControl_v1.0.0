@@ -1,19 +1,27 @@
+#include <chrono>
+#include <thread>
+
 #include "control_main.h"
 
-//#define XBee Serial1
-#include <Adafruit_MotorShield.h>
+// #define XBee Serial1
+// #include <Adafruit_MotorShield.h>
 
-//#include <SoftwareSerial.h> // XBee library
+// #include <SoftwareSerial.h> // XBee library
 #include "Default_Config.h"
 #include "XBee_IO.h"
 #include "Hardware.h"
-#include "Adafruit_MAX31855.h"
+// #include "Adafruit_MAX31855.h"
 
 /**
  * Rocket Motor Control Firmware
  * Outputs raw data and has ability to simulate data by receiving correct command
  */
 
+unsigned long long micros()
+{
+    // should be replaced with std::chrono
+    return 0;
+}
 
 /************ Function Declarations ************/
 
@@ -31,9 +39,11 @@ void control::setup() {
 	using namespace State_Data;
 	
 	// Initialize serial ports
-	SDCard.begin(SD_BAUD);
-	XBee.begin(XBEE_BAUD);
-	
+	// SDCard.begin(SD_BAUD);
+	// XBee.begin(XBEE_BAUD);
+    // something more detailed needs to go here
+    // (like setting the speed_t of the ports with termios.h)	
+
 	// Initialize hardware
 	Hardware::initializeStepperMotor();
 	Hardware::initializeLoadCell();
@@ -120,7 +130,7 @@ void control::loop() {
 		// Time to delay
 		unsigned long deltat_us = micros() - t;
 		unsigned long t_wait = LOOP_PERIOD_MS - ((deltat_us/1000) % LOOP_PERIOD_MS);
-		delay( t_wait );
+		std::this_thread::sleep_for(std::chrono::milliseconds(t_wait));
 	}
 }
 
@@ -131,7 +141,7 @@ void control::reset() {
 	
 	/* I/O Reset */
 	XBeeIO::clear_input_buffer();
-	delay(LOOP_PERIOD_MS);
+	std::this_thread::sleep_for(std::chrono::milliseconds(LOOP_PERIOD_MS));
 	XBeeIO::transmit_data(0x00);
 	
 	/* Control Data */

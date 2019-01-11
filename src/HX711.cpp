@@ -1,37 +1,24 @@
-#include <Arduino.h>
 #include "HX711.h"
 
-#if ARDUINO_VERSION <= 106
-    // "yield" is not implemented as noop in older Arduino Core releases, so let's define it.
-    // See also: https://stackoverflow.com/questions/34497758/what-is-the-secret-of-the-arduino-yieldfunction/34498165#34498165
-    void yield(void) {};
-#endif
-
-HX711::HX711(byte dout, byte pd_sck, byte gain) {
+HX711::HX711(unsigned char dout, unsigned char pd_sck, unsigned char gain) {
 	begin(dout, pd_sck, gain);
 }
 
-HX711::HX711() {
-}
-
-HX711::~HX711() {
-}
-
-void HX711::begin(byte dout, byte pd_sck, byte gain) {
+void HX711::begin(unsigned char dout, unsigned char pd_sck, unsigned char gain) {
 	PD_SCK = pd_sck;
 	DOUT = dout;
 
-	pinMode(PD_SCK, OUTPUT);
-	pinMode(DOUT, INPUT);
+	// pinMode(PD_SCK, OUTPUT);
+	// pinMode(DOUT, INPUT);
 
 	set_gain(gain);
 }
 
 bool HX711::is_ready() {
-	return digitalRead(DOUT) == LOW;
+	return true; // digitalRead(DOUT) == LOW;
 }
 
-void HX711::set_gain(byte gain) {
+void HX711::set_gain(unsigned char gain) {
 	switch (gain) {
 		case 128:		// channel A, gain factor 128
 			GAIN = 1;
@@ -44,7 +31,7 @@ void HX711::set_gain(byte gain) {
 			break;
 	}
 
-	digitalWrite(PD_SCK, LOW);
+	// digitalWrite(PD_SCK, LOW);
 	read();
 }
 
@@ -52,22 +39,22 @@ long HX711::read() {
 	// wait for the chip to become ready
 	while (!is_ready()) {
 		// Will do nothing on Arduino but prevent resets of ESP8266 (Watchdog Issue)
-		yield();
+		// yield();
 	}
 
 	unsigned long value = 0;
-	uint8_t data[3] = { 0 };
-	uint8_t filler = 0x00;
+	unsigned char data[3] = { 0 };
+	unsigned char filler = 0x00;
 
 	// pulse the clock pin 24 times to read the data
-	data[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
-	data[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
-	data[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+	// data[2] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+	// data[1] = shiftIn(DOUT, PD_SCK, MSBFIRST);
+	// data[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
 
 	// set the channel and the gain factor for the next reading using the clock pin
 	for (unsigned int i = 0; i < GAIN; i++) {
-		digitalWrite(PD_SCK, HIGH);
-		digitalWrite(PD_SCK, LOW);
+		// digitalWrite(PD_SCK, HIGH);
+		// digitalWrite(PD_SCK, LOW);
 	}
 
 	// Replicate the most significant bit to pad out a 32-bit signed integer
@@ -86,24 +73,24 @@ long HX711::read() {
 	return static_cast<long>(value);
 }
 
-long HX711::read_average(byte times) {
+long HX711::read_average(unsigned char times) {
 	long sum = 0;
-	for (byte i = 0; i < times; i++) {
+	for (unsigned char i = 0; i < times; i++) {
 		sum += read();
-		yield();
+		// yield();
 	}
 	return sum / times;
 }
 
-double HX711::get_value(byte times) {
+double HX711::get_value(unsigned char times) {
 	return read_average(times) - OFFSET;
 }
 
-float HX711::get_units(byte times) {
+float HX711::get_units(unsigned char times) {
 	return get_value(times) / SCALE;
 }
 
-void HX711::tare(byte times) {
+void HX711::tare(unsigned char times) {
 	double sum = read_average(times);
 	set_offset(sum);
 }
@@ -125,10 +112,10 @@ long HX711::get_offset() {
 }
 
 void HX711::power_down() {
-	digitalWrite(PD_SCK, LOW);
-	digitalWrite(PD_SCK, HIGH);
+	// digitalWrite(PD_SCK, LOW);
+	// digitalWrite(PD_SCK, HIGH);
 }
 
 void HX711::power_up() {
-	digitalWrite(PD_SCK, LOW);
+	// digitalWrite(PD_SCK, LOW);
 }
