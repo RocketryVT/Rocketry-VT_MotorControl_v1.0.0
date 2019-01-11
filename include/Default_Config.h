@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DEFAULT_CONFIG_H
+#define DEFAULT_CONFIG_H
 
 #define test_str_length 1024
 #define __PROGRAM_VERSION__ "MOTOR CONTROL 1.0.0"
@@ -75,3 +76,5 @@ namespace State_Data {
 	extern unsigned long LAST_TEMPERATURE_TIME_US;
 	extern unsigned long LAST_LOADCELL_TIME_US;
 }
+
+#endif // DEFAULT_CONFIG_H

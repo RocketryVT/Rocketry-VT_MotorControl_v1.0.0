@@ -1,6 +1,5 @@
-#pragma once
-
-#include "stdafx.h"
+#ifndef TEST_FLOAT_TO_BINARY_H
+#define TEST_FLOAT_TO_BINARY_H
 
 /**
  * So uh, maybe this will work and maybe it won't. The float may be defined
@@ -14,3 +13,4 @@
  */
 int TestFloatConversions();
 
+#endif // TEST_FLOAT_TO_BINARY_H

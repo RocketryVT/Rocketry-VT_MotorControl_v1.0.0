@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ASSERT_H
+#define ASSERT_H
 
 #include "Default_Config.h"
 
@@ -102,3 +103,5 @@ namespace Test
 	bool assert_equals(double a, double b, double prec, const char* str = 0, bool hard_fail = false);
 
 } // end namespace test
+
+#endif // ASSERT_H

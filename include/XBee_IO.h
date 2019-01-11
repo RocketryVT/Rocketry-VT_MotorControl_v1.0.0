@@ -1,4 +1,5 @@
-#pragma once
+#ifndef XBEE_IO_H
+#define XBEE_IO_H
 
 namespace XBeeIO {
 
@@ -65,3 +66,4 @@ void transmit_data_string();
 
 }
 
+#endif // XBEE_IO_H

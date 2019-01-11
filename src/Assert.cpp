@@ -1,5 +1,3 @@
-#include "stdafx.h"
-
 #include "Assert.h"
 #include "Default_Config.h"
 

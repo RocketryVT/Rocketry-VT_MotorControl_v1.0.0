@@ -1,18 +1,22 @@
-CFLAGS = -std=c99 -Wall -Wpedantic -Wextra -g
-CPPFLAGS = -std=c++11 -Wall -Wpedantic -Wextra -g
-
-INCLUDE = -I include/
+SRC = src/
+INCLUDE = include/
 OBJ = build/
+BIN = bin/
 
+CFLAGS = -std=c99 -Wall -Wpedantic -Wextra -g -I $(INCLUDE)
+CPPFLAGS = -std=c++11 -Wall -Wpedantic -Wextra -g -I $(INCLUDE)
+
+SRC_FILES = $(wildcard $(SRC)*.cpp)
+OBJ_FILES = $(subst $(SRC),$(OBJ),$(subst .cpp,.o,$(SRC_FILES)))
 
 .PHONY: all clean
 
-all: build/Assert.o
+all: $(OBJ_FILES)
 
 clean:
-	@rm -rf build/ bin/ >/dev/null 2>/dev/null || true
+	@rm -rf $(OBJ) $(BIN) >/dev/null 2>/dev/null || true
 
-$(OBJ)Assert.o: src/Assert.cpp include/Assert.h
-	@mkdir -p build/ >/dev/null 2>/dev/null
-	g++ $(CPPFLAGS) $^ -o $@ $(INCLUDE)
+$(OBJ)%.o: $(SRC)%.cpp $(INCLUDE)%.h
+	@mkdir -p $(OBJ) >/dev/null 2>/dev/null
+	g++ $(CPPFLAGS) $< -c -o $@
 

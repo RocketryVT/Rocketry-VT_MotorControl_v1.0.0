@@ -1,4 +1,5 @@
-#pragma once
+#ifndef HARDWARE_H
+#define HARDWARE_H
 
 #include <SD.h>
 #include <Adafruit_MotorShield.h>
@@ -123,8 +124,5 @@ void turn_LED_off(bool output = false);
 
 }
 
-
-
-
-
+#endif // HARDWARE_H
 

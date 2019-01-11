@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TRANSMISSION_H
+#define TRANSMISSION_H
 
 namespace Transmission {
 
@@ -60,3 +61,5 @@ namespace Transmission {
 	void floatToChars(float x, unsigned char* a, unsigned char* b, unsigned char* c, unsigned char* d);
 
 }
+
+#endif // TRANSMISSION_H
