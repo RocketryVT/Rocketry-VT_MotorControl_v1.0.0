@@ -95,9 +95,11 @@ void Hardware::sdcard_closefile() {
 /**
    Saves the data values to a line on a file in the SD card
 */
-void Hardware::sdcard_write(unsigned int datatype) {
-	unsigned int len = 0;
-	Transmission::buildPacket(XBeeIO::output_buff, len, datatype);
+void Hardware::sdcard_write(unsigned int datatype)
+{
+	auto packet = Transmission::buildPacket(datatype);
+    for (auto e : packet)
+        XBeeIO::output_buff.push_back(e);
 	// logfile.write((char*) XBeeIO::output_buff, len);
 }
 

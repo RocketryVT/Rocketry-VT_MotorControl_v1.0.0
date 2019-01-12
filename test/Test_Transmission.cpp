@@ -43,44 +43,46 @@ bool Test_checksum() {
 	bool pass = true;
 
 	// Initialize
-	std::deque<unsigned char> str { 0, 0, 0, 0, 0 };
-	unsigned int len = 5;
+	std::vector<unsigned char> packet;
+	// unsigned int len = 5;
 	unsigned char c0;
 	unsigned char c1;
 	unsigned char c0_true = 0x00;
 	unsigned char c1_true = 0x00;
 
 	// Test 1
-	str[0] = 0x01;
-	str[1] = 0x02;
-	str[2] = 0x01;
-	str[3] = 0x02;
+	packet.push_back(0x01);
+	packet.push_back(0x02);
+	packet.push_back(0x01);
+	packet.push_back(0x02);
 	c0_true = 0x00;
 	c1_true = 0x00;
-	xorchecksum(str, 4, c0, c1);
+	xorchecksum(packet, c0, c1);
 	pass &= assert_equals((long) c0_true, (long) c0, "Test 1 Incorrect c0");
 	pass &= assert_equals((long) c1_true, (long) c1, "Test 1 Incorrect c1");
 
 	// Test 2
-	str[0] = 0x04;
-	str[1] = 0x04;
-	str[2] = 0x05;
-	str[3] = 0x02;
+    packet.clear();
+    packet.push_back(0x04);
+	packet.push_back(0x04);
+	packet.push_back(0x05);
+	packet.push_back(0x02);
 	c0_true = 0x01;
 	c1_true = 0x06;
-	xorchecksum(str, 4, c0, c1);
+	xorchecksum(packet, c0, c1);
 	pass &= assert_equals((long) c0_true, (long) c0, "Test 2 Incorrect c0");
 	pass &= assert_equals((long) c1_true, (long) c1, "Test 2 Incorrect c1");
 
 	// Test 3
-	str[0] = 0x07;
-	str[1] = 0x04;
-	str[2] = 0x01;
-	str[3] = 0x02;
-	str[4] = 0x04;
+    packet.clear();
+	packet.push_back(0x07);
+    packet.push_back(0x04);
+	packet.push_back(0x01);
+	packet.push_back(0x02);
+	packet.push_back(0x04);
 	c0_true = 0x02;
 	c1_true = 0x06;
-	xorchecksum(str, 5, c0, c1);
+	xorchecksum(packet, c0, c1);
 	pass &= assert_equals((long) c0_true, (long) c0, "Test 3 Incorrect c0");
 	pass &= assert_equals((long) c1_true, (long) c1, "Test 3 Incorrect c1");
 	
@@ -98,25 +100,23 @@ bool Test_0x01()
 	bool pass = true;
 
 	// Desired output (Obtained using MATLAB Test cases)
-	// unsigned char str[] = { 0xAA, 0x14, 0x06, 0x01, 0x00, 0x00 };
-    std::deque<unsigned char> str { 0xAA, 0x14, 0x06, 0x02, 0x00, 0x00 };
-	std::deque<unsigned char> out { 0, 0, 0, 0, 0, 0 };
+    std::vector<unsigned char> packet { 0xAA, 0x14, 0x06, 0x02, 0x00 };
 
 	// Do the true checksum
 	unsigned char c0;
 	unsigned char c1;
-	xorchecksum(str, 5, c0, c1);
-	str[4] = c0;
-	str[5] = c1;
+	xorchecksum(packet, c0, c1);
+	packet.push_back(c0);
+	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
 	unsigned int len = 0;
-	buildPacket(out, len, 0x01);
+	std::vector<unsigned char> out = buildPacket(0x01);
 
 	// Assert cases
-	pass &= assert_equals((long)len, (long)6, "Incorrect value on output  len");
-	for (unsigned int i = 0; i < 6; i++) {
-		pass &= assert_equals((long)out[i], (long)str[i], "bad str");
+	pass &= assert_equals((long) out.size(), (long) 6, "Incorrect value on output  len");
+	for (unsigned int i = 0; i < out.size(); i++) {
+		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 
 	return pass;
@@ -133,24 +133,22 @@ bool Test_0x02() {
 
 	// Desired output (Obtained using MATLAB Test cases)
 	// unsigned char str[] = { 0xAA, 0x14, 0x06, 0x02, 0x00, 0x00 };
-    std::deque<unsigned char> str { 0xAA, 0x14, 0x06, 0x02, 0x00, 0x00 };
-	std::deque<unsigned char> out { 0, 0, 0, 0, 0, 0 };
+    std::vector<unsigned char> packet { 0xAA, 0x14, 0x06, 0x02 };
 
     // Do the true checksum
 	unsigned char c0;
 	unsigned char c1;
-	xorchecksum(str, 5, c0, c1);
-	str[4] = c0;
-	str[5] = c1;
+	xorchecksum(packet, c0, c1);
+	packet.push_back(c0);
+	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
-	unsigned int len = 0;
-	buildPacket(out, len, 0x02);
+	auto out = buildPacket(0x02);
 
 	// Assert cases
-	pass &= assert_equals((long)len, (long)6, "Incorrect value on output  len");
-	for (unsigned int i = 0; i < 6; i++) {
-		pass &= assert_equals((long)out[i], (long)str[i], "bad str");
+	pass &= assert_equals((long) out.size(), (long) 6, "Incorrect value on output  len");
+	for (unsigned int i = 0; i < out.size(); i++) {
+		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 
 	return pass;
@@ -183,30 +181,28 @@ bool Test_0x10() {
 	MODE = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
-    std::deque<unsigned char> str { 0xAA, 0x14, 0x07, 0x10, 0x02, 0x00, 0x00 };
-	std::deque<unsigned char> out { 0, 0, 0, 0, 0, 0, 0 };
+    std::vector<unsigned char> packet { 0xAA, 0x14, 0x07, 0x10, 0x02 };
 
 	// Do the true checksum
 	unsigned char c0;
 	unsigned char c1;
-	xorchecksum(str, 5, c0, c1);
-	str[5] = c0;
-	str[6] = c1;
+	xorchecksum(packet, c0, c1);
+	packet.push_back(c0);
+	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
-	unsigned int len = 0;
-	buildPacket(out, len, 0x10);
+	auto out = buildPacket(0x10);
 
 	// Assert cases
-	pass &= assert_equals((long)len, (long)7, "Incorrect value on output  len");
-	for (unsigned int i = 0; i < 7; i++) {
-		pass &= assert_equals((long)out[i], (long)str[i], "Incorrect value on output");
+	pass &= assert_equals((long) out.size(), (long) 7, "Incorrect value on output  len");
+	for (unsigned int i = 0; i < out.size(); i++) {
+		pass &= assert_equals((long) out[i], (long) packet[i], "Incorrect value on output");
 	}
 
 	// Try changing mode
 	MODE = 11;
-	buildPacket(out, len, 0x10);
-	pass &= assert_equals((long)out[4], 11, "Incorrect value on output  4");
+	out = buildPacket(0x10);
+	pass &= assert_equals((long) out[4], 11, "Incorrect value on output  4");
 
 	// Reset Old Data
 	DATA_TIME = DATA_TIME_old;
@@ -256,34 +252,24 @@ bool Test_0x40() {
 	MODE = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
-    std::deque<unsigned char> str { 170, 20, 22, \
-		0x40,            \
-		0x00,  0x01, 0xE2, 0x40, \
-		2,               \
-		0,  0,           \
-		64, 64,  0, 0,   \
-		64, 160, 0, 0,   \
-		31,              \
-		0x00, 0x00 };
-	std::deque<unsigned char> out { 0, 0, \
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, \
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    std::vector<unsigned char> packet { 170, 20, 22,
+		0x40, 0x00,  0x01, 0xE2, 0x40,
+		2, 0, 0, 64, 64, 0, 0, 64, 160, 0, 0, 31 };
 
 	// Do the true checksum
 	unsigned char c0;
 	unsigned char c1;
-	xorchecksum(str, 20, c0, c1);
-	str[20] = c0;
-	str[21] = c1;
+	xorchecksum(packet, c0, c1);
+	packet.push_back(c0);
+	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
-	unsigned int len = 0;
-	buildPacket(out, len, 0x40);
+	auto out = buildPacket(0x40);
 
 	// Assert cases
-	pass &= assert_equals((long)len, (long)22, "Incorrect value on output len");
-	for (unsigned int i = 0; i < 22; i++) {
-		pass &= assert_equals((long)out[i], (long)str[i], "bad str");
+	pass &= assert_equals((long) out.size(), (long) 22, "Incorrect value on output len");
+	for (unsigned int i = 0; i < out.size(); i++) {
+		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 
 	// Reset Old Data
@@ -334,37 +320,24 @@ bool Test_0x51() {
 	MODE = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
-	std::deque<unsigned char> str = { 170, 20, 34, \
-		0x51,            \
-		0,   1, 226, 64, \
-		2,               \
-		0,  0,           \
-		63, 128, 0, 0,   \
-		64, 0,   0, 0,   \
-		64, 64,  0, 0,   \
-		64, 128, 0, 0,   \
-		64, 160, 0, 0,   \
-		31,              \
-		0x00, 0x00 };
-	std::deque<unsigned char> out = {0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+	std::vector<unsigned char> packet = { 170, 20, 34,
+        0x51, 0, 1, 226, 64, 2, 0, 0, 63, 128, 0, 0, 64, 0, 0, 0,
+		64, 64, 0, 0, 64, 128, 0, 0, 64, 160, 0, 0,	31 };
 
 	// Do the true checksum
 	unsigned char c0;
 	unsigned char c1;
-	xorchecksum(str, 32, c0, c1);
-	str[32] = c0;
-	str[33] = c1;
+	xorchecksum(packet, c0, c1);
+	packet.push_back(c0);
+	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
-	unsigned int len = 0;
-	buildPacket(out, len, 0x51);
+	auto out = buildPacket(0x51);
 	
 	// Assert cases
-	for (unsigned int i = 0; i < 34; i++) {
-		pass &= assert_equals((long)out[i], (long)str[i], "bad str");
+	for (unsigned int i = 0; i < out.size(); i++)
+    {
+		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 	
 	// Reset Old Data
@@ -417,7 +390,7 @@ bool Test_0x52() {
 	MODE = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
-	std::deque<unsigned char> str = { 170, 20, 38, \
+	std::vector<unsigned char> packet = { 170, 20, 38, \
 		0x52,             \
 		0, 1,    226, 64, \
 		2,                \
@@ -428,27 +401,21 @@ bool Test_0x52() {
 		64, 128, 0,   0,  \
 		64, 160, 0,   0,  \
 		64, 192, 0,   0,  \
-		31,               \
-		0xFF, 0xFF };
-	std::deque<unsigned char> out = {0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		31};
 
 	// Do the true checksum
 	unsigned char c0;
 	unsigned char c1;
-	xorchecksum(str, 36, c0, c1);
-	str[36] = c0;
-	str[37] = c1;
+	xorchecksum(packet, c0, c1);
+	packet.push_back(c0);
+	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
-	unsigned int len = 0;
-	buildPacket(out, len, 0x52);
+	auto out = buildPacket(0x52);
 
 	// Assert cases
-	for (unsigned int i = 0; i < 38; i++) {
-		pass &= assert_equals((long)out[i], (long)str[i], "bad str");
+	for (unsigned int i = 0; i < out.size(); i++) {
+		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 
 	// Reset Old Data

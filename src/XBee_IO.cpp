@@ -68,7 +68,10 @@ void XBeeIO::transmit_data(unsigned int type) {
 	
 	// Build packet and transmit it
 	unsigned int len = 0;
-	buildPacket(output_buff, len, type);
+    
+	auto packet = buildPacket(type);
+    for (auto e : packet)
+        output_buff.push_back(e);
 	// XBee.write((char*) output_buff, len);
 	return;
 }
