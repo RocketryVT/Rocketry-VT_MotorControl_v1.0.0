@@ -1,9 +1,11 @@
+#include <iostream>
 #include <chrono>
 #include <cstring>
+#include <cctype>
 
 #include "XBee_IO.h"
 #include "Default_Config.h"
-#include "control_main.h"
+#include "control.h"
 #include "Transmission.h"
 #include "Hardware.h"
 #include "Assert.h"
@@ -18,7 +20,7 @@ unsigned char XBeeIO::output_buff[XBeeIO::OUTPUT_BUFF_LENGTH];
 /* Data */
 unsigned char XBeeIO::PACKET_SIZE = 30;
 
-std::fstream XBeeIO::XBee("", std::ios::binary);
+std::fstream XBeeIO::XBee("infile.txt", std::ios::in | std::ios::out);
 
 /**
  * Recieves input from the XBee and saves it to "input_buff"
@@ -29,15 +31,22 @@ std::fstream XBeeIO::XBee("", std::ios::binary);
  * RETURN
  * bool -> true if the input_buffer was updated
  */
-bool XBeeIO::update_input_buffer() {
-	unsigned char char_in;
+bool XBeeIO::update_input_buffer()
+{
+    size_t rptr = XBee.tellg();
+    XBee.seekg(0, std::ios::end);
+    size_t end = XBee.tellg();
+    if (rptr > end) rptr = 0;
+    XBee.seekg(rptr);
 
-	if (XBee.tellg() == 0) return false;
- 
-	while (XBee.tellg() > 0) {
-		XBee >> char_in;
+	char char_in;
+	while (rptr < end) 
+    {
+        std::cout << std::hex << (int) char_in << std::endl;
+        char_in = XBee.get();
 		input_buff[buff_length] = char_in;
 		buff_length++;
+        ++rptr;
 		// TODO: if buff_length is too big, then clear everything
 	}
 	return true;
@@ -121,7 +130,9 @@ bool XBeeIO::parse_input_buffer() {
 			}
 	
 			// Binary Lexicon
-			if (hashdr) {
+			if (hashdr)
+            {
+                std::cout << "RCV MSG TYPE " << (int) input_buff[i] << std::endl;
 				if (input_buff[i] == 0x00) { // Echo Firmware Version
 					transmit_data(0x00);
 				}
@@ -173,13 +184,14 @@ bool XBeeIO::parse_input_buffer() {
 						//transmit_data_string();
 					}
 				}
-				else if (input_buff[i] == 0x44) { // Print buffer for debugging
+				else if (input_buff[i] == 0x44) // print buffer for debugging
+                {
 					dispbuff();
 				}
-				else if (input_buff[i] == 0x50) { // Simple Simulation Packet
+				else if (input_buff[i] == 0x50) // Simple Simulation Packet
+                {
 					// See documentation for data packet structure
-					TIME = std::chrono::duration_cast<std::chrono::milliseconds>
-                           (std::chrono::steady_clock::now().time_since_epoch()).count();
+					TIME = std::chrono::steady_clock::now();
 					DATA_OUT_TYPE  = input_buff[i+0];
 					MODE           = input_buff[i+1]; // 5
 					STATUS         = input_buff[i+2];
@@ -190,7 +202,8 @@ bool XBeeIO::parse_input_buffer() {
 					DATA_THR       = input_buff[i+7];
 					NEW_DATA       = input_buff[i+8];
 				}
-				else { // Unrecognized command
+				else // unrecognized command
+                {
 					i--;
 					continue;
 				}
@@ -258,14 +271,19 @@ bool XBeeIO::clear_input_buffer(unsigned long ii) {
  * Displays hex values of the buffer to the XBee port
  */
 void XBeeIO::dispbuff() {
-	XBee << "BUFFER: ";
-	XBee << XBeeIO::buff_length;
-	XBee << "\n";
-	for (unsigned long i = 0; i < buff_length; i++) {
-		XBee << "   ";
-		XBee << input_buff[i];
-		XBee << "\n";
+	std::cout << "BUFFER (" << XBeeIO::buff_length << "):";
+	for (unsigned long i = 0; i < XBeeIO::buff_length; i++) {
+        std::cout << " " << std::hex << (int) input_buff[i];
 	}
+    std::cout << " | ";
+	for (unsigned long i = 0; i < XBeeIO::buff_length; i++) {
+		if (std::isprint(input_buff[i]))
+            std::cout << input_buff[i];
+        else
+            std::cout << ".";
+	}
+    std::cout << " |";
+    std::cout << std::endl;
 }
 
 /* Transmits the full data string in ASCII */

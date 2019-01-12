@@ -10,19 +10,20 @@ unsigned long Default_Config::SD_BAUD = 115200;
 /* Data Transmission Type */
 unsigned int Default_Config::DATA_OUT_TYPE = 0x40;
 
-/* Device interface control variables */
-unsigned long Default_Config::TIME = 0;
-unsigned long Default_Config::LOOP_PERIOD_MS = 25;
-unsigned long Default_Config::XBeeWrite_period_ms = 200;
-unsigned long Default_Config::checkbuffer_period_ms = 10;//100;
-unsigned long Default_Config::START_TIME;
-unsigned long Default_Config::DATA_TIME;
+std::chrono::time_point<std::chrono::steady_clock>
+    Default_Config::TIME = std::chrono::steady_clock::now(),
+    Default_Config::START_TIME = Default_Config::TIME,
+    Default_Config::DATA_TIME = Default_Config::TIME;
 
-/* Data Timing */
-unsigned long Default_Config::PRESSURE_PERIOD_MS = 10;
-unsigned long Default_Config::TEMPERATURE_PERIOD_MS = 100;
-unsigned long Default_Config::LOADCELL_PERIOD_MS = 10;
-
+std::chrono::milliseconds
+    /* Device interface control variables */
+    Default_Config::LOOP_PERIOD_MS = std::chrono::milliseconds(50),
+    Default_Config::XBeeWrite_period_ms = std::chrono::milliseconds(1000),
+    Default_Config::checkbuffer_period_ms = std::chrono::milliseconds(2000),
+    /* Data Timing */
+    Default_Config::PRESSURE_PERIOD_MS = std::chrono::milliseconds(10),
+    Default_Config::TEMPERATURE_PERIOD_MS = std::chrono::milliseconds(100),
+    Default_Config::LOADCELL_PERIOD_MS = std::chrono::milliseconds(10);
 
 /**************************** PINS ****************************/
 
@@ -63,6 +64,8 @@ unsigned char State_Data::NEW_DATA = 0;
 unsigned int State_Data::MODE = 0;
 
 /* Data Timing Control */
-unsigned long State_Data::LAST_PRESSURE_TIME_US = 0;
-unsigned long State_Data::LAST_TEMPERATURE_TIME_US = 0;
-unsigned long State_Data::LAST_LOADCELL_TIME_US = 0;
+// these initialize to the epoch of the clock being used
+std::chrono::time_point<std::chrono::steady_clock>
+    State_Data::LAST_PRESSURE_TIME_US,
+    State_Data::LAST_TEMPERATURE_TIME_US,
+    State_Data::LAST_LOADCELL_TIME_US;

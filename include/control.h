@@ -3,15 +3,15 @@
 
 /************ Function Declarations ************/
 
-namespace control {
+namespace control
+{
 
-	void loop();
-	
-	void setup();
+void init();
 
-	/* Reset function */
-	void reset();
+void loop();
 
-}
+void reset();
+
+} // namespace control
 
 #endif // CONTROL_MAIN_H

@@ -5,6 +5,8 @@
 #define __PROGRAM_VERSION__ "MOTOR CONTROL 1.0.0"
 #define __LF__ 10 // Newline character
 
+#include <chrono>
+
 /* XBee RX, TX pins */
 // Connect DIN to pin 18 ,and DOUT to pin 19
 
@@ -17,18 +19,18 @@ namespace Default_Config {
 	/* Data Transmission Type */
 	extern unsigned int DATA_OUT_TYPE;
 	
-	/* Timing Control Bariables */
-	extern unsigned long TIME;
-	extern unsigned long LOOP_PERIOD_MS;
-	extern unsigned long XBeeWrite_period_ms;
-	extern unsigned long checkbuffer_period_ms;
-	extern unsigned long START_TIME;
-	extern unsigned long DATA_TIME;
-	
-	/* Data Timing */
-	extern unsigned long PRESSURE_PERIOD_MS;
-	extern unsigned long TEMPERATURE_PERIOD_MS;
-	extern unsigned long LOADCELL_PERIOD_MS;
+    extern std::chrono::time_point<std::chrono::steady_clock>
+        TIME, START_TIME, DATA_TIME;
+
+    extern std::chrono::milliseconds
+        /* Device interface control variables */
+        LOOP_PERIOD_MS,
+        XBeeWrite_period_ms,
+        checkbuffer_period_ms,
+        /* Data Timing */
+        PRESSURE_PERIOD_MS,
+        TEMPERATURE_PERIOD_MS,
+        LOADCELL_PERIOD_MS;
 }
 
 namespace Pins_Config {
@@ -70,9 +72,10 @@ namespace State_Data {
 	extern unsigned int MODE;
 	
 	/* Data Timing Control */
-	extern unsigned long LAST_PRESSURE_TIME_US;
-	extern unsigned long LAST_TEMPERATURE_TIME_US;
-	extern unsigned long LAST_LOADCELL_TIME_US;
+    extern std::chrono::time_point<std::chrono::steady_clock>
+	    LAST_PRESSURE_TIME_US,
+	    LAST_TEMPERATURE_TIME_US,
+	    LAST_LOADCELL_TIME_US;
 }
 
 #endif // DEFAULT_CONFIG_H

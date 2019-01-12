@@ -35,46 +35,46 @@ bool Hardware::is_LED_on = false;
           0x00001000 - TEMPERATURE_COMBUSTION
           0x00010000 - THRUST
 */
-void Hardware::update_data(unsigned long time) {
-  
-	using namespace State_Data;
-	using namespace Default_Config;
-	
-	// New Data
+void Hardware::update_data(const std::chrono::steady_clock::time_point& time)
+{
+    // New Data
 	unsigned char nd = 0;
-	DATA_TIME = time;
+	Default_Config::DATA_TIME = time;
 	
 	// Update Pressure
-	if (time - LAST_PRESSURE_TIME_US > PRESSURE_PERIOD_MS*1000) {
+	if (time - State_Data::LAST_PRESSURE_TIME_US
+        > Default_Config::PRESSURE_PERIOD_MS) {
 		//DATA_P1 = get_pressure_1_data(); // Insert Patrick's code here
 		//DATA_P2 = get_pressure_2_data(); // Insert Patrick's code here
-		LAST_PRESSURE_TIME_US = time;
+		State_Data::LAST_PRESSURE_TIME_US = time;
 		nd |= 0x01;
 	}
 	
 	// Update Temperature
-	if (time - LAST_TEMPERATURE_TIME_US > TEMPERATURE_PERIOD_MS*1000) {
+	if (time - State_Data::LAST_TEMPERATURE_TIME_US
+        > Default_Config::TEMPERATURE_PERIOD_MS*1000) {
 
 		// XBeeIO::XBee.end();
 		// logfile.end();
-		DATA_T1 = thermocouple_1.readFarenheit();
+		State_Data::DATA_T1 = thermocouple_1.readFarenheit();
 		//DATA_T2 = thermocouple_2.readFarenheit();
 		//DATA_T3 = thermocouple_3.readFarenheit();
 		// XBee.begin(Default_Config::XBEE_BAUD);
 		// logfile.begin(Default_Config::SD_BAUD);
 		
-		LAST_TEMPERATURE_TIME_US = time;
+		State_Data::LAST_TEMPERATURE_TIME_US = time;
 		nd |= 0x02;
 	}
 	
 	// Update Load Cell
-	if (time - LAST_LOADCELL_TIME_US > LOADCELL_PERIOD_MS*1000) {
-		DATA_THR = loadcell.get_units(); // Load cell measure thrust
-		LAST_LOADCELL_TIME_US = time;
+	if (time - State_Data::LAST_LOADCELL_TIME_US
+        > Default_Config::LOADCELL_PERIOD_MS*1000) {
+		State_Data::DATA_THR = loadcell.get_units(); // Load cell measure thrust
+		State_Data::LAST_LOADCELL_TIME_US = time;
 		nd |= 0x04;
 	}
 	
-	NEW_DATA = nd;
+	State_Data::NEW_DATA = nd;
 	return;
 }
 

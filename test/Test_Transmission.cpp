@@ -166,7 +166,7 @@ bool Test_0x10() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long DATA_TIME_old = DATA_TIME;
+	auto          DATA_TIME_old = DATA_TIME;
 	int           STATUS_old = STATUS;
 	float         DATA_P1_old = DATA_P1;
 	float         DATA_P2_old = DATA_P2;
@@ -231,7 +231,7 @@ bool Test_0x40() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long DATA_TIME_old = DATA_TIME;
+	auto          DATA_TIME_old = DATA_TIME;
 	int           STATUS_old = STATUS;
 	float         DATA_P1_old = DATA_P1;
 	float         DATA_P2_old = DATA_P2;
@@ -242,7 +242,7 @@ bool Test_0x40() {
 	unsigned int  MODE_old = MODE;
 
 	// Initialize global data
-	DATA_TIME = 123456;
+	// DATA_TIME = 123456;
 	STATUS = 0;
 	DATA_P1 = 1;
 	DATA_P2 = 2;
@@ -307,7 +307,7 @@ bool Test_0x51() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long DATA_TIME_old   = DATA_TIME;
+	auto          DATA_TIME_old   = DATA_TIME;
 	int           STATUS_old      = STATUS;
 	float         DATA_P1_old     = DATA_P1;
 	float         DATA_P2_old     = DATA_P2;
@@ -318,7 +318,7 @@ bool Test_0x51() {
 	unsigned int  MODE_old        = MODE;
 	
 	// Initialize global data
-	DATA_TIME = 123456;
+	// DATA_TIME = 123456;
 	STATUS = 0;
 	DATA_P1 = 1;
 	DATA_P2 = 2;
@@ -385,7 +385,7 @@ bool Test_0x52() {
 	bool pass = true;
 
 	// Save current data
-	unsigned long DATA_TIME_old    = DATA_TIME;
+	auto          DATA_TIME_old    = DATA_TIME;
 	int           STATUS_old       = STATUS;
 	float         DATA_P1_old      = DATA_P1;
 	float         DATA_P2_old      = DATA_P2;
@@ -397,7 +397,7 @@ bool Test_0x52() {
 	unsigned int  MODE_old         = MODE;
 	
 	// Initialize global data
-	DATA_TIME = 123456;
+	// DATA_TIME = 123456;
 	STATUS = 0;
 	DATA_P1 = 1;
 	DATA_P2 = 2;

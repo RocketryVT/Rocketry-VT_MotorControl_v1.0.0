@@ -1,10 +1,12 @@
 
-#include "control_main.h"
+// #include "control_main.h"
 #include "Transmission.h"
 #include "Default_Config.h"
 #include "Assert.h"
 // #include "Test_all.h"
 #include "XBee_IO.h"
+
+const unsigned long long integerTime = 0;
 
 /**
 * Compiles data to a char array so that it can be pushed to the
@@ -85,10 +87,10 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[3] = 0x40;
 
 		// Time
-		str[4] = (unsigned char)(TIME >> 24) & 0xFF;
-		str[5] = (unsigned char)(TIME >> 16) & 0xFF;
-		str[6] = (unsigned char)(TIME >> 8) & 0xFF;
-		str[7] = (unsigned char)(TIME >> 0) & 0xFF;
+		str[4] = (unsigned char)(integerTime >> 24) & 0xFF;
+		str[5] = (unsigned char)(integerTime >> 16) & 0xFF;
+		str[6] = (unsigned char)(integerTime >> 8) & 0xFF;
+		str[7] = (unsigned char)(integerTime >> 0) & 0xFF;
 
 		// Mode
 		str[8] = MODE;
@@ -131,10 +133,10 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[3] = 0x51;
 
 		// Time
-		str[4] = (unsigned char)(TIME >> 24) & 0xFF;
-		str[5] = (unsigned char)(TIME >> 16) & 0xFF;
-		str[6] = (unsigned char)(TIME >> 8) & 0xFF;
-		str[7] = (unsigned char)(TIME >> 0) & 0xFF;
+		str[4] = (unsigned char)(integerTime >> 24) & 0xFF;
+		str[5] = (unsigned char)(integerTime >> 16) & 0xFF;
+		str[6] = (unsigned char)(integerTime >> 8) & 0xFF;
+		str[7] = (unsigned char)(integerTime >> 0) & 0xFF;
 
 		// Mode
 		str[8] = MODE;
@@ -198,10 +200,10 @@ void Transmission::buildPacket(unsigned char* str, unsigned int* len, unsigned i
 		str[3] = 0x52;
 
 		// Time
-		str[4] = (unsigned char)(TIME >> 24) & 0xFF;
-		str[5] = (unsigned char)(TIME >> 16) & 0xFF;
-		str[6] = (unsigned char)(TIME >> 8) & 0xFF;
-		str[7] = (unsigned char)(TIME >> 0) & 0xFF;
+		str[4] = (unsigned char)(integerTime >> 24) & 0xFF;
+		str[5] = (unsigned char)(integerTime >> 16) & 0xFF;
+		str[6] = (unsigned char)(integerTime >> 8) & 0xFF;
+		str[7] = (unsigned char)(integerTime >> 0) & 0xFF;
 
 		// Mode
 		str[8] = MODE;

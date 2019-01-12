@@ -15,7 +15,6 @@ include_directories(test)
 add_library(controller
     src/Adafruit_MAX31855.cpp
     src/Assert.cpp
-    src/control_main.cpp
     src/Default_Config.cpp
     src/Hardware.cpp
     src/HX711.cpp
@@ -28,8 +27,8 @@ add_library(tests
     test/Test_FloatToBinary.cpp
     test/Test_Transmission.cpp)
 
-add_executable(main src/main.cpp)
+add_executable(main src/control.cpp)
 target_link_libraries(main controller)
-add_executable(unit_test test/Unit-Tests-PC)
+add_executable(unit_test test/Unit-Tests-PC.cpp)
 target_link_libraries(unit_test tests)
 target_link_libraries(unit_test controller)

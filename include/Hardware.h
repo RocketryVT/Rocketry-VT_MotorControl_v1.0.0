@@ -55,7 +55,7 @@ extern bool is_LED_on;
          0x00000010 - TEMPERATURE_COMBUSTION
          0x00000100 - Load Cell
 */
-void update_data(unsigned long time);
+void update_data(const std::chrono::steady_clock::time_point& t);
 
 /**
    Creates a file to save data to
