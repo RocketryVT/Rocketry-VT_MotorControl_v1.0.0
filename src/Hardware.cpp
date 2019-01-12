@@ -97,8 +97,8 @@ void Hardware::sdcard_closefile() {
 */
 void Hardware::sdcard_write(unsigned int datatype) {
 	unsigned int len = 0;
-	Transmission::buildPacket(XBeeIO::output_buff, &len, datatype);
-	logfile.write((char*) XBeeIO::output_buff, len);
+	Transmission::buildPacket(XBeeIO::output_buff, len, datatype);
+	// logfile.write((char*) XBeeIO::output_buff, len);
 }
 
 /**

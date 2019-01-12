@@ -32,7 +32,7 @@ int TestFloatConversions()
 	unsigned char c = 0;
 	unsigned char d = 0;
 	//dmsg("- Test floatToChars (positive)");
-	floatToChars(x, &a, &b, &c, &d);
+	floatToChars(x, a, b, c, d);
 	pass &= assert_equals((long)a, (long)0x46, "floatToChars (positive) 1: a is incorrect");
 	pass &= assert_equals((long)b, (long)0x40, "floatToChars (positive) 2: b is incorrect");
 	pass &= assert_equals((long)c, (long)0xE6, "floatToChars (positive) 3: c is incorrect");
@@ -45,7 +45,7 @@ int TestFloatConversions()
 	c = 0;
 	d = 0;
 	//dmsg("- Test floatToChars (negative)");
-	floatToChars(x, &a, &b, &c, &d);
+	floatToChars(x, a, b, c, d);
 	pass &= assert_equals((long)a, (long)0xC6, "floatToChars (negative) 1: a is incorrect");
 	pass &= assert_equals((long)b, (long)0x40, "floatToChars (negative) 2: b is incorrect");
 	pass &= assert_equals((long)c, (long)0xE6, "floatToChars (negative) 3: c is incorrect");
@@ -84,7 +84,7 @@ int TestFloatConversions()
 	// Forward and backwards
 	x = 1234.1234f;
 	//dmsg("- Test charsToFloat (F&B)");
-	floatToChars(x, &a, &b, &c, &d);
+	floatToChars(x, a, b, c, d);
 	y = charsToFloat(a, b, c, d);
 	pass &= assert_equals(x, y, 1e-8, "charsToFloat (F&B): result is incorrect");
 

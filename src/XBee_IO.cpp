@@ -11,11 +11,12 @@
 #include "Assert.h"
 
 /************ Global Variables ************/
-const unsigned long XBeeIO::BUFF_INPUT = 1024;
-unsigned char XBeeIO::input_buff[XBeeIO::BUFF_INPUT];
-unsigned long XBeeIO::buff_length = 0;
-const unsigned long XBeeIO::OUTPUT_BUFF_LENGTH = 255;
-unsigned char XBeeIO::output_buff[XBeeIO::OUTPUT_BUFF_LENGTH];
+// const unsigned long XBeeIO::BUFF_INPUT = 1024;
+// unsigned char XBeeIO::input_buff[XBeeIO::BUFF_INPUT];
+// unsigned long XBeeIO::buff_length = 0;
+// const unsigned long XBeeIO::OUTPUT_BUFF_LENGTH = 255;
+// unsigned char XBeeIO::output_buff[XBeeIO::OUTPUT_BUFF_LENGTH];
+std::deque<unsigned char> XBeeIO::input_buff, XBeeIO::output_buff;
 
 /* Data */
 unsigned char XBeeIO::PACKET_SIZE = 30;
@@ -42,12 +43,9 @@ bool XBeeIO::update_input_buffer()
 	char char_in;
 	while (rptr < end) 
     {
-        std::cout << std::hex << (int) char_in << std::endl;
         char_in = XBee.get();
-		input_buff[buff_length] = char_in;
-		buff_length++;
+		input_buff.push_back(char_in);
         ++rptr;
-		// TODO: if buff_length is too big, then clear everything
 	}
 	return true;
 }
@@ -70,8 +68,8 @@ void XBeeIO::transmit_data(unsigned int type) {
 	
 	// Build packet and transmit it
 	unsigned int len = 0;
-	buildPacket(output_buff, &len, type);
-	XBee.write((char*) output_buff, len);
+	buildPacket(output_buff, len, type);
+	// XBee.write((char*) output_buff, len);
 	return;
 }
 
@@ -84,19 +82,21 @@ void XBeeIO::transmit_data(unsigned int type) {
  * RETURN
  * bool -> true if the buffer was parsed succesfully
  */
-bool XBeeIO::parse_input_buffer() {
-
+bool XBeeIO::parse_input_buffer()
+{
 	using namespace Default_Config;
 	using namespace State_Data;
 
 	// Empty buffer
-	if (buff_length < 4) return false;
+	if (input_buff.size() < 4) return false;
 	
 	// Parse binary command
 	// Search for header
 	unsigned long i = 0; int is_binary = 0;
-	while (i < buff_length) { // TODO: Make this work with trash data before the header
-		if (input_buff[i] == 0xAA && input_buff[i+1] == 0x14) { 
+	while (i < input_buff.size() - 1) // TODO: Make this work with trash data before the header
+    {
+		if (input_buff[i] == 0xAA && input_buff[i+1] == 0x14)
+        { 
 			is_binary = true;
 			break;
 		}
@@ -106,17 +106,17 @@ bool XBeeIO::parse_input_buffer() {
 	// Decode binary packet
 	bool hashdr;
 	unsigned long clri = 0;
-	if (is_binary) {
-
-		//dispbuff();
-	
-		while (i < buff_length) {
-
+	if (is_binary)
+    {
+		while (i < input_buff.size())
+        {
 			hashdr = false;
 
 			// Search for header
-			while (i < buff_length)  {
-				if (input_buff[i] == 0xAA && input_buff[i+1] == 0x14) { 
+			while (i < input_buff.size())
+            {
+				if (input_buff[i] == 0xAA && input_buff[i+1] == 0x14)
+                {
 					i = i + 3;
 					hashdr = true;
 					break;
@@ -125,7 +125,7 @@ bool XBeeIO::parse_input_buffer() {
 			}
 		
 			// If incomplete data packet, end loop
-			if ( buff_length < 4 && buff_length < (i + input_buff[i-1] - 1)) {
+			if (input_buff.size() < 4 && input_buff.size() < (i + input_buff[i-1] - 1)) {
 				return false;
 			}
 	
@@ -133,30 +133,38 @@ bool XBeeIO::parse_input_buffer() {
 			if (hashdr)
             {
                 std::cout << "RCV MSG TYPE " << (int) input_buff[i] << std::endl;
-				if (input_buff[i] == 0x00) { // Echo Firmware Version
+				if (input_buff[i] == 0x00) // Echo Firmware Version
+                {
 					transmit_data(0x00);
 				}
-				if (input_buff[i] == 0x01) { // Turn LED ON
+				if (input_buff[i] == 0x01) // Turn LED ON
+                {
 					Hardware::turn_LED_on();
 				}
-				else if (input_buff[i] == 0x02) { // Turn LED OFF
+				else if (input_buff[i] == 0x02) // Turn LED OFF
+                {
 					Hardware::turn_LED_off();
 				}
-				else if (input_buff[i] == 0x03) { // Clear input_buffer
+				else if (input_buff[i] == 0x03) // Clear input_buffer
+                {
 					clear_input_buffer();
 				}
-				else if (input_buff[i] == 0x04) { // Set MODE
+				else if (input_buff[i] == 0x04) // Set MODE
+                {
 					MODE = input_buff[i+1];
 					transmit_data(0x10); // Transmit the current mode
 				}
-				else if (input_buff[i] == 0x05) { // Unit tests
+				else if (input_buff[i] == 0x05) // Unit tests
+                {
 					transmit_data(0xB0); // Runs the tests
 				}
-				else if (input_buff[i] == 0x10) {
+				else if (input_buff[i] == 0x10)
+                {
 					// Open Stepper Motor
 					Hardware::openStepperMotor();
 				}
-				else if (input_buff[i] == 0x11) {
+				else if (input_buff[i] == 0x11)
+                {
 					// Close Stepper Motor
 					Hardware::closeStepperMotor();
 				}
@@ -178,10 +186,12 @@ bool XBeeIO::parse_input_buffer() {
 //					data_period_ms = input_buff[i+1] + (input_buff[i+2] << 8);
 //					if (data_period_ms == 0) data_period_ms = 10;
 //				}
-				else if (input_buff[i] == 0x36) { // Set Output Packet Type
+				else if (input_buff[i] == 0x36) // Set Output Packet Type
+                {
 					DATA_OUT_TYPE = input_buff[i+1];
-					if (input_buff[i+1] == 0x10) {
-						//transmit_data_string();
+					if (input_buff[i+1] == 0x10)
+                    {
+						transmit_data_string();
 					}
 				}
 				else if (input_buff[i] == 0x44) // print buffer for debugging
@@ -213,7 +223,8 @@ bool XBeeIO::parse_input_buffer() {
 			}
 		}
 		
-		if (clri) {
+		if (clri)
+        {
 			clear_input_buffer(clri);
 			return true;
 		}
@@ -221,27 +232,34 @@ bool XBeeIO::parse_input_buffer() {
 
 	// Check for soft reset
 	i = 3;
-	while (i < buff_length) { // TODO: Make this work with trash data before the header
-		if (input_buff[i] == 0xFF && input_buff[i-1] == 0xFF && input_buff[i-2] == 0xFF && input_buff[i-3] == 0xFF) { 
+	while (i < input_buff.size()) // TODO: Make this work with trash data before the header
+    {
+		if (input_buff[i] == 0xFF && input_buff[i-1] == 0xFF &&
+            input_buff[i-2] == 0xFF && input_buff[i-3] == 0xFF)
+        { 
 			control::reset();
 			return true;
 		}
 		i++;
 	}
 	
+    /*
 	// Text Lexicon
-	if (!std::strncmp((char*) input_buff, "LED ON", 6)) {
+	if (!std::strncmp((char*) input_buff, "LED ON", 6))
+    {
 		Hardware::turn_LED_on();
 	}
-	else if (!std::strncmp((char*) input_buff, "LED OFF", 7)) {
+	else if (!std::strncmp((char*) input_buff, "LED OFF", 7))
+    {
 		Hardware::turn_LED_off();
 	}
 	else
 	{
 		return false;
 	}
+    */
 
-	return true;
+    return true;
 }
 
 /** 
@@ -253,46 +271,39 @@ bool XBeeIO::parse_input_buffer() {
  * RETURN
  * bool -> true if the array was cleared
  */
-bool XBeeIO::clear_input_buffer(unsigned long ii) {
-
-	if (ii) {
-		for (unsigned long i = ii; i < buff_length; i++) {
-			input_buff[i-ii] = input_buff[i];
-		}
-		buff_length = buff_length - ii;
-	}
-	else {
-		buff_length = 0;
-	}
+bool XBeeIO::clear_input_buffer(unsigned long ii)
+{
+    input_buff.clear();
 	return true;
 }
 
 /**
  * Displays hex values of the buffer to the XBee port
  */
-void XBeeIO::dispbuff() {
-	std::cout << "BUFFER (" << XBeeIO::buff_length << "):";
-	for (unsigned long i = 0; i < XBeeIO::buff_length; i++) {
-        std::cout << " " << std::hex << (int) input_buff[i];
-	}
+void XBeeIO::dispbuff()
+{
+    std::cout << "BUFFER (" << input_buff.size() << "):";
+    for (auto e : input_buff)
+        std::cout << " " << std::hex << (int) e;
     std::cout << " | ";
-	for (unsigned long i = 0; i < XBeeIO::buff_length; i++) {
-		if (std::isprint(input_buff[i]))
-            std::cout << input_buff[i];
+    for (auto e : input_buff) {
+        if (std::isprint(e))
+            std::cout << e;
         else
             std::cout << ".";
-	}
+    }
     std::cout << " |";
     std::cout << std::endl;
 }
 
 /* Transmits the full data string in ASCII */
-void XBeeIO::transmit_data_string() {
-		using namespace State_Data;
-        auto time = std::chrono::duration_cast<std::chrono::milliseconds>
-                    (std::chrono::steady_clock::now().time_since_epoch()).count();
-		XBee << time << "," << STATUS << "," << DATA_P1
-             << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
-             << "," << DATA_T3 << "," << DATA_THR << ","
-             << NEW_DATA << "," << MODE << "," << "ENDL" << __LF__;
+void XBeeIO::transmit_data_string()
+{
+    using namespace State_Data;
+    auto time = std::chrono::duration_cast<std::chrono::milliseconds>
+                (std::chrono::steady_clock::now().time_since_epoch()).count();
+    XBee << time << "," << STATUS << "," << DATA_P1
+         << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
+         << "," << DATA_T3 << "," << DATA_THR << ","
+         << NEW_DATA << "," << MODE << "," << "ENDL" << __LF__;
 }

@@ -2,15 +2,14 @@
 #define XBEE_IO_H
 
 #include <fstream>
+#include <deque>
 
 namespace XBeeIO {
 
 /************ Global Variables ************/
-extern const unsigned long BUFF_INPUT;
-extern unsigned char input_buff[];
-extern unsigned long buff_length;
-extern const unsigned long OUTPUT_BUFF_LENGTH;
-extern unsigned char output_buff[];
+// extern const unsigned long BUFF_INPUT;
+extern std::deque<unsigned char> input_buff, output_buff;
+// extern const unsigned long OUTPUT_BUFF_LENGTH;
 extern std::fstream XBee;
 
 /* Data */

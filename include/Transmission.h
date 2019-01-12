@@ -1,6 +1,8 @@
 #ifndef TRANSMISSION_H
 #define TRANSMISSION_H
 
+#include <deque>
+
 namespace Transmission {
 
 	/**
@@ -13,7 +15,7 @@ namespace Transmission {
 	* unsigned int* len -> lenght of data packet (see documentation)
 	* unsigned int type -> data transmission packet type (see documentation)
 	*/
-	void buildPacket(unsigned char* str, unsigned int* len, unsigned int type);
+	void buildPacket(std::deque<unsigned char> &str, unsigned int &len, unsigned int type);
 
 	/**
 	 * Computes the exclusive or parity check of the bytes in a message
@@ -25,7 +27,7 @@ namespace Transmission {
 	 * unsigned char* c1 -> Second byte of checksum
 	 
 	 */
-	void xorchecksum(unsigned char* str, unsigned int len, unsigned char* c0, unsigned char* c1);
+	void xorchecksum(const std::deque<unsigned char> &str, unsigned int len, unsigned char &c0, unsigned char &c1);
 
 	/**
 	* Converts a series of unsigned char values to a 
@@ -58,7 +60,7 @@ namespace Transmission {
 	 * OUTPUTS
 	 * N/A
 	 */
-	void floatToChars(float x, unsigned char* a, unsigned char* b, unsigned char* c, unsigned char* d);
+	void floatToChars(float x, unsigned char &a, unsigned char &b, unsigned char &c, unsigned char &d);
 
 }
 
