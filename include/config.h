@@ -1,16 +1,18 @@
-#ifndef DEFAULT_CONFIG_H
-#define DEFAULT_CONFIG_H
+#ifndef CONFIG_H
+#define CONFIG_H
 
 #define test_str_length 1024
-#define __PROGRAM_VERSION__ "MOTOR CONTROL 1.0.0"
-#define __LF__ 10 // Newline character
+// #define __LF__ 10 // Newline character
 
 #include <chrono>
+#include <string>
 
 /* XBee RX, TX pins */
 // Connect DIN to pin 18 ,and DOUT to pin 19
 
-namespace Default_Config {
+namespace cfg
+{
+    extern std::string version;
 
 	/* Baud Rates */
 	extern unsigned long XBEE_BAUD;
@@ -24,16 +26,13 @@ namespace Default_Config {
 
     extern std::chrono::milliseconds
         /* Device interface control variables */
-        LOOP_PERIOD_MS,
-        XBeeWrite_period_ms,
-        checkbuffer_period_ms,
+        loop_period,
+        xbee_write_period,
+        checkbuffer_period,
         /* Data Timing */
-        PRESSURE_PERIOD_MS,
-        TEMPERATURE_PERIOD_MS,
-        LOADCELL_PERIOD_MS;
-}
-
-namespace Pins_Config {
+        pressure_period,
+        temperature_period,
+        loadcell_period;
 	
 	/* Pressure Transducer pins */
 	extern unsigned int pin_P1; /* Analog pin to read Voltage from for pressure tranny in oxy tank*/
@@ -73,9 +72,9 @@ namespace State_Data {
 	
 	/* Data Timing Control */
     extern std::chrono::time_point<std::chrono::steady_clock>
-	    LAST_PRESSURE_TIME_US,
-	    LAST_TEMPERATURE_TIME_US,
-	    LAST_LOADCELL_TIME_US;
+	    last_pressure_time,
+	    last_temperature_time,
+	    last_loadcell_time;
 }
 
 #endif // DEFAULT_CONFIG_H

@@ -12,6 +12,10 @@ void loop();
 
 void reset();
 
+bool ok();
+
+void exit(int code);
+
 } // namespace control
 
 #endif // CONTROL_MAIN_H

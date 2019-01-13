@@ -3,11 +3,9 @@
 
 #include <fstream>
 
-#include "Default_Config.h"
+#include "config.h"
 
 namespace Hardware {
-
-using namespace Pins_Config;
 
 /* LED pin number */
 extern int pin_LED;

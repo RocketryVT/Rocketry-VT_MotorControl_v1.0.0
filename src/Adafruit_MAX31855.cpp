@@ -17,7 +17,7 @@
  ****************************************************/
 
 #include "Adafruit_MAX31855.h"
-#include "Default_Config.h"
+#include "config.h"
 #include "XBee_IO.h"
 
 const unsigned char LOW = 0;
