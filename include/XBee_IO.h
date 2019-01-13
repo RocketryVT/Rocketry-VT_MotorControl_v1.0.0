@@ -3,68 +3,51 @@
 
 #include <fstream>
 #include <deque>
+#include <vector>
 
-namespace XBeeIO {
+namespace XBeeIO
+{
 
-/************ Global Variables ************/
-// extern const unsigned long BUFF_INPUT;
-extern std::deque<unsigned char> input_buff, output_buff;
-// extern const unsigned long OUTPUT_BUFF_LENGTH;
-extern std::fstream XBee;
+// initializes xbee interface, buffers, etc
+// returns true on success, false otherwise
+bool init();
 
-/* Data */
-extern unsigned char PACKET_SIZE;
+// checks if anything is wrong
+// returns true on ok, false otherwise
+bool ok();
 
-/**
- * Recieves input from the XBee and saves it to "input_buff"
- * 
- * INPUT
- * void
- * 
- * RETURN
- * bool -> true if the input_buffer was updated
- */
+// Recieves input from the XBee and saves it to "input_buff"
+// bool -> true if the input_buffer was updated
 bool update_input_buffer();
 
-/**
- * Transmits data over the XBee antenna
- * 
- * INPUT
- * int type -> data packet to transmit
- */
+// queues a single char onto the output buffer
+void transmit(unsigned char data);
+
+// queues a vector of chars onto the output buffer
+void transmit(std::vector<unsigned char> data);
+
+// queues a string onto the output buffer
+void transmit(const std::string& str);
+
+// transmits data over the XBee antenna
 void transmit_data(unsigned int type);
 
-/** 
- * Parses the "input_buff" character array
- * 
- * INPUT
- * void
- * 
- * RETURN
- * bool -> true if the buffer was parsed succesfully
- */
-bool parse_input_buffer();
+// flushes data in the output buffer to the antenna
+void flush();
 
-/** 
- * Clears the "input_buff" character array
- * 
- * INPUT
- * void
- * 
- * RETURN
- * bool -> true if the array was cleared
- */
-bool clear_input_buffer(unsigned long ii = 0);
+// Parses the "input_buff" character array
+// bool -> true if the buffer was parsed succesfully
+bool parse();
 
+// clears the input and output buffers
+void reset();
 
-/**
- * Displays hex values of the buffer to the XBee port
- */
+// displays hex values of the buffer to the XBee port
 void dispbuff();
 
-/* Transmits the full data string in ASCII */
+/* transmits the full data string in ASCII */
 void transmit_data_string();
 
-}
+} // namespace XBeeIO
 
 #endif // XBEE_IO_H

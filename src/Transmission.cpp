@@ -1,10 +1,8 @@
 #include "Test_all.h"
 #include "Transmission.h"
-#include "Default_Config.h"
+#include "config.h"
 #include "Assert.h"
 #include "XBee_IO.h"
-
-const unsigned long long integerTime = 0;
 
 /**
 * Compiles data to a char array so that it can be pushed to the
@@ -20,9 +18,8 @@ const unsigned long long integerTime = 0;
 std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 {
 	using namespace State_Data;
-	using namespace Default_Config;
 
-    // packet and header	
+    // packet and header
     std::vector<unsigned char> packet { 0xAA, 0x14 };
 
 	// Chars used to store float bytes
@@ -33,19 +30,16 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 	unsigned char c0 = 0;
 	unsigned char c1 = 0;
 	unsigned int i = 0;
+    unsigned long long msec;
 	
 	switch (type) {
 	case 0x00: // Initialization message
 		
+		packet.push_back(cfg::version.length());
 		packet.push_back(0x00); // Transmit Type
-		
 		// Fill str with firmware version string
-		i = 0;
-		while (__PROGRAM_VERSION__[i]){
-			packet.push_back(__PROGRAM_VERSION__[i]);
-			i++;
-		}
-		packet.push_back(__LF__); // '\n'
+        for (auto e : cfg::version)
+            packet.push_back(e);
 		return packet;
 	case 0x01: // SD Card Begin of Save File
 		packet.push_back(6);
@@ -70,15 +64,17 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 		packet.push_back(c1); // Checksum
 		return packet;
 	case 0x40: // Solid Motor Static Fire Tests 2018-11-11
-		TIME = DATA_TIME;
+		cfg::TIME = cfg::DATA_TIME;
 		packet.push_back(22); // length
 		packet.push_back(0x40); // type
 
         // time
-		packet.push_back((unsigned char) (integerTime >> 24) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 16) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 8) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 0) & 0xFF);
+        msec = std::chrono::duration_cast<std::chrono::milliseconds>
+            (cfg::TIME - cfg::START_TIME).count();
+		packet.push_back((unsigned char) (msec >> 24) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 16) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 8) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 0) & 0xFF);
 
 		packet.push_back(MODE); // mode
 
@@ -110,16 +106,18 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 
 		return packet;
 	case 0x51: // Cold flow test data
-		TIME = DATA_TIME;
+		cfg::TIME = cfg::DATA_TIME;
 
         packet.push_back(34); // length
 		packet.push_back(0x51); // type
 
 		// Time
-		packet.push_back((unsigned char) (integerTime >> 24) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 16) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 8) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 0) & 0xFF);
+        msec = std::chrono::duration_cast<std::chrono::milliseconds>
+            (cfg::TIME - cfg::START_TIME).count();
+		packet.push_back((unsigned char) (msec >> 24) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 16) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 8) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 0) & 0xFF);
 
 		// Mode
 	    packet.push_back(MODE);
@@ -173,16 +171,18 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 
 		return packet;
 	case 0x52: // Cold flow test data
-		TIME = DATA_TIME;
+		cfg::TIME = cfg::DATA_TIME;
 
 		packet.push_back(38); // length
 		packet.push_back(0x52); // type
 
 		// Time
-		packet.push_back((unsigned char) (integerTime >> 24) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 16) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 8) & 0xFF);
-		packet.push_back((unsigned char) (integerTime >> 0) & 0xFF);
+        msec = std::chrono::duration_cast<std::chrono::milliseconds>
+            (cfg::TIME - cfg::START_TIME).count();
+		packet.push_back((unsigned char) (msec >> 24) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 16) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 8) & 0xFF);
+		packet.push_back((unsigned char) (msec >> 0) & 0xFF);
 
 		// Mode
 		packet.push_back(MODE);

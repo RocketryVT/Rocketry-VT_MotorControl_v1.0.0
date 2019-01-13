@@ -1,5 +1,7 @@
 
-#include "Default_Config.h"
+#include <iostream>
+
+#include "config.h"
 #include "Transmission.h"
 #include "Assert.h"
 #include "Test_Transmission.h"
@@ -100,7 +102,7 @@ bool Test_0x01()
 	bool pass = true;
 
 	// Desired output (Obtained using MATLAB Test cases)
-    std::vector<unsigned char> packet { 0xAA, 0x14, 0x06, 0x02, 0x00 };
+    std::vector<unsigned char> packet { 0xAA, 0x14, 0x06, 0x01 };
 
 	// Do the true checksum
 	unsigned char c0;
@@ -162,7 +164,7 @@ bool Test_0x10() {
 	using namespace Test;
 	using namespace Transmission;
 	using namespace State_Data;
-	using namespace Default_Config;
+	using namespace cfg;
 
 	bool pass = true;
 
@@ -225,7 +227,7 @@ bool Test_0x40() {
 	using namespace Test;
 	using namespace Transmission;
 	using namespace State_Data;
-	using namespace Default_Config;
+	using namespace cfg;
 
 	bool pass = true;
 
@@ -272,6 +274,13 @@ bool Test_0x40() {
 		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 
+    /*
+    for (auto e : out) std::cout << (int) e << " ";
+    std::cout << std::endl;
+    for (auto e : packet) std::cout << (int) e << " ";
+    std::cout << std::endl;
+    */
+
 	// Reset Old Data
 	DATA_TIME = DATA_TIME_old;
 	STATUS = STATUS_old;
@@ -293,7 +302,7 @@ bool Test_0x51() {
 	using namespace Test;
 	using namespace Transmission;
 	using namespace State_Data;
-	using namespace Default_Config;
+	using namespace cfg;
 
 	bool pass = true;
 
@@ -309,7 +318,8 @@ bool Test_0x51() {
 	unsigned int  MODE_old        = MODE;
 	
 	// Initialize global data
-	// DATA_TIME = 123456;
+	DATA_TIME = std::chrono::microseconds(123456) +
+        std::chrono::steady_clock::time_point();
 	STATUS = 0;
 	DATA_P1 = 1;
 	DATA_P2 = 2;
@@ -339,7 +349,14 @@ bool Test_0x51() {
     {
 		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
-	
+
+    /*
+    for (auto e : out) std::cout << (int) e << " ";
+    std::cout << std::endl;
+    for (auto e : packet) std::cout << (int) e << " ";
+    std::cout << std::endl;
+    */
+
 	// Reset Old Data
 	DATA_TIME = DATA_TIME_old;
 	STATUS = STATUS_old;
@@ -361,7 +378,7 @@ bool Test_0x52() {
 	using namespace Test;
 	using namespace Transmission;
 	using namespace State_Data;
-	using namespace Default_Config;
+	using namespace cfg;
 
 	bool pass = true;
 
@@ -417,6 +434,13 @@ bool Test_0x52() {
 	for (unsigned int i = 0; i < out.size(); i++) {
 		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
+
+    /*
+    for (auto e : out) std::cout << (int) e << " ";
+    std::cout << std::endl;
+    for (auto e : packet) std::cout << (int) e << " ";
+    std::cout << std::endl;
+    */
 
 	// Reset Old Data
 	DATA_TIME   = DATA_TIME_old;

@@ -1,5 +1,5 @@
 #include "Assert.h"
-#include "Default_Config.h"
+#include "config.h"
 
 unsigned int Test::resstriter = 0;
 char Test::resstr[test_str_length] = { 0 };

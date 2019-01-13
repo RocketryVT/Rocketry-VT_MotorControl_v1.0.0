@@ -1,12 +1,15 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <signal.h>
 
 #include "control.h"
-#include "Default_Config.h"
+#include "config.h"
 #include "XBee_IO.h"
 #include "Hardware.h"
 #include "Adafruit_MAX31855.h"
+
+bool exit_flag = 0;
 
 void control::init()
 {
@@ -14,37 +17,43 @@ void control::init()
 	Hardware::initializeStepperMotor();
 	Hardware::initializeLoadCell();
 	
-	Default_Config::START_TIME = Default_Config::DATA_TIME =
-        std::chrono::steady_clock::now();;
-	
+	cfg::START_TIME = cfg::DATA_TIME =
+        std::chrono::steady_clock::now();
+    XBeeIO::init();
+    if (!XBeeIO::ok())
+    {
+        std::cout << "XBee init failure" << std::endl;
+    }
 	control::reset();
 }
 
 void control::loop()
 {
-    Default_Config::TIME = std::chrono::steady_clock::now();
+    cfg::TIME = std::chrono::steady_clock::now();
     static std::chrono::steady_clock::time_point
-        t_lastxbeewrite = Default_Config::TIME,
-        t_lastreceivepacket = Default_Config::TIME,
-        t_sentpacket = Default_Config::TIME;
+        t_lastxbeewrite = cfg::TIME,
+        t_lastreceivepacket = cfg::TIME,
+        t_sentpacket = cfg::TIME;
 
     /* Reset Sensor Timings */
-    Hardware::update_data(Default_Config::TIME);
-    State_Data::LAST_PRESSURE_TIME_US = Default_Config::TIME;
-    State_Data::LAST_TEMPERATURE_TIME_US = Default_Config::TIME;
-    State_Data::LAST_LOADCELL_TIME_US = Default_Config::TIME;
+    Hardware::update_data(cfg::TIME);
+    State_Data::last_pressure_time = cfg::TIME;
+    State_Data::last_temperature_time = cfg::TIME;
+    State_Data::last_loadcell_time = cfg::TIME;
 
     int mode_previous = State_Data::MODE;
 
     // Parse Input buffer and respond to commnands
-    if (Default_Config::TIME - t_lastreceivepacket >
-        Default_Config::checkbuffer_period_ms)
+    if (cfg::TIME - t_lastreceivepacket >
+        cfg::checkbuffer_period)
     {
         XBeeIO::update_input_buffer();
-        XBeeIO::parse_input_buffer();
-        t_lastreceivepacket = Default_Config::TIME;
-        XBeeIO::dispbuff();
+        XBeeIO::parse();
+        t_lastreceivepacket = cfg::TIME;
     }
+
+    XBeeIO::transmit_data(cfg::DATA_OUT_TYPE);
+    XBeeIO::flush();
 
     // Mode changes
     if (mode_previous == 0 && State_Data::MODE != 0)
@@ -69,12 +78,12 @@ void control::loop()
     if (State_Data::MODE == 1 || State_Data::MODE == 2 ||
         State_Data::MODE == 3)
     {
-        Hardware::sdcard_write(Default_Config::DATA_OUT_TYPE);
-        if (Default_Config::TIME - t_lastxbeewrite >
-            Default_Config::XBeeWrite_period_ms)
+        Hardware::sdcard_write(cfg::DATA_OUT_TYPE);
+        if (cfg::TIME - t_lastxbeewrite >
+            cfg::xbee_write_period)
         {
-            XBeeIO::transmit_data(Default_Config::DATA_OUT_TYPE);
-            t_lastxbeewrite = Default_Config::TIME;
+            XBeeIO::transmit_data(cfg::DATA_OUT_TYPE);
+            t_lastxbeewrite = cfg::TIME;
         }
     }
 
@@ -83,11 +92,11 @@ void control::loop()
 
     // Time to delay
     // auto after_t = std::chrono::steady_clock::now();
-    // auto dt = after_t - Default_Config::TIME;
-    // while (dt > Default_Config::LOOP_PERIOD_MS)
-    // dt -= Default_Config::LOOP_PERIOD_MS;
-    // auto t_wait = Default_Config::LOOP_PERIOD_MS - dt; 
-    std::this_thread::sleep_for(Default_Config::LOOP_PERIOD_MS);
+    // auto dt = after_t - cfg::TIME;
+    // while (dt > cfg::LOOP_period)
+    // dt -= cfg::LOOP_period;
+    // auto t_wait = cfg::LOOP_period - dt; 
+    std::this_thread::sleep_for(cfg::loop_period);
 }
 
 void control::reset()
@@ -96,27 +105,25 @@ void control::reset()
 	// Shutdown procedure
 	
 	/* I/O Reset */
-	XBeeIO::clear_input_buffer();
-	std::this_thread::sleep_for(Default_Config::LOOP_PERIOD_MS);
-	// XBeeIO::transmit_data(0x00);
+    XBeeIO::transmit_data(-1);
+	XBeeIO::reset();
+	std::this_thread::sleep_for(cfg::loop_period);
+	XBeeIO::transmit_data(0x00);
 	
 	/* Control Data */
 	State_Data::MODE = 0;
-    Default_Config::START_TIME = std::chrono::steady_clock::now();
+    cfg::START_TIME = std::chrono::steady_clock::now();
 	Hardware::sdcard_closefile();
 }
 
-int main(int argc, char **argv)
+bool control::ok()
 {
-    control::init();
-    while (1)
-    {
-        auto fsec = std::chrono::duration_cast<std::chrono::milliseconds>(
-            Default_Config::TIME - Default_Config::START_TIME);
-        std::cout << std::dec << fsec.count()
-            << "          \r" << std::flush;
-        control::loop();
-    }
-    return 0;
+    return !exit_flag;
+}
+
+void control::exit(int code)
+{
+    std::cout << "Exiting (code " << code << ")" << std::endl;
+    exit_flag = true;
 }
 

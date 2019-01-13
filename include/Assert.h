@@ -1,7 +1,7 @@
 #ifndef ASSERT_H
 #define ASSERT_H
 
-#include "Default_Config.h"
+#include "config.h"
 
 namespace Test
 {
