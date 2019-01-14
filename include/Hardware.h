@@ -25,20 +25,21 @@ extern int8_t pin_T3_DO;
 extern int8_t pin_T3_CS;
 extern int8_t pin_T3_CLK;*/
 
-/*chip select pin for SD logger*/
-extern const int sdcard_chipSelect;
+// initializes logging and sensors; returns true if ok
+bool init();
 
-//NEW CODE
-/*data file for logging to sd*/
-extern std::ofstream logfile; 
+// checks if hardware is ok
+// returns true on ok
+bool ok();
 
-/* XBee RX, TX pins */
-// Connect DIN to pin 18 ,and DOUT to pin 19
+// closes and flushes logs, closes sensor connections
+void exit();
 
-/* Stepper Moter */
+// resets all hardware things
+void reset();
 
-/* LED Data */
-extern bool is_LED_on;
+// write a thing to the log file
+void write(unsigned char e);
 
 /**
   Updates data variables by calling functions that control data
@@ -55,68 +56,30 @@ extern bool is_LED_on;
 */
 void update_data(const std::chrono::steady_clock::time_point& t);
 
-/**
-   Creates a file to save data to
-*/
-void sdcard_openfile();
-
-/**
-   Closes currently open save file
-*/
-void sdcard_closefile();
-
-/**
-   Saves the data values to a line on a file in the SD card
-*/
-void sdcard_write(unsigned int datatype);
-
-/**
-   Initializes the stepper motor
-*/
+// Initializes the stepper motor
 void initializeStepperMotor();
 
-/**
-   Closes the stepper motor
-*/
+// Closes the stepper motor
 void closeStepperMotor();
 
-/**
-   Opens the stepper motor
-*/
+// Opens the stepper motor
 void openStepperMotor();
 
-/**
-	Sets the calibration for the Load Cell
-*/
+// Sets the calibration for the Load Cell
 void initializeLoadCell();
 
-/**
-	reads pressure in oxidizer tank
-	@return float = pressure in oxy tank in psi
-*/
+// reads pressure in oxidizer tank
+// @return float = pressure in oxy tank in psi
 float get_pressure_1_data();
 
-
-/**
-   reads pressure in combustion chamber in psi
-   @return float = pressure in chamber (psi)
-*/
+// reads pressure in combustion chamber in psi
+// @return float = pressure in chamber (psi)
 float get_pressure_2_data();
 
-/**
-  Turns on the LED
-
-  INPUT
-  bool output -> true to output "LED ON", false by default
-*/
+// Turns on the LED
 void turn_LED_on(bool output = false);
 
-/**
-  Turns off the LED
-
-  INPUT
-  bool output -> true to output "LED OFF", false by default
-*/
+// Turns off the LED
 void turn_LED_off(bool output = false);
 
 }

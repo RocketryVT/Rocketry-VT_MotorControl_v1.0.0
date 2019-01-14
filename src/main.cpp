@@ -8,6 +8,10 @@
 
 int main()
 {
+    #ifdef DEBUG
+    std::cout << "VERBOSE output is enabled" << std::endl;
+    #endif
+
     signal(SIGINT, control::exit);
 
     control::init();
@@ -16,7 +20,9 @@ int main()
         control::loop();
     }
 
+    #ifdef DEBUG
     std::cout << "Exited successfully." << std::endl;
+    #endif
     return 0;
 }
 

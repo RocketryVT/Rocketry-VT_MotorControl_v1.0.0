@@ -9,11 +9,27 @@
 #include "Hardware.h"
 #include "Adafruit_MAX31855.h"
 
-bool exit_flag = 0;
-
-void control::init()
+namespace control
 {
+
+bool exit_flag = false;
+bool fail_flag = false;
+
+void init()
+{
+    #ifdef DEBUG
     std::cout << "CONTROLLER INIT" << std::endl;
+    #endif
+
+    Hardware::init();
+    if (!Hardware::ok())
+    {
+        #ifdef DEBUG
+        std::cout << "Hardware init failure" << std::endl;
+        #endif
+        exit_flag = true;
+        fail_flag = true;
+    }
 	Hardware::initializeStepperMotor();
 	Hardware::initializeLoadCell();
 	
@@ -22,12 +38,15 @@ void control::init()
     XBeeIO::init();
     if (!XBeeIO::ok())
     {
+        #ifdef DEBUG
         std::cout << "XBee init failure" << std::endl;
+        #endif
+        exit_flag = true;
+        fail_flag = true;
     }
-	control::reset();
 }
 
-void control::loop()
+void loop()
 {
     cfg::TIME = std::chrono::steady_clock::now();
     static std::chrono::steady_clock::time_point
@@ -59,11 +78,11 @@ void control::loop()
     if (mode_previous == 0 && State_Data::MODE != 0)
     {
         //sdcard_openfile();
-        Hardware::sdcard_write(0x01); // Begin of Test
+        // Hardware::sdcard_write(0x01); // Begin of Test
     }
     else if (mode_previous != 0 && State_Data::MODE == 0)
     {
-        Hardware::sdcard_write(0x02); // End of Test
+        // Hardware::sdcard_write(0x02); // End of Test
         //sdcard_closefile();
         // Motor Shutdown Sequence
     }
@@ -78,7 +97,7 @@ void control::loop()
     if (State_Data::MODE == 1 || State_Data::MODE == 2 ||
         State_Data::MODE == 3)
     {
-        Hardware::sdcard_write(cfg::DATA_OUT_TYPE);
+        // Hardware::sdcard_write(cfg::DATA_OUT_TYPE);
         if (cfg::TIME - t_lastxbeewrite >
             cfg::xbee_write_period)
         {
@@ -99,31 +118,42 @@ void control::loop()
     std::this_thread::sleep_for(cfg::loop_period);
 }
 
-void control::reset()
+void reset()
 {
+    #ifdef DEBUG
     std::cout << "CONTROLLER RESET" << std::endl;
+    #endif
+
 	// Shutdown procedure
 	
 	/* I/O Reset */
-    XBeeIO::transmit_data(-1);
+    // XBeeIO::transmit_data(-1);
 	XBeeIO::reset();
-	std::this_thread::sleep_for(cfg::loop_period);
-	XBeeIO::transmit_data(0x00);
+	// std::this_thread::sleep_for(cfg::loop_period);
+	// XBeeIO::transmit_data(0x00);
 	
 	/* Control Data */
 	State_Data::MODE = 0;
     cfg::START_TIME = std::chrono::steady_clock::now();
-	Hardware::sdcard_closefile();
+	Hardware::reset();
+
+    exit_flag = false;
+    fail_flag = false;
 }
 
-bool control::ok()
+bool ok()
 {
     return !exit_flag;
 }
 
-void control::exit(int code)
+void exit(int code)
 {
+    #ifdef DEBUG
     std::cout << "Exiting (code " << code << ")" << std::endl;
+    #endif
     exit_flag = true;
+
+    Hardware::exit();
 }
 
+} // namespace control

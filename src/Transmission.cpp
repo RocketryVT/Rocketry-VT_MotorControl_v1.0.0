@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "Test_all.h"
 #include "Transmission.h"
 #include "config.h"
@@ -23,242 +25,97 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
     std::vector<unsigned char> packet { 0xAA, 0x14 };
 
 	// Chars used to store float bytes
-	unsigned char a;
-	unsigned char b;
-	unsigned char c;
-	unsigned char d;
-	unsigned char c0 = 0;
-	unsigned char c1 = 0;
-	unsigned int i = 0;
-    unsigned long long msec;
+    uint32_t msec = std::chrono::duration_cast<std::chrono::milliseconds>
+        (cfg::DATA_TIME - cfg::START_TIME).count();
 	
-	switch (type) {
-	case 0x00: // Initialization message
-		
-		packet.push_back(cfg::version.length());
-		packet.push_back(0x00); // Transmit Type
-		// Fill str with firmware version string
-        for (auto e : cfg::version)
-            packet.push_back(e);
-		return packet;
-	case 0x01: // SD Card Begin of Save File
-		packet.push_back(6);
-		packet.push_back(0x01);
-		xorchecksum(packet, c0, c1);
-		packet.push_back(c0); // Checksum
-		packet.push_back(c1); // Checksum
-		return packet;
-	case 0x02: // SD Card End of Save File
-		packet.push_back(6);
-		packet.push_back(0x02);
-		xorchecksum(packet, c0, c1);
-		packet.push_back(c0); // Checksum
-		packet.push_back(c1); // Checksum
-		return packet;
-	case 0x10:
-		packet.push_back(7); // Length
-		packet.push_back(0x10); // Type
-		packet.push_back(MODE); // Mode
-		xorchecksum(packet, c0, c1);
-		packet.push_back(c0); // Checksum
-		packet.push_back(c1); // Checksum
-		return packet;
-	case 0x40: // Solid Motor Static Fire Tests 2018-11-11
-		cfg::TIME = cfg::DATA_TIME;
-		packet.push_back(22); // length
-		packet.push_back(0x40); // type
+	switch (type)
+    {
+                   // echo version
+        case 0x00: return buildPacket(cfg::version);
 
-        // time
-        msec = std::chrono::duration_cast<std::chrono::milliseconds>
-            (cfg::TIME - cfg::START_TIME).count();
-		packet.push_back((unsigned char) (msec >> 24) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 16) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 8) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 0) & 0xFF);
+        case 0x01: // SD Card Begin of Save File
 
-		packet.push_back(MODE); // mode
+            packet << (uint8_t) 6 << (uint8_t) 0x01;
+            break;
 
-        // status
-		packet.push_back((unsigned char) (STATUS >> 8));
-		packet.push_back((unsigned char) (STATUS >> 8));
+        case 0x02: // SD Card End of Save File
 
-		// Temperature Oxidizer
-		floatToChars(DATA_T1, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
+            packet << (uint8_t) 6 << (uint8_t) 0x02;
+            break;
 
-		// Thrust
-		floatToChars(DATA_THR, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
+        case 0x10:
 
-		// New Data
-		packet.push_back(NEW_DATA);
+            packet << (uint8_t) 7 << (uint8_t) 0x10 << (uint8_t) MODE;
+            break;
 
-		// Checksum
-		xorchecksum(packet, c0, c1);
-		packet.push_back(c0);
-		packet.push_back(c1);
+        case 0x40: // Solid Motor Static Fire Tests 2018-11-11
 
-		return packet;
-	case 0x51: // Cold flow test data
-		cfg::TIME = cfg::DATA_TIME;
+            packet << (uint8_t) 22 << (uint8_t) 0x40
+                << (uint32_t) msec << (uint8_t) MODE
+                << (uint16_t) STATUS << (float) DATA_T1
+                << (float) DATA_THR << (uint8_t) NEW_DATA;
+            break;
 
-        packet.push_back(34); // length
-		packet.push_back(0x51); // type
+        case 0x51: // Cold flow test data
 
-		// Time
-        msec = std::chrono::duration_cast<std::chrono::milliseconds>
-            (cfg::TIME - cfg::START_TIME).count();
-		packet.push_back((unsigned char) (msec >> 24) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 16) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 8) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 0) & 0xFF);
+            packet << (uint8_t) 34 << (uint8_t) 0x51
+                << msec << (uint8_t) MODE << (uint16_t) STATUS
+                << (float) DATA_P1 << (float) DATA_P2
+                << (float) DATA_T1 << (float) DATA_T2
+                << (float) DATA_THR << (uint8_t) NEW_DATA;
+            break;
 
-		// Mode
-	    packet.push_back(MODE);
+        case 0x52: // Cold flow test data
 
-		// Status
-		packet.push_back((unsigned char) (STATUS >> 8));
-		packet.push_back((unsigned char) (STATUS >> 8));
+            packet << (uint8_t) 38 << (uint8_t) 0x52
+                << msec << (uint8_t) MODE << (uint16_t) STATUS
+                << (float) DATA_P1 << (float) DATA_P2 << (float) DATA_T1
+                << (float) DATA_T2 << (float) DATA_T3 << (float) DATA_THR
+                << (uint8_t) NEW_DATA;
+            break;
 
-		// Pressure Oxidizer
-		floatToChars(DATA_P1, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
+        case 0xB0: // Do Unit Tests
 
-		// Pressure Combustion
-		floatToChars(DATA_P2, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
+            // run_tests(true);
+            packet.clear();
+            for (unsigned int i = 0; i < Test::resstriter; i++)
+            {
+                packet.push_back(Test::resstr[i]);
+            }		
+            break;
 
-		// Temperature Oxidizer
-		floatToChars(DATA_T1, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
+        default: // Do nothing
 
-		// Temperature Combustion
-		floatToChars(DATA_T2, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// Thrust
-		floatToChars(DATA_THR, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// New Data
-		packet.push_back(NEW_DATA);
-
-		// Checksum
-		xorchecksum(packet, c0, c1);
-		packet.push_back(c0);
-		packet.push_back(c1);
-
-		return packet;
-	case 0x52: // Cold flow test data
-		cfg::TIME = cfg::DATA_TIME;
-
-		packet.push_back(38); // length
-		packet.push_back(0x52); // type
-
-		// Time
-        msec = std::chrono::duration_cast<std::chrono::milliseconds>
-            (cfg::TIME - cfg::START_TIME).count();
-		packet.push_back((unsigned char) (msec >> 24) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 16) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 8) & 0xFF);
-		packet.push_back((unsigned char) (msec >> 0) & 0xFF);
-
-		// Mode
-		packet.push_back(MODE);
-
-		// Status
-		packet.push_back((unsigned char) (STATUS >> 8));
-		packet.push_back((unsigned char) (STATUS >> 8));
-
-		// Pressure Oxidizer
-		floatToChars(DATA_P1, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// Pressure Combustion
-		floatToChars(DATA_P2, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// Temperature Oxidizer
-		floatToChars(DATA_T1, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// Temperature Combustion
-		floatToChars(DATA_T2, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// Temperature Post Combustion
-		floatToChars(DATA_T3, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// Thrust
-		floatToChars(DATA_THR, a, b, c, d);
-		packet.push_back(a);
-		packet.push_back(b);
-		packet.push_back(c);
-		packet.push_back(d);
-
-		// New Data
-		packet.push_back(NEW_DATA);
-
-		// Checksum
-		xorchecksum(packet, c0, c1);
-		packet.push_back(c0);
-		packet.push_back(c1);
-
-		return packet;
-	case 0xB0: // Do Unit Tests
-		
-		// Run Tests
-		// run_tests(true);
-        packet.clear();
-		
-		// Compile string
-		for (unsigned int i = 0; i < Test::resstriter; i++)
-        {
-			packet.push_back(Test::resstr[i]);
-		}
-		
-		return packet;
-	default: // Do nothing
-        packet.clear();
-		return packet;
+            packet.clear();
+            return packet;
 	}
+    appendChecksum(packet);
+    return packet;
+}
+
+// builds an ascii message packet
+// the given string is taken as the entire packet data;
+// if it doesn't begin with a '#' character, one will be appended
+// empty strings will be treated as a lone '#' character
+std::vector<unsigned char> Transmission::buildPacket(std::string msg)
+{
+    std::vector<unsigned char> packet { 0xAA, 0x14 };
+    
+    if (msg.length() == 0) msg = "#";
+    if (msg[0] != '#')
+    {
+        msg = "#" + msg;
+    }
+    packet.push_back(msg.length());
+
+    for (auto e : msg)
+        packet.push_back(e);
+    
+    unsigned char c0, c1;
+    xorchecksum(packet, c0, c1);
+    packet.push_back(c0);
+    packet.push_back(c1);
+    return packet;
 }
 
 /**
@@ -288,6 +145,14 @@ void Transmission::xorchecksum(const std::vector<unsigned char> &packet,
 		c0 ^= packet[i];
 	}
 	return;
+}
+
+// appends a checksum onto a packet
+void Transmission::appendChecksum(std::vector<unsigned char> &packet)
+{
+    unsigned char c0, c1;
+    xorchecksum(packet, c0, c1);
+    packet << c0 << c1;
 }
 
 /**

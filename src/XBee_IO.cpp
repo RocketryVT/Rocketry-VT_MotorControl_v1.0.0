@@ -108,9 +108,13 @@ void XBeeIO::flush()
     while (output_buff.size())
     {
         auto e = output_buff.front();
+        output_buff.pop_front();
+        Hardware::write(e);
+
+        #ifdef DEBUG
         std::cout << std::hex << std::setw(2)
             << std::setfill('0') << (int) e << " ";
-        output_buff.pop_front();
+        #endif
     }
     if (size) std::cout << std::dec << std::endl;
 }
@@ -173,10 +177,12 @@ bool XBeeIO::parse()
 
         if (c0 != c0_true || c1 != c1_true) // shit, checksum error
         {
+            #ifdef DEBUG
             std::cout << "Checksum error: got (" << std::hex
                 << (int) c0 << ", " << (int) c1 << "), expected ("
                 << (int) c0_true << ", " << (int) c1_true << ")"
                 << std::endl;
+            #endif
             input_buff.pop_front();
             continue;
         }
@@ -198,26 +204,41 @@ bool XBeeIO::parse()
     {
         std::vector<unsigned char> data;
 
+        #ifdef DEBUG
         std::cout << std::dec << "New packet (" << time << "): [";
         for (unsigned char i = 0; i < 3; ++i)
         {
-            std::cout << " " << std::hex << std::setfill('0')
+            std::cout << std::hex << std::setfill('0')
                 << std::setw(2) << (int) p[i];
+            if (i < 2)
+                std::cout << " ";
         }
-        std::cout << " ] [";
+        std::cout << "] [";
+        #endif
+
         for (unsigned char i = 3; i < p[2] + 3; ++i)
         {
-            std::cout << " " << std::hex << std::setfill('0')
+            #ifdef DEBUG
+            std::cout << std::hex << std::setfill('0')
                 << std::setw(2) << (int) p[i];
+            if (i < p[2] + 2)
+                std::cout << " ";
+            #endif
+
             data.push_back(p[i]);
         }
-        std::cout << " ] [";
+
+        #ifdef DEBUG
+        std::cout << "] [";
         for (unsigned char i = p[2] + 3; i < p.size(); ++i)
         {
-            std::cout << " " << std::hex << std::setfill('0')
+            std::cout << std::hex << std::setfill('0')
                 << std::setw(2) << (int) p[i];
+            if (i < p.size() - 1)
+                std::cout << " ";
         }
-        std::cout << " ]" << std::endl;
+        std::cout << "]" << std::endl;
+        #endif
 
         handle(data);
     }
@@ -237,6 +258,14 @@ bool handle(const std::vector<unsigned char> &data)
     using namespace cfg;
     using namespace State_Data;
     using namespace XBeeIO;
+
+    if (data.size() == 0)
+    {
+        #ifdef DEBUG
+        std::cout << "Recieved empty packet!" << std::endl;
+        #endif
+        return false;
+    }
 
     unsigned char type = data[0];
     bool ascii = false;
@@ -313,16 +342,22 @@ bool handle(const std::vector<unsigned char> &data)
         case 0xFF: control::reset(); // soft reset
                    break;
 
-        default:   std::cout << "It's free real estate: 0x"
+        default:   
+                   #ifdef DEBUG
+                   std::cout << "It's free real estate: 0x"
                        << std::hex << (int) data[0] << std::endl;
+                   #endif
                    return false;
+                   
     }
    
     if (!ascii) return true;
 
     std::string msg(data.begin(), data.end());
+    #ifdef DEBUG
     std::cout << "Recieved new ASCII message: \""
         << msg << "\"" << std::endl;
+    #endif
  
     if (msg == "#LED ON")
     {
@@ -334,25 +369,35 @@ bool handle(const std::vector<unsigned char> &data)
     }
     else if (msg == "#VERSION")
     {
+        #ifdef DEBUG
         std::cout << "Current firmware version is "
             << cfg::version << std::endl;
+        #endif
     }
     else if (msg == "#SAY HI")
     {
+        #ifdef DEBUG
         std::cout << "Hello, world!" << std::endl;
+        #endif
     }
     else if (msg == "#BEST SUBTEAM?")
     {
+        #ifdef DEBUG
         std::cout << "Software is the best subteam!" << std::endl;
+        #endif
     }
     else if (msg == "#WHAT TEAM?")
     {
+        #ifdef DEBUG
         std::cout << "WILDCATS" << std::endl;
+        #endif
     }
     else
     {
+        #ifdef DEBUG
         std::cout << "Unknown ASCII message: \""
             << msg << "\"" << std::endl;
+        #endif
         return false;
     }
 	
@@ -371,6 +416,7 @@ void XBeeIO::reset()
  */
 void XBeeIO::dispbuff()
 {
+    #ifdef DEBUG
     std::cout << "INPUT (" << input_buff.size() << "):";
     for (auto e : input_buff)
         std::cout << " " << std::hex << (int) e;
@@ -395,6 +441,7 @@ void XBeeIO::dispbuff()
     }
     std::cout << " |";
     std::cout << std::endl;
+    #endif
 }
 
 /* Transmits the full data string in ASCII */
@@ -403,8 +450,10 @@ void XBeeIO::transmit_data_string()
     using namespace State_Data;
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>
                 (cfg::TIME - cfg::START_TIME).count();
+    #ifdef DEBUG
     std::cout << time << "," << STATUS << "," << DATA_P1
          << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
          << "," << DATA_T3 << "," << DATA_THR << ","
          << NEW_DATA << "," << MODE << "," << std::endl; // "ENDL" << __LF__;
+    #endif
 }
