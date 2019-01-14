@@ -1,3 +1,10 @@
+#include <iostream>
+#include <chrono>
+#include <string>
+#include <sstream>
+#include <ctime>
+#include <iomanip>
+
 #include "Hardware.h"
 #include "config.h"
 #include "Adafruit_MAX31855.h"
@@ -5,6 +12,9 @@
 #include "Transmission.h"
 #include "HX711.h"
 #include "motor.h"
+
+namespace Hardware
+{
 
 // load cell
 HX711 loadcell(cfg::LOADCELL_DOUT, cfg::LOADCELL_CLK);
@@ -19,10 +29,69 @@ Adafruit_MAX31855
         cfg::pin_T3_CS, cfg::pin_T3_DO);
 
 Motor motor;
-std::ofstream Hardware::logfile("log.bin");
+std::ofstream logfile;
+bool is_LED_on = false;
+bool fail_flag = false;
 
-/* LED Data */
-bool Hardware::is_LED_on = false;
+bool init()
+{
+    fail_flag = false;
+
+    //This value is obtained by using the SparkFun_HX711_Calibration sketch
+    loadcell.set_scale(cfg::loadcell_calibration_factor);
+    //Assuming there is no weight on the scale at start up, reset the scale to 0
+    loadcell.tare();
+
+    // init the stepper motor
+    motor.setSpeed(100);  // set to 100 rpm
+
+    // timestamps will be milliseconds since unix epoch
+    auto now = std::chrono::system_clock::now();
+    time_t ymd = std::chrono::system_clock::to_time_t(now);
+    tm utc = *gmtime(&ymd);
+
+    std::stringstream filename;
+    filename << "log/LOG-" << (utc.tm_year + 1900) << "-"
+        << std::setw(2) << std::setfill('0') << (utc.tm_mon + 1) << "-"
+        << std::setw(2) << std::setfill('0') << utc.tm_mday << "-"
+        << std::setw(2) << std::setfill('0') << utc.tm_hour << "-"
+        << std::setw(2) << std::setfill('0') << utc.tm_min << "-"
+        << std::setw(2) << std::setfill('0') << utc.tm_sec << ".bin";
+
+    #ifdef DEBUG
+    std::cout << "Begin log: " << filename.str() << std::endl;
+    #endif
+
+    system("mkdir -p log/");
+    logfile.open(filename.str());
+    if (!logfile)
+        fail_flag = true;
+
+    return ok();
+}
+
+// checks if hardware is all good
+bool ok()
+{
+    return !fail_flag;
+}
+
+// flushes and closes logfile, closes sensor connections
+void exit()
+{
+    logfile.close();
+}
+
+// resets all the hardware things
+void reset()
+{
+
+}
+
+void write(unsigned char e)
+{
+    logfile << e;
+}
 
 /**
    Updates data variables by calling functions that control data
@@ -39,35 +108,30 @@ bool Hardware::is_LED_on = false;
           0x00001000 - TEMPERATURE_COMBUSTION
           0x00010000 - THRUST
 */
-void Hardware::update_data(const std::chrono::steady_clock::time_point& time)
+void update_data(const std::chrono::steady_clock::time_point& time)
 {
     // New Data
 	unsigned char nd = 0;
 	cfg::DATA_TIME = time;
 	
 	// Update Pressure
-	if (time - State_Data::last_pressure_time
-        > cfg::pressure_period) {
+	if (time - State_Data::last_pressure_time > cfg::pressure_period)
+    {
 		State_Data::DATA_P1 = 0; // get_pressure_1_data(); // Insert Patrick's code here
 		State_Data::DATA_P2 = 0; // get_pressure_2_data(); // Insert Patrick's code here
 		State_Data::last_pressure_time = time;
-		nd |= 0x01;
+		nd |= 0b00000001; // 0x01;
 	}
 	
 	// Update Temperature
-	if (time - State_Data::last_temperature_time
-        > cfg::temperature_period) {
-
-		// XBeeIO::XBee.end();
-		// logfile.end();
+	if (time - State_Data::last_temperature_time > cfg::temperature_period)
+    {
 		State_Data::DATA_T1 = 0; // thermocouple_1.readFarenheit();
 		State_Data::DATA_T2 = 0; // thermocouple_2.readFarenheit();
 		State_Data::DATA_T3 = 0; // thermocouple_3.readFarenheit();
-		// XBee.begin(cfg::XBEE_BAUD);
-		// logfile.begin(cfg::SD_BAUD);
 		
 		State_Data::last_temperature_time = time;
-		nd |= 0x02;
+		nd |= 0b00000010; // 0x02;
 	}
 	
 	// Update Load Cell
@@ -75,63 +139,32 @@ void Hardware::update_data(const std::chrono::steady_clock::time_point& time)
     {
 		State_Data::DATA_THR = 0; // loadcell.get_units(); // Load cell measure thrust
 		State_Data::last_loadcell_time = time;
-		nd |= 0x04;
+		nd |= 0b00000100; // 0x04;
 	}
 	
 	State_Data::NEW_DATA = nd;
 	return;
 }
 
-// creates a file to save data to
-void Hardware::sdcard_openfile()
-{
-	//logfile.begin(cfg::SD_BAUD); // .doing .begin(baud) will not make a new file
-}
-
-// closes currently open save file
-void Hardware::sdcard_closefile()
-{
-	//logfile.end(); // .doing .begin(baud) will not make a new file
-}
-
-// saves data values to a line on a file in the SD card
-void Hardware::sdcard_write(unsigned int datatype)
-{
-	auto packet = Transmission::buildPacket(datatype);
-    for (auto e : packet)
-        XBeeIO::transmit(e);
-	// logfile.write((char*) XBeeIO::output_buff, len);
-}
-
 // initializes the stepper motor
-void Hardware::initializeStepperMotor()
+void initializeStepperMotor()
 {
-    motor.setSpeed(100);  // set to 100 rpm
 }
 
 // opens the stepper motor
-void Hardware::openStepperMotor()
+void openStepperMotor()
 {
     motor.step(560, FORWARD, SINGLE); // number of steps to fully open valve
 }
 
 // closes the stepper motor
-void Hardware::closeStepperMotor()
+void closeStepperMotor()
 {
     motor.step(560, BACKWARD, SINGLE); //close valve
 }
 
-// sets the calibration for the load cell
-void Hardware::initializeLoadCell()
-{
-	//This value is obtained by using the SparkFun_HX711_Calibration sketch
-    loadcell.set_scale(cfg::loadcell_calibration_factor);
-    //Assuming there is no weight on the scale at start up, reset the scale to 0
-	loadcell.tare();
-}
-
 // returns oxidizer tank pressure in PSI
-float Hardware::get_pressure_1_data()
+float get_pressure_1_data()
 {
     int sensorVal = 0; // analogRead(cfg::pin_P1);
     float voltage = (sensorVal * 5.0) / 1024.0;
@@ -140,7 +173,7 @@ float Hardware::get_pressure_1_data()
 }
 
 // returns combustion chamber pressure in PSI
-float Hardware::get_pressure_2_data()
+float get_pressure_2_data()
 {
     int sensorVal = 0; // analogRead(cfg::pin_P2);
     float voltage = (sensorVal * 5.0) / 1024.0;
@@ -148,18 +181,16 @@ float Hardware::get_pressure_2_data()
     return pressure_psi;
 }
 
-// turns on LED
-void Hardware::turn_LED_on(bool output)
+// get LED state
+bool getLED()
 {
-    if (output) XBeeIO::transmit("LED ON\n");
-    is_LED_on = true;
+    return is_LED_on;
 }
 
-// turns off LED
-void Hardware::turn_LED_off(bool output)
+// set LED state
+void setLED(bool state)
 {
-    if (output) XBeeIO::transmit("LED OFF\n");
-    is_LED_on = false;
+    is_LED_on = state;
 }
 
-
+} // namespace Hardware

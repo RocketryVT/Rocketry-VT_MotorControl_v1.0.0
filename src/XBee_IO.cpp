@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cctype>
 #include <iomanip>
+#include <bitset>
 
 #include "XBee_IO.h"
 #include "config.h"
@@ -12,17 +13,21 @@
 #include "Assert.h"
 
 std::deque<unsigned char> input_buff, output_buff;
-std::fstream XBee;
+std::ifstream XBee;
 const std::string xbee_filepath = "infile.txt";
 bool fail_flag = false;
 
 bool XBeeIO::init()
 {
-    XBee.open(xbee_filepath, std::ios::in | std::ios::out);
+    XBee.open(xbee_filepath);
     if (!XBee)
     {
-        return false;
+        #ifdef DEBUG
+        std::cout << "Failed to open xbee file: \""
+            << xbee_filepath << "\"" << std::endl;
+        #endif
         fail_flag = true;
+        return false;
     }
     return true;
 }
@@ -108,14 +113,10 @@ void XBeeIO::flush()
     while (output_buff.size())
     {
         auto e = output_buff.front();
-        std::cout << std::hex << std::setw(2)
-            << std::setfill('0') << (int) e << " ";
         output_buff.pop_front();
+        Hardware::write(e);
     }
-    if (size) std::cout << std::dec << std::endl;
 }
-
-bool handle(const std::vector<unsigned char> &data);
 
 bool XBeeIO::parse()
 {
@@ -173,10 +174,12 @@ bool XBeeIO::parse()
 
         if (c0 != c0_true || c1 != c1_true) // shit, checksum error
         {
+            #ifdef DEBUG
             std::cout << "Checksum error: got (" << std::hex
                 << (int) c0 << ", " << (int) c1 << "), expected ("
                 << (int) c0_true << ", " << (int) c1_true << ")"
                 << std::endl;
+            #endif
             input_buff.pop_front();
             continue;
         }
@@ -197,166 +200,15 @@ bool XBeeIO::parse()
     for (auto p : packets)
     {
         std::vector<unsigned char> data;
-
-        std::cout << std::dec << "New packet (" << time << "): [";
-        for (unsigned char i = 0; i < 3; ++i)
-        {
-            std::cout << " " << std::hex << std::setfill('0')
-                << std::setw(2) << (int) p[i];
-        }
-        std::cout << " ] [";
         for (unsigned char i = 3; i < p[2] + 3; ++i)
-        {
-            std::cout << " " << std::hex << std::setfill('0')
-                << std::setw(2) << (int) p[i];
             data.push_back(p[i]);
-        }
-        std::cout << " ] [";
-        for (unsigned char i = p[2] + 3; i < p.size(); ++i)
-        {
-            std::cout << " " << std::hex << std::setfill('0')
-                << std::setw(2) << (int) p[i];
-        }
-        std::cout << " ]" << std::endl;
 
-        handle(data);
+        #ifdef DEBUG
+        std::cout << Transmission::packet2str(p) << std::endl;
+        #endif
+
+        Transmission::dataReceipt(data);
     }
-}
-
-/** 
- * Parses the "input_buff" character array
- * 
- * INPUT
- * void
- * 
- * RETURN
- * bool -> true if the buffer was parsed succesfully
- */
-bool handle(const std::vector<unsigned char> &data)
-{
-    using namespace cfg;
-    using namespace State_Data;
-    using namespace XBeeIO;
-
-    unsigned char type = data[0];
-    bool ascii = false;
-
-    switch (type)
-    {
-        case 0x00: transmit_data(0x00); // echo firmware
-                   break;
-        
-        case 0x01: Hardware::turn_LED_on(); // turn LED on
-                   break;
-
-        case 0x02: Hardware::turn_LED_off(); // turn LED off
-                   break;
-
-        // why would we need to clear the input buffer?
-        case 0x03: input_buff.clear(); // clear the input buffer
-                   break;
-
-        case 0x04: if (data.size() < 2) break;
-                   MODE = data[1]; // set mode
-                   transmit_data(0x10);
-                   break;
-
-        case 0x05: transmit_data(0xB0); // run unit tests
-                   break;
-
-        case 0x10: Hardware::openStepperMotor(); // open motor
-                   break;
-
-        case 0x11: Hardware::closeStepperMotor(); // close motor
-                   break;
-
-                   // set parameters
-        case 0x20: // cfg::data_period = data[1] + (data[2] << 8);
-                   // max_time = data[3];
-                   break;
-
-        case 0x21: // XBee.print("DATA_PERIOD: "); // print params
-                   // XBee.print(data_period_ms);
-                   // XBee.print(" ms\n");
-                   // XBee.print("MAX_TIME: ");
-                   // XBee.print(max_time);
-                   // XBee.print(" s\n");
-                   break;
-
-                   // 0x23 - '#'
-        case 0x23: ascii = true; // parse ascii message
-                   break;
-
-        case 0x36: if (data.size() < 2) break; // edit params
-                   DATA_OUT_TYPE = data[1];
-                   if (DATA_OUT_TYPE == 0x10)
-                       transmit_data_string();
-                   break;
-
-        case 0x44: dispbuff(); // display buffers
-                   break;
-
-                   // simulation packet
-        case 0x50: if (data.size() < 9) break;
-                   TIME = std::chrono::steady_clock::now();
-                   DATA_OUT_TYPE    = data[0];
-                   MODE             = data[1];
-                   STATUS           = data[2];
-                   DATA_P1          = data[3];
-                   DATA_P2          = data[4];
-                   DATA_T1          = data[5];
-                   DATA_T2          = data[6];
-                   DATA_THR         = data[7];
-                   NEW_DATA         = data[8];
-                   break;
-
-        case 0xFF: control::reset(); // soft reset
-                   break;
-
-        default:   std::cout << "It's free real estate: 0x"
-                       << std::hex << (int) data[0] << std::endl;
-                   return false;
-    }
-   
-    if (!ascii) return true;
-
-    std::string msg(data.begin(), data.end());
-    std::cout << "Recieved new ASCII message: \""
-        << msg << "\"" << std::endl;
- 
-    if (msg == "#LED ON")
-    {
-        Hardware::turn_LED_on();
-    }
-    else if (msg == "#LED OFF")
-    {
-        Hardware::turn_LED_off();
-    }
-    else if (msg == "#VERSION")
-    {
-        std::cout << "Current firmware version is "
-            << cfg::version << std::endl;
-    }
-    else if (msg == "#SAY HI")
-    {
-        std::cout << "Hello, world!" << std::endl;
-    }
-    else if (msg == "#BEST SUBTEAM?")
-    {
-        std::cout << "Software is the best subteam!" << std::endl;
-    }
-    else if (msg == "#WHAT TEAM?")
-    {
-        std::cout << "WILDCATS" << std::endl;
-    }
-    else
-    {
-        std::cout << "Unknown ASCII message: \""
-            << msg << "\"" << std::endl;
-        return false;
-    }
-	
-    return true;
 }
 
 // clears input and output buffers
@@ -371,6 +223,7 @@ void XBeeIO::reset()
  */
 void XBeeIO::dispbuff()
 {
+    #ifdef DEBUG
     std::cout << "INPUT (" << input_buff.size() << "):";
     for (auto e : input_buff)
         std::cout << " " << std::hex << (int) e;
@@ -395,6 +248,7 @@ void XBeeIO::dispbuff()
     }
     std::cout << " |";
     std::cout << std::endl;
+    #endif
 }
 
 /* Transmits the full data string in ASCII */
@@ -403,8 +257,10 @@ void XBeeIO::transmit_data_string()
     using namespace State_Data;
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>
                 (cfg::TIME - cfg::START_TIME).count();
-    std::cout << time << "," << STATUS << "," << DATA_P1
+    #ifdef DEBUG
+    std::cout << std::dec << time << "," << STATUS << "," << DATA_P1
          << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
          << "," << DATA_T3 << "," << DATA_THR << ","
-         << NEW_DATA << "," << MODE << "," << std::endl; // "ENDL" << __LF__;
+         << std::bitset<8>(NEW_DATA) << "," << MODE << std::endl;
+    #endif
 }

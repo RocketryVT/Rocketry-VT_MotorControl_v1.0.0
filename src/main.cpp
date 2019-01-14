@@ -8,9 +8,17 @@
 
 int main()
 {
+    #ifdef DEBUG
+    std::cout << "Debug output is enabled" << std::endl;
+    #endif
+
     signal(SIGINT, control::exit);
 
-    control::init();
+    if (!control::init())
+    {
+        std::cout << "Controller init error" << std::endl;
+        return 1;
+    }
     while (control::ok())
     {
         control::loop();

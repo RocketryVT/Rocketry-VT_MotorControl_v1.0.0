@@ -1,16 +1,12 @@
 #include "config.h"
 
-/* XBee RX, TX pins */
-// Connect DIN to pin 18 ,and DOUT to pin 19
-
 std::string cfg::version = "MOTOR CONTROL 1.0.0";
 
 /* Baud Rates */
-unsigned long cfg::XBEE_BAUD = 38400;
-unsigned long cfg::SD_BAUD = 115200;
+unsigned long cfg::xbee_baud = 38400;
 
 /* Data Transmission Type */
-unsigned int cfg::DATA_OUT_TYPE = -1; // x40;
+unsigned int cfg::DATA_OUT_TYPE = 0x40;
 
 std::chrono::time_point<std::chrono::steady_clock>
     cfg::TIME = std::chrono::steady_clock::now(),
@@ -23,9 +19,9 @@ std::chrono::milliseconds
     cfg::xbee_write_period = std::chrono::milliseconds(1000),
     cfg::checkbuffer_period = std::chrono::milliseconds(100),
     /* Data Timing */
-    cfg::pressure_period = std::chrono::milliseconds(10),
+    cfg::pressure_period = std::chrono::milliseconds(500),
     cfg::temperature_period = std::chrono::milliseconds(100),
-    cfg::loadcell_period = std::chrono::milliseconds(10);
+    cfg::loadcell_period = std::chrono::milliseconds(2000);
 
 /**************************** PINS ****************************/
 
