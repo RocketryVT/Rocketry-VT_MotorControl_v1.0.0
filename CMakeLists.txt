@@ -20,16 +20,14 @@ include_directories(test)
  
 add_library(controller
     src/Adafruit_MAX31855.cpp
-    src/Assert.cpp
     src/control.cpp
     src/config.cpp
     src/Hardware.cpp
     src/HX711.cpp
     src/motor.cpp
     src/Transmission.cpp
-    src/XBee_IO.cpp)
-
-add_library(tests
+    src/XBee_IO.cpp
+    test/Assert.cpp
     test/Test_all.cpp
     test/Test_FloatToBinary.cpp
     test/Test_Transmission.cpp)
@@ -37,5 +35,4 @@ add_library(tests
 add_executable(main src/main.cpp)
 target_link_libraries(main controller)
 add_executable(unit_test test/Unit-Tests-PC.cpp)
-target_link_libraries(unit_test tests)
 target_link_libraries(unit_test controller)

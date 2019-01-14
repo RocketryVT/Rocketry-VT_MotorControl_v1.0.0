@@ -1,6 +1,9 @@
 #ifndef TEST_ALL_H
 #define TEST_ALL_H
 
+namespace Test
+{
+
 /** 
  * Function that drives unit test suite.
  *
@@ -10,5 +13,7 @@
  *						 0: Run the unit test for Desktop (output through command line)
  */
 void run_tests(bool istestondevice = 1);
+
+} // namespace Test
 
 #endif // TEST_ALL_H

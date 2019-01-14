@@ -5,7 +5,7 @@
 
 int main()
 {
-	run_tests(0);
-    std::cout << Test::resstr << std::endl;
+	Test::run_tests(0);
+    std::cout << Test::results_string << std::endl;
     return 0;
 }

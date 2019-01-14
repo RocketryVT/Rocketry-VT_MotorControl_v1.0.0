@@ -187,18 +187,16 @@ float get_pressure_2_data()
     return pressure_psi;
 }
 
-// turns on LED
-void turn_LED_on(bool output)
+// get LED state
+bool getLED()
 {
-    if (output) XBeeIO::transmit("LED ON\n");
-    is_LED_on = true;
+    return is_LED_on;
 }
 
-// turns off LED
-void turn_LED_off(bool output)
+// set LED state
+void setLED(bool state)
 {
-    if (output) XBeeIO::transmit("LED OFF\n");
-    is_LED_on = false;
+    is_LED_on = state;
 }
 
 } // namespace Hardware
