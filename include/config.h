@@ -15,8 +15,7 @@ namespace cfg
     extern std::string version;
 
 	/* Baud Rates */
-	extern unsigned long XBEE_BAUD;
-	extern unsigned long SD_BAUD;
+	extern unsigned long xbee_baud;
 
 	/* Data Transmission Type */
 	extern unsigned int DATA_OUT_TYPE;

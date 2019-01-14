@@ -9,20 +9,22 @@
 int main()
 {
     #ifdef DEBUG
-    std::cout << "VERBOSE output is enabled" << std::endl;
+    std::cout << "Debug output is enabled" << std::endl;
     #endif
 
     signal(SIGINT, control::exit);
 
-    control::init();
+    if (!control::init())
+    {
+        std::cout << "Controller init error" << std::endl;
+        return 1;
+    }
     while (control::ok())
     {
         control::loop();
     }
 
-    #ifdef DEBUG
     std::cout << "Exited successfully." << std::endl;
-    #endif
     return 0;
 }
 

@@ -37,6 +37,14 @@ bool init()
 {
     fail_flag = false;
 
+    //This value is obtained by using the SparkFun_HX711_Calibration sketch
+    loadcell.set_scale(cfg::loadcell_calibration_factor);
+    //Assuming there is no weight on the scale at start up, reset the scale to 0
+    loadcell.tare();
+
+    // init the stepper motor
+    motor.setSpeed(100);  // set to 100 rpm
+
     // timestamps will be milliseconds since unix epoch
     auto now = std::chrono::system_clock::now();
     time_t ymd = std::chrono::system_clock::to_time_t(now);
@@ -51,9 +59,10 @@ bool init()
         << std::setw(2) << std::setfill('0') << utc.tm_sec << ".bin";
 
     #ifdef DEBUG
-    std::cout << filename.str() << std::endl;
+    std::cout << "Begin log: " << filename.str() << std::endl;
     #endif
 
+    system("mkdir -p log/");
     logfile.open(filename.str());
     if (!logfile)
         fail_flag = true;
@@ -106,28 +115,23 @@ void update_data(const std::chrono::steady_clock::time_point& time)
 	cfg::DATA_TIME = time;
 	
 	// Update Pressure
-	if (time - State_Data::last_pressure_time
-        > cfg::pressure_period) {
+	if (time - State_Data::last_pressure_time > cfg::pressure_period)
+    {
 		State_Data::DATA_P1 = 0; // get_pressure_1_data(); // Insert Patrick's code here
 		State_Data::DATA_P2 = 0; // get_pressure_2_data(); // Insert Patrick's code here
 		State_Data::last_pressure_time = time;
-		nd |= 0x01;
+		nd |= 0b00000001; // 0x01;
 	}
 	
 	// Update Temperature
-	if (time - State_Data::last_temperature_time
-        > cfg::temperature_period) {
-
-		// XBeeIO::XBee.end();
-		// logfile.end();
+	if (time - State_Data::last_temperature_time > cfg::temperature_period)
+    {
 		State_Data::DATA_T1 = 0; // thermocouple_1.readFarenheit();
 		State_Data::DATA_T2 = 0; // thermocouple_2.readFarenheit();
 		State_Data::DATA_T3 = 0; // thermocouple_3.readFarenheit();
-		// XBee.begin(cfg::XBEE_BAUD);
-		// logfile.begin(cfg::SD_BAUD);
 		
 		State_Data::last_temperature_time = time;
-		nd |= 0x02;
+		nd |= 0b00000010; // 0x02;
 	}
 	
 	// Update Load Cell
@@ -135,7 +139,7 @@ void update_data(const std::chrono::steady_clock::time_point& time)
     {
 		State_Data::DATA_THR = 0; // loadcell.get_units(); // Load cell measure thrust
 		State_Data::last_loadcell_time = time;
-		nd |= 0x04;
+		nd |= 0b00000100; // 0x04;
 	}
 	
 	State_Data::NEW_DATA = nd;
@@ -145,7 +149,6 @@ void update_data(const std::chrono::steady_clock::time_point& time)
 // initializes the stepper motor
 void initializeStepperMotor()
 {
-    motor.setSpeed(100);  // set to 100 rpm
 }
 
 // opens the stepper motor
@@ -158,15 +161,6 @@ void openStepperMotor()
 void closeStepperMotor()
 {
     motor.step(560, BACKWARD, SINGLE); //close valve
-}
-
-// sets the calibration for the load cell
-void initializeLoadCell()
-{
-	//This value is obtained by using the SparkFun_HX711_Calibration sketch
-    loadcell.set_scale(cfg::loadcell_calibration_factor);
-    //Assuming there is no weight on the scale at start up, reset the scale to 0
-	loadcell.tare();
 }
 
 // returns oxidizer tank pressure in PSI

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 
 #include "Test_all.h"
 #include "Transmission.h"
@@ -304,5 +306,26 @@ bool Transmission::dataReceipt(const std::vector<unsigned char> &data)
     }
 	
     return true;
+}
+
+// converts a packet to a nice human readable form
+std::string Transmission::packet2str(const std::vector<unsigned char> &data)
+{
+    std::stringstream ss;
+    ss << std::hex;
+    bool ascii = data.size() > 3 && data[3] == '#';
+    for (unsigned char i = 0; i < data.size(); ++i)
+    {
+        if (ascii && i > 2 && i < data.size() - 2)
+            ss << data[i];
+        else
+            ss << std::setfill('0') << std::setw(2) << (int) data[i];
+        if (i < data.size() - 1 &&
+            !(ascii && i > 2 && i < data.size() - 3))
+            ss << " ";
+        if (i == 2 || (data.size() > 2 && i == 2 + data[2]))
+            ss << "| ";
+    }
+    return ss.str();
 }
 

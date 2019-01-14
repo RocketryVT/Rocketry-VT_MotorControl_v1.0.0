@@ -38,17 +38,11 @@ void write(unsigned char e);
 */
 void update_data(const std::chrono::steady_clock::time_point& t);
 
-// Initializes the stepper motor
-void initializeStepperMotor();
-
 // Closes the stepper motor
 void closeStepperMotor();
 
 // Opens the stepper motor
 void openStepperMotor();
-
-// Sets the calibration for the Load Cell
-void initializeLoadCell();
 
 // reads pressure in oxidizer tank
 // @return float = pressure in oxy tank in psi

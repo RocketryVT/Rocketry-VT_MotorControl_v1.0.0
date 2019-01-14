@@ -6,7 +6,7 @@
 namespace control
 {
 
-void init();
+bool init();
 
 void loop();
 

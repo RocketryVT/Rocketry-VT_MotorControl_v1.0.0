@@ -14,11 +14,13 @@ namespace control
 
 bool exit_flag = false;
 bool fail_flag = false;
+std::chrono::steady_clock::time_point start_time;
+std::chrono::milliseconds runtime;
 
-void init()
+bool init()
 {
     #ifdef DEBUG
-    std::cout << "CONTROLLER INIT" << std::endl;
+    std::cout << "Controller init" << std::endl;
     #endif
 
     Hardware::init();
@@ -29,12 +31,13 @@ void init()
         #endif
         exit_flag = true;
         fail_flag = true;
+        return false;
     }
-	Hardware::initializeStepperMotor();
-	Hardware::initializeLoadCell();
 	
 	cfg::START_TIME = cfg::DATA_TIME =
         std::chrono::steady_clock::now();
+    start_time = cfg::START_TIME;
+
     XBeeIO::init();
     if (!XBeeIO::ok())
     {
@@ -43,7 +46,10 @@ void init()
         #endif
         exit_flag = true;
         fail_flag = true;
+        return false;
     }
+
+    return ok();
 }
 
 void loop()
@@ -56,9 +62,9 @@ void loop()
 
     /* Reset Sensor Timings */
     Hardware::update_data(cfg::TIME);
-    State_Data::last_pressure_time = cfg::TIME;
-    State_Data::last_temperature_time = cfg::TIME;
-    State_Data::last_loadcell_time = cfg::TIME;
+    // State_Data::last_pressure_time = cfg::TIME;
+    // State_Data::last_temperature_time = cfg::TIME;
+    // State_Data::last_loadcell_time = cfg::TIME;
 
     int mode_previous = State_Data::MODE;
 
@@ -109,19 +115,15 @@ void loop()
     // Iterate
     mode_previous = State_Data::MODE;
 
-    // Time to delay
-    // auto after_t = std::chrono::steady_clock::now();
-    // auto dt = after_t - cfg::TIME;
-    // while (dt > cfg::LOOP_period)
-    // dt -= cfg::LOOP_period;
-    // auto t_wait = cfg::LOOP_period - dt; 
-    std::this_thread::sleep_for(cfg::loop_period);
+    auto next = start_time + runtime + cfg::loop_period;
+    runtime += cfg::loop_period;
+    std::this_thread::sleep_until(next);
 }
 
 void reset()
 {
     #ifdef DEBUG
-    std::cout << "CONTROLLER RESET" << std::endl;
+    std::cout << "Controller reset" << std::endl;
     #endif
 
 	// Shutdown procedure

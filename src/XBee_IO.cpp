@@ -3,6 +3,7 @@
 #include <cstring>
 #include <cctype>
 #include <iomanip>
+#include <bitset>
 
 #include "XBee_IO.h"
 #include "config.h"
@@ -12,17 +13,21 @@
 #include "Assert.h"
 
 std::deque<unsigned char> input_buff, output_buff;
-std::fstream XBee;
+std::ifstream XBee;
 const std::string xbee_filepath = "infile.txt";
 bool fail_flag = false;
 
 bool XBeeIO::init()
 {
-    XBee.open(xbee_filepath, std::ios::in | std::ios::out);
+    XBee.open(xbee_filepath);
     if (!XBee)
     {
-        return false;
+        #ifdef DEBUG
+        std::cout << "Failed to open xbee file: \""
+            << xbee_filepath << "\"" << std::endl;
+        #endif
         fail_flag = true;
+        return false;
     }
     return true;
 }
@@ -110,13 +115,7 @@ void XBeeIO::flush()
         auto e = output_buff.front();
         output_buff.pop_front();
         Hardware::write(e);
-
-        #ifdef DEBUG
-        std::cout << std::hex << std::setw(2)
-            << std::setfill('0') << (int) e << " ";
-        #endif
     }
-    if (size) std::cout << std::dec << std::endl;
 }
 
 bool XBeeIO::parse()
@@ -201,41 +200,11 @@ bool XBeeIO::parse()
     for (auto p : packets)
     {
         std::vector<unsigned char> data;
-
-        #ifdef DEBUG
-        std::cout << std::dec << "New packet (" << time << "): [";
-        for (unsigned char i = 0; i < 3; ++i)
-        {
-            std::cout << std::hex << std::setfill('0')
-                << std::setw(2) << (int) p[i];
-            if (i < 2)
-                std::cout << " ";
-        }
-        std::cout << "] [";
-        #endif
-
         for (unsigned char i = 3; i < p[2] + 3; ++i)
-        {
-            #ifdef DEBUG
-            std::cout << std::hex << std::setfill('0')
-                << std::setw(2) << (int) p[i];
-            if (i < p[2] + 2)
-                std::cout << " ";
-            #endif
-
             data.push_back(p[i]);
-        }
 
         #ifdef DEBUG
-        std::cout << "] [";
-        for (unsigned char i = p[2] + 3; i < p.size(); ++i)
-        {
-            std::cout << std::hex << std::setfill('0')
-                << std::setw(2) << (int) p[i];
-            if (i < p.size() - 1)
-                std::cout << " ";
-        }
-        std::cout << "]" << std::endl;
+        std::cout << Transmission::packet2str(p) << std::endl;
         #endif
 
         Transmission::dataReceipt(data);
@@ -289,9 +258,9 @@ void XBeeIO::transmit_data_string()
     auto time = std::chrono::duration_cast<std::chrono::milliseconds>
                 (cfg::TIME - cfg::START_TIME).count();
     #ifdef DEBUG
-    std::cout << time << "," << STATUS << "," << DATA_P1
+    std::cout << std::dec << time << "," << STATUS << "," << DATA_P1
          << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
          << "," << DATA_T3 << "," << DATA_THR << ","
-         << NEW_DATA << "," << MODE << "," << std::endl; // "ENDL" << __LF__;
+         << std::bitset<8>(NEW_DATA) << "," << MODE << std::endl;
     #endif
 }
