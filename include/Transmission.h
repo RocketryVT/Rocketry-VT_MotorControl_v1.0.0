@@ -9,6 +9,18 @@
 namespace Transmission
 {
 
+enum packet_t : unsigned char
+{
+    echo_version        = 0x00,
+    log_begin           = 0x01,
+    log_end             = 0x02,
+    echo_mode           = 0x10,
+    solid_motor_test    = 0x40,
+    cold_flow_test      = 0x51,
+    cold_flow_test_exr  = 0x52,
+    run_unit_tests      = 0xB0
+};
+
 // Compiles data to a char array so that it can be pushed to the 
 // serial port directly. Also this makes it easier to compute a
 // checksum on the data
@@ -26,6 +38,10 @@ std::vector<unsigned char> buildPacket(std::string msg);
 
 // parses a vector of bytes and sifts out all the good packets
 // which it returns in a vector of packets
+//
+// this function modifies the std::deque which is passed to it,
+// popping off bytes which are processed and leaving alone bytes
+// that are not
 std::vector<std::vector<unsigned char>>
     parse(std::deque<unsigned char>& bytestream);
 
@@ -50,6 +66,12 @@ void appendChecksum(std::vector<unsigned char> &packet);
 // length, and checksum bytes
 // returns true if successful, false if error encountered
 bool dataReceipt(const std::vector<unsigned char> &data);
+
+// reads all the packets in a binary file and puts all valid
+// ones into a vector of packets; returns an empty list
+// if the given filename is invalid
+std::vector<std::vector<unsigned char>>
+    fromFile(const std::string& filename);
 
 // converts a packet to a nice human readable form
 std::string packet2str(const std::vector<unsigned char> &data);

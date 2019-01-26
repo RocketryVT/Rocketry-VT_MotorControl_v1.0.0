@@ -1,14 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <fstream>
 
-#include "Test_all.h"
 #include "Transmission.h"
-#include "Hardware.h"
-#include "control.h"
-#include "config.h"
-#include "Assert.h"
-#include "XBee_IO.h"
 
 // builds an ascii message packet
 // the given string is taken as the entire packet data;
@@ -148,6 +143,24 @@ void Transmission::appendChecksum(std::vector<unsigned char> &packet)
     unsigned char c0, c1;
     xorchecksum(packet, c0, c1);
     packet << c0 << c1;
+}
+
+// reads a binary file and returns a list of packets
+std::vector<std::vector<unsigned char>>
+    Transmission::fromFile(const std::string &filename)
+{
+    std::ifstream infile(filename, std::ios::binary);
+    if (!infile) return std::vector<std::vector<unsigned char>>();
+    
+    infile.seekg(0, std::ios::end);
+    size_t end = infile.tellg();
+    infile.seekg(0, std::ios::beg);
+
+    std::deque<unsigned char> bytestream;
+	for (size_t i = 0; i < end; ++i) 
+		bytestream.push_back(infile.get());
+
+    return Transmission::parse(bytestream);
 }
 
 // converts a packet to a nice human readable form
