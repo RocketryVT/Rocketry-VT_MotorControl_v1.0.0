@@ -36,8 +36,7 @@ void transmit_data(unsigned int type);
 void flush();
 
 // Parses the "input_buff" character array
-// bool -> true if the buffer was parsed succesfully
-bool parse();
+void parse();
 
 // clears the input and output buffers
 void reset();

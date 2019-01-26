@@ -26,6 +26,7 @@ add_library(controller
     src/HX711.cpp
     src/motor.cpp
     src/Transmission.cpp
+    src/Transmission_Impl.cpp
     src/XBee_IO.cpp
     test/Assert.cpp
     test/Test_all.cpp

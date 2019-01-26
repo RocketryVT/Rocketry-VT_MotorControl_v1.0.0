@@ -4,34 +4,37 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <deque>
 
 namespace Transmission
 {
 
-/**
-* Compiles data to a char array so that it can be pushed to the 
-* serial port directly. Also this makes it easier to compute a
-* checksum on the data
-*
-* INPUTS
-* unsigned int type -> data transmission packet type (see documentation)
-* 
-* OUTPUT
-* std::vector<unsigned char> -> requested data packet
-*/
+// Compiles data to a char array so that it can be pushed to the 
+// serial port directly. Also this makes it easier to compute a
+// checksum on the data
+//
+// INPUTS
+// unsigned int type -> data transmission packet type (see documentation)
+//
+// OUTPUT
+// std::vector<unsigned char> -> requested data packet
+//
 std::vector<unsigned char> buildPacket(unsigned int type);
 
 // builds an ascii message packet out of a string
 std::vector<unsigned char> buildPacket(std::string msg);
 
-/**
- * Computes the exclusive or parity check of the bytes in a message
- *
- * INPUTS
- * std::vector &packet -> data packet to calculate checksum for
- * unsigned char &c0 -> First byte of checksum
- * unsigned char &c1 -> Second byte of checksum
- */
+// parses a vector of bytes and sifts out all the good packets
+// which it returns in a vector of packets
+std::vector<std::vector<unsigned char>>
+    parse(std::deque<unsigned char>& bytestream);
+
+// Computes the exclusive or parity check of the bytes in a message
+//
+// INPUTS
+// std::vector &packet -> data packet to calculate checksum for
+// unsigned char &c0 -> First byte of checksum
+// unsigned char &c1 -> Second byte of checksum
 void xorchecksum(const std::vector<unsigned char> &packet,
     unsigned char &c0, unsigned char &c1);
 
@@ -51,7 +54,7 @@ bool dataReceipt(const std::vector<unsigned char> &data);
 // converts a packet to a nice human readable form
 std::string packet2str(const std::vector<unsigned char> &data);
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 //  MAGIC TEMPLATE FUNCTIONS BELOW
 //
@@ -78,7 +81,15 @@ std::string packet2str(const std::vector<unsigned char> &data);
 //  bytes will now have a length of 16 (4*sizeof(uint32_t))
 //  and should contain the bytes of the four integers.
 //
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//  You can also pull data from vectors and stick it into
+//  fundamental types using the >> operator:
+//
+//      std::vector<unsigned char> packet = getPacket();
+//      double d1, d2, d3, d4;
+//      int n1, n2, n3;
+//      packet >> d1 >> d2 >> d3 >> d4 >> n1 >> n2 >> n3;
+//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>

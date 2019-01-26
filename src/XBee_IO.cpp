@@ -118,95 +118,16 @@ void XBeeIO::flush()
     }
 }
 
-bool XBeeIO::parse()
+void XBeeIO::parse()
 {
-    std::vector<std::vector<unsigned char>> packets;
-
-    bool parsing = true;
-
-    while (input_buff.size() && parsing)
-    {
-        // go to next 0xAA 0x14
-        while (input_buff.size() > 0 && input_buff.front() != 0xAA)
-        {
-            input_buff.pop_front();
-        }
-
-        if (input_buff.size() < 2)
-        {
-            continue;
-        }
-
-        // if the next byte isn't 0x14, pop the front and repeat
-        if (input_buff[1] != 0x14)
-        {
-            input_buff.pop_front();
-            continue;
-        }
-
-        if (input_buff.size() < 3) // length byte hasn't arrived
-        {
-            parsing = false;
-            continue;
-        }
-
-        auto data_length = input_buff[2];
-        if (input_buff.size() < 3 + data_length + 2) // incomplete data
-        {
-            parsing = false;
-            continue;
-        }
-
-        // at this point we know there exists an entire discrete packet
-        // if there's a checksum error that doesn't matter so don't
-        // go popping stuff off the deque just yet
-        std::vector<unsigned char> packet;
-
-        // exclude checksum for now
-        for (unsigned char i = 0; i < 3 + data_length; ++i)
-            packet.push_back(input_buff[i]);
-
-        unsigned char c0 = input_buff[3 + data_length],
-                      c1 = input_buff[4 + data_length];
-
-        unsigned char c0_true, c1_true;
-        Transmission::xorchecksum(packet, c0_true, c1_true);
-
-        if (c0 != c0_true || c1 != c1_true) // shit, checksum error
-        {
-            #ifdef DEBUG
-            std::cout << "Checksum error: got (" << std::hex
-                << (int) c0 << ", " << (int) c1 << "), expected ("
-                << (int) c0_true << ", " << (int) c1_true << ")"
-                << std::endl;
-            #endif
-            input_buff.pop_front();
-            continue;
-        }
-
-        // hooray, no checksum error! add those digits to the packet
-        // and start popping things off the deque
-        packet.push_back(c0);
-        packet.push_back(c1);
-        packets.push_back(packet);
-
-        for (unsigned char i = 0; i < packet.size(); ++i)
-            input_buff.pop_front();
-    }
-
-    unsigned long long time = std::chrono::duration_cast<std::chrono::
-        milliseconds>(cfg::TIME - cfg::START_TIME).count();
-
+    auto packets = Transmission::parse(input_buff);
     for (auto p : packets)
     {
         std::vector<unsigned char> data;
-        for (unsigned char i = 3; i < p[2] + 3; ++i)
+        for (size_t i = 3; i < p.size() - 2; ++i)
+        {
             data.push_back(p[i]);
-
-        #ifdef DEBUG
-        std::cout << Transmission::packet2str(p) << std::endl;
-        #endif
-
+        }
         Transmission::dataReceipt(data);
     }
 }
