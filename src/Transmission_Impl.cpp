@@ -187,6 +187,10 @@ bool Transmission::dataReceipt(const std::vector<unsigned char> &data)
                    NEW_DATA         = data[8];
                    break;
 
+        case 0xFE: if (data.size() < 2) break;
+                   control::exit(data[1]); // safe shutdown
+                   break;
+
         case 0xFF: control::reset(); // soft reset
                    break;
 
