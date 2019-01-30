@@ -14,7 +14,7 @@
 
 std::deque<unsigned char> input_buff, output_buff;
 std::ifstream XBee;
-const std::string xbee_filepath = "infile.txt";
+const std::string xbee_filepath = "xbee.bin";
 bool fail_flag = false;
 
 bool XBeeIO::init()
@@ -92,18 +92,10 @@ void XBeeIO::transmit_data(unsigned int type)
 {
 	using namespace Transmission;
 
-	/* For debugging only */
-	if (type == 0xFF)
-    {
-		transmit_data_string();
-		return;
-	}
-	
 	// Build packet and transmit it
 	auto packet = buildPacket(type);
     for (auto e : packet)
         output_buff.push_back(e);
-	// XBee.write((char*) output_buff, len);
 	return;
 }
 
@@ -124,11 +116,14 @@ void XBeeIO::parse()
     for (auto p : packets)
     {
         std::vector<unsigned char> data;
-        for (size_t i = 3; i < p.size() - 2; ++i)
+
+        std::cout << Transmission::packet2str(p) << std::endl;
+
+        for (size_t i = 4; i < p.size() - 2; ++i)
         {
             data.push_back(p[i]);
         }
-        Transmission::dataReceipt(data);
+        Transmission::dataReceipt(p[3], data);
     }
 }
 
@@ -172,16 +167,3 @@ void XBeeIO::dispbuff()
     #endif
 }
 
-/* Transmits the full data string in ASCII */
-void XBeeIO::transmit_data_string()
-{
-    using namespace State_Data;
-    auto time = std::chrono::duration_cast<std::chrono::milliseconds>
-                (cfg::TIME - cfg::START_TIME).count();
-    #ifdef DEBUG
-    std::cout << std::dec << time << "," << STATUS << "," << DATA_P1
-         << "," << DATA_P2 << "," << DATA_T1 << "," << DATA_T2
-         << "," << DATA_T3 << "," << DATA_THR << ","
-         << std::bitset<8>(NEW_DATA) << "," << MODE << std::endl;
-    #endif
-}

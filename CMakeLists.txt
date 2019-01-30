@@ -25,6 +25,7 @@ add_library(controller
     src/Hardware.cpp
     src/HX711.cpp
     src/motor.cpp
+    src/logging.cpp
     src/Transmission.cpp
     src/Transmission_Impl.cpp
     src/XBee_IO.cpp
@@ -39,3 +40,5 @@ add_executable(unit_test test/Unit-Tests-PC.cpp)
 target_link_libraries(unit_test controller)
 add_executable(bin2txt src/bin2txt.cpp)
 target_link_libraries(bin2txt controller)
+add_executable(pack src/pack.cpp)
+target_link_libraries(pack controller)

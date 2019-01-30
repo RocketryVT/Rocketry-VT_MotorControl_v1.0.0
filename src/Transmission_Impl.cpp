@@ -1,7 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <algorithm>
 
+#include <logging.h>
 #include "Test_all.h"
 #include "Transmission.h"
 #include "Hardware.h"
@@ -23,14 +25,12 @@
 */
 std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 {
-	using namespace State_Data;
-
     // packet and header
     std::vector<unsigned char> packet { 0xAA, 0x14 };
 
 	// Chars used to store float bytes
     uint32_t msec = std::chrono::duration_cast<std::chrono::milliseconds>
-        (cfg::DATA_TIME - cfg::START_TIME).count();
+        (state::time - cfg::start_time).count();
 	
 	switch (type)
     {
@@ -49,33 +49,33 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 
         case 0x10:
 
-            packet << (uint8_t) 7 << (uint8_t) 0x10 << (uint8_t) MODE;
+            packet << (uint8_t) 7 << (uint8_t) 0x10 << (uint8_t) state::mode;
             break;
 
         case 0x40: // Solid Motor Static Fire Tests 2018-11-11
 
             packet << (uint8_t) 22 << (uint8_t) 0x40
-                << (uint32_t) msec << (uint8_t) MODE
-                << (uint16_t) STATUS << (float) DATA_T1
-                << (float) DATA_THR << (uint8_t) NEW_DATA;
+                << (uint32_t) msec << (uint8_t) state::mode
+                << (uint16_t) state::status << (float) state::t1
+                << (float) state::thrust << (uint8_t) state::new_data;
             break;
 
         case 0x51: // Cold flow test data
 
             packet << (uint8_t) 34 << (uint8_t) 0x51
-                << (uint32_t) msec << (uint8_t) MODE << (uint16_t) STATUS
-                << (float) DATA_P1 << (float) DATA_P2
-                << (float) DATA_T1 << (float) DATA_T2
-                << (float) DATA_THR << (uint8_t) NEW_DATA;
+                << (uint32_t) msec << (uint8_t) state::mode << (uint16_t) state::status
+                << (float) state::p1 << (float) state::p2
+                << (float) state::t1 << (float) state::t2
+                << (float) state::thrust << (uint8_t) state::new_data;
             break;
 
         case 0x52: // Cold flow test data
 
             packet << (uint8_t) 38 << (uint8_t) 0x52
-                << (uint32_t) msec << (uint8_t) MODE << (uint16_t) STATUS
-                << (float) DATA_P1 << (float) DATA_P2 << (float) DATA_T1
-                << (float) DATA_T2 << (float) DATA_T3 << (float) DATA_THR
-                << (uint8_t) NEW_DATA;
+                << (uint32_t) msec << (uint8_t) state::mode << (uint16_t) state::status
+                << (float) state::p1 << (float) state::p2 << (float) state::t1
+                << (float) state::t2 << (float) state::t3 << (float) state::thrust
+                << (uint8_t) state::new_data;
             break;
 
         case 0xB0: // Do Unit Tests
@@ -96,31 +96,17 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 // the argument data should be stripped of the header,
 // length, and checksum bytes
 // returns true if successful, false if error encountered
-bool Transmission::dataReceipt(const std::vector<unsigned char> &data)
+bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
 {
-    using namespace cfg;
-    using namespace State_Data;
-    using namespace XBeeIO;
-
-    if (data.size() == 0)
-    {
-        #ifdef DEBUG
-        std::cout << "Recieved empty packet!" << std::endl;
-        #endif
-        return false;
-    }
-
-    #ifdef DEBUG
-    std::cout << "Recieved packet with data of length "
-        << data.size() << std::endl;
-    #endif
-
-    unsigned char type = data[0];
     bool ascii = false;
 
-    switch (type)
+    auto log_packet = Transmission::buildPacket(id, data);
+    logging::write(log_packet);
+    logging::flush();
+
+    switch (id)
     {
-        case 0x00: transmit_data(0x00); // echo firmware
+        case 0x00: XBeeIO::transmit_data(0x00); // echo firmware
                    break;
         
         case 0x01: Hardware::setLED(true); // turn LED on
@@ -134,11 +120,11 @@ bool Transmission::dataReceipt(const std::vector<unsigned char> &data)
                    break;
 
         case 0x04: if (data.size() < 2) break;
-                   MODE = data[1]; // set mode
-                   transmit_data(0x10);
+                   state::mode = data[1]; // set mode
+                   XBeeIO::transmit_data(0x10);
                    break;
 
-        case 0x05: transmit_data(0xB0); // run unit tests
+        case 0x05: XBeeIO::transmit_data(0xB0); // run unit tests
                    break;
 
         case 0x10: Hardware::openStepperMotor(); // open motor
@@ -164,27 +150,27 @@ bool Transmission::dataReceipt(const std::vector<unsigned char> &data)
         case 0x23: ascii = true; // parse ascii message
                    break;
 
-        case 0x36: if (data.size() < 2) break; // edit params
-                   DATA_OUT_TYPE = data[1];
-                   if (DATA_OUT_TYPE == 0x10)
-                       transmit_data_string();
+        case 0x36: // if (data.size() < 2) break; // edit params
+                   // cfg::DATA_OUT_TYPE = data[1];
+                   // if (cfg::DATA_OUT_TYPE == 0x10)
+                   //     XBeeIO::transmit_data_string();
                    break;
 
-        case 0x44: dispbuff(); // display buffers
+        case 0x44: XBeeIO::dispbuff(); // display buffers
                    break;
 
                    // simulation packet
         case 0x50: if (data.size() < 9) break;
-                   TIME = std::chrono::steady_clock::now();
-                   DATA_OUT_TYPE    = data[0];
-                   MODE             = data[1];
-                   STATUS           = data[2];
-                   DATA_P1          = data[3];
-                   DATA_P2          = data[4];
-                   DATA_T1          = data[5];
-                   DATA_T2          = data[6];
-                   DATA_THR         = data[7];
-                   NEW_DATA         = data[8];
+                   state::time = std::chrono::steady_clock::now();
+                   // cfg::DATA_OUT_TYPE    = data[0];
+                   state::mode             = data[1];
+                   state::status           = data[2];
+                   state::p1               = data[3];
+                   state::p2               = data[4];
+                   state::t1               = data[5];
+                   state::t2               = data[6];
+                   state::thrust           = data[7];
+                   state::new_data         = data[8];
                    break;
 
         case 0xFE: if (data.size() < 2) break;
@@ -211,38 +197,38 @@ bool Transmission::dataReceipt(const std::vector<unsigned char> &data)
         << msg << "\"" << std::endl;
     #endif
  
-    if (msg == "#LED ON")
+    if (msg == "LED ON")
     {
         Hardware::setLED(true);
     }
-    else if (msg == "#LED OFF")
+    else if (msg == "LED OFF")
     {
         Hardware::setLED(false);
     }
-    else if (msg == "#VERSION")
+    else if (msg == "VERSION")
     {
-        #ifdef DEBUG
         std::cout << "Current firmware version is "
             << cfg::version << std::endl;
-        #endif
     }
-    else if (msg == "#SAY HI")
+    else if (msg == "SAY HI")
     {
-        #ifdef DEBUG
         std::cout << "Hello, world!" << std::endl;
-        #endif
     }
-    else if (msg == "#BEST SUBTEAM?")
+    else if (msg == "BEST SUBTEAM?")
     {
-        #ifdef DEBUG
         std::cout << "Software is the best subteam!" << std::endl;
-        #endif
     }
-    else if (msg == "#WHAT TEAM?")
+    else if (msg == "WHAT TEAM?")
     {
-        #ifdef DEBUG
         std::cout << "WILDCATS" << std::endl;
-        #endif
+    }
+    else if (msg == "RESET")
+    {
+        control::reset();
+    }
+    else if (msg == "SHUTDOWN")
+    {
+        control::exit(0);
     }
     else
     {

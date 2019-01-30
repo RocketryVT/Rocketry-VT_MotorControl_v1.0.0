@@ -36,6 +36,10 @@ std::vector<unsigned char> buildPacket(unsigned int type);
 // builds an ascii message packet out of a string
 std::vector<unsigned char> buildPacket(std::string msg);
 
+// builds a packet given an arbitrary id and bytestring
+std::vector<unsigned char> buildPacket(
+    uint8_t id, std::vector<uint8_t> data);
+
 // parses a vector of bytes and sifts out all the good packets
 // which it returns in a vector of packets
 //
@@ -65,7 +69,7 @@ void appendChecksum(std::vector<unsigned char> &packet);
 // the argument data should be stripped of the header,
 // length, and checksum bytes
 // returns true if successful, false if error encountered
-bool dataReceipt(const std::vector<unsigned char> &data);
+bool dataReceipt(uint8_t id, const std::vector<unsigned char> &data);
 
 // reads all the packets in a binary file and puts all valid
 // ones into a vector of packets; returns an empty list

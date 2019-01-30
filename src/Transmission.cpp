@@ -11,22 +11,27 @@
 // empty strings will be treated as a lone '#' character
 std::vector<unsigned char> Transmission::buildPacket(std::string msg)
 {
-    std::vector<unsigned char> packet { 0xAA, 0x14 };
-    
-    if (msg.length() == 0) msg = "#";
-    if (msg[0] != '#')
-    {
-        msg = "#" + msg;
-    }
-    packet.push_back(msg.length());
+    if (msg.length() > 255)
+        msg = msg.substr(0, 255);
 
+    uint8_t len = msg.length();
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, '#' };
     for (auto e : msg)
         packet.push_back(e);
-    
-    unsigned char c0, c1;
-    xorchecksum(packet, c0, c1);
-    packet.push_back(c0);
-    packet.push_back(c1);
+    appendChecksum(packet); 
+    return packet;
+}
+
+std::vector<unsigned char> Transmission::buildPacket(
+    uint8_t id, std::vector<unsigned char> data)
+{
+    if (data.size() > 255) data.resize(255);
+
+    uint8_t len = data.size();
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, id };
+    for (auto e : data)
+        packet.push_back(e);
+    appendChecksum(packet);
     return packet;
 }
 
@@ -44,10 +49,7 @@ std::vector<std::vector<unsigned char>>
             bytestream.pop_front();
         }
 
-        if (bytestream.size() < 2)
-        {
-            continue;
-        }
+        if (bytestream.size() < 2) continue; // wait for next sync byte
 
         // if the next byte isn't 0x14, pop the front and repeat
         if (bytestream[1] != 0x14)
@@ -56,14 +58,16 @@ std::vector<std::vector<unsigned char>>
             continue;
         }
 
-        if (bytestream.size() < 3) // length byte hasn't arrived
+        if (bytestream.size() < 4) // header hasn't arrived
         {
             parsing = false;
             continue;
         }
 
-        auto data_length = bytestream[2];
-        if (bytestream.size() < 3 + data_length + 2) // incomplete data
+        uint8_t data_length = bytestream[2];
+        uint8_t id = bytestream[3];
+
+        if (bytestream.size() < 4 + data_length + 2) // incomplete data
         {
             parsing = false;
             continue;
@@ -75,11 +79,12 @@ std::vector<std::vector<unsigned char>>
         std::vector<unsigned char> packet;
 
         // exclude checksum for now
-        for (unsigned char i = 0; i < 3 + data_length; ++i)
+        for (size_t i = 0; i < 4 + data_length; ++i)
+        {
             packet.push_back(bytestream[i]);
-
-        unsigned char c0 = bytestream[3 + data_length],
-                      c1 = bytestream[4 + data_length];
+        }
+        unsigned char c0 = bytestream[4 + data_length],
+                      c1 = bytestream[5 + data_length];
 
         unsigned char c0_true, c1_true;
         Transmission::xorchecksum(packet, c0_true, c1_true);
@@ -102,8 +107,10 @@ std::vector<std::vector<unsigned char>>
         packet.push_back(c1);
         packets.push_back(packet);
 
-        for (unsigned char i = 0; i < packet.size(); ++i)
+        for (size_t i = 0; i < packet.size(); ++i)
+        {
             bytestream.pop_front();
+        }
     }
 
     return packets;
@@ -169,18 +176,17 @@ std::string Transmission::packet2str(const std::vector<unsigned char> &data)
     std::stringstream ss;
     ss << std::hex;
     bool ascii = data.size() > 3 && data[3] == '#';
-    for (unsigned char i = 0; i < data.size(); ++i)
+    for (size_t i = 0; i < data.size(); ++i)
     {
-        if (ascii && i > 2 && i < data.size() - 2)
+        if (ascii && i > 3 && i < data.size() - 2)
             ss << data[i];
         else
             ss << std::setfill('0') << std::setw(2) << (int) data[i];
         if (i < data.size() - 1 &&
-            !(ascii && i > 2 && i < data.size() - 3))
+            !(ascii && i > 3 && i < data.size() - 3))
             ss << " ";
-        if (i == 2 || (data.size() > 2 && i == 2 + data[2]))
+        if (i == 3 || (data.size() > 2 && i == 3 + data[2]))
             ss << "| ";
     }
     return ss.str();
 }
-

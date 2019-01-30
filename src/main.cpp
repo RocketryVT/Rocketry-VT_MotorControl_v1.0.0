@@ -6,6 +6,18 @@
 #include "control.h"
 #include "XBee_IO.h"
 
+void printLoop()
+{
+    static size_t state(0);
+    state = (state + 1) % 40;
+
+    for (size_t i = 0; i < state; ++i)
+        std::cout << ":";
+    for (size_t i = 40 - state; i < 40; ++i)
+        std::cout << " ";
+    std::cout << "\r" << std::flush;
+}
+
 int main()
 {
     #ifdef DEBUG
@@ -22,6 +34,7 @@ int main()
     while (control::ok())
     {
         control::loop();
+        printLoop();
     }
 
     std::cout << "Exited successfully." << std::endl;

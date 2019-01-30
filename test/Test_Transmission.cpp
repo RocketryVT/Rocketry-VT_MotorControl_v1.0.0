@@ -161,27 +161,16 @@ bool Test_0x02() {
 * Tests packet 0x10
 * This packet outputs the current mode setting of the arduino
 */
-bool Test_0x10() {
+bool Test_0x10()
+{
 	using namespace Test;
 	using namespace Transmission;
-	using namespace State_Data;
 	using namespace cfg;
 
 	bool pass = true;
 
-	// Save current data
-	auto          DATA_TIME_old = DATA_TIME;
-	int           STATUS_old = STATUS;
-	float         DATA_P1_old = DATA_P1;
-	float         DATA_P2_old = DATA_P2;
-	float         DATA_T1_old = DATA_T1;
-	float         DATA_T2_old = DATA_T2;
-	float         DATA_THR_old = DATA_THR;
-	unsigned char NEW_DATA_old = NEW_DATA;
-	unsigned int  MODE_old = MODE;
-
 	// Initialize global data
-	MODE = 2;
+	state::mode = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
     std::vector<unsigned char> packet { 0xAA, 0x14, 0x07, 0x10, 0x02 };
@@ -203,20 +192,9 @@ bool Test_0x10() {
 	}
 
 	// Try changing mode
-	MODE = 11;
+	state::mode = 11;
 	out = buildPacket(0x10);
 	pass &= assert_equals((long) out[4], 11, "Incorrect value on output  4");
-
-	// Reset Old Data
-	DATA_TIME = DATA_TIME_old;
-	STATUS = STATUS_old;
-	DATA_P1 = DATA_P1_old;
-	DATA_P2 = DATA_P2_old;
-	DATA_T1 = DATA_T1_old;
-	DATA_T2 = DATA_T2_old;
-	DATA_THR = DATA_THR_old;
-	NEW_DATA = NEW_DATA_old;
-	MODE = MODE_old;
 
 	return pass;
 }
@@ -224,35 +202,24 @@ bool Test_0x10() {
 /**
 * Tests packet 0x40
 */
-bool Test_0x40() {
+bool Test_0x40()
+{
 	using namespace Test;
 	using namespace Transmission;
-	using namespace State_Data;
 	using namespace cfg;
 
 	bool pass = true;
 
-	// Save current data
-	auto          DATA_TIME_old = DATA_TIME;
-	int           STATUS_old = STATUS;
-	float         DATA_P1_old = DATA_P1;
-	float         DATA_P2_old = DATA_P2;
-	float         DATA_T1_old = DATA_T1;
-	float         DATA_T2_old = DATA_T2;
-	float         DATA_THR_old = DATA_THR;
-	unsigned char NEW_DATA_old = NEW_DATA;
-	unsigned int  MODE_old = MODE;
-
 	// Initialize global data
-	DATA_TIME = std::chrono::milliseconds(123456) + START_TIME;
-	STATUS = 0;
-	DATA_P1 = 1;
-	DATA_P2 = 2;
-	DATA_T1 = 3;
-	DATA_T2 = 4;
-	DATA_THR = 5;
-	NEW_DATA = 0x1F;
-	MODE = 2;
+	state::time = std::chrono::milliseconds(123456) + start_time;
+	state::status = 0;
+	state::p1 = 1;
+	state::p2 = 2;
+	state::t1 = 3;
+	state::t2 = 4;
+	state::thrust = 5;
+	state::new_data = 0x1F;
+	state::mode = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
     std::vector<unsigned char> packet { 170, 20, 22,
@@ -275,52 +242,30 @@ bool Test_0x40() {
 		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
 
-	// Reset Old Data
-	DATA_TIME = DATA_TIME_old;
-	STATUS = STATUS_old;
-	DATA_P1 = DATA_P1_old;
-	DATA_P2 = DATA_P2_old;
-	DATA_T1 = DATA_T1_old;
-	DATA_T2 = DATA_T2_old;
-	DATA_THR = DATA_THR_old;
-	NEW_DATA = NEW_DATA_old;
-	MODE = MODE_old;
-
 	return pass;
 }
 
 /**
 * Tests packet 0x51
 */
-bool Test_0x51() {
+bool Test_0x51()
+{
 	using namespace Test;
 	using namespace Transmission;
-	using namespace State_Data;
 	using namespace cfg;
 
 	bool pass = true;
 
-	// Save current data
-	auto          DATA_TIME_old   = DATA_TIME;
-	int           STATUS_old      = STATUS;
-	float         DATA_P1_old     = DATA_P1;
-	float         DATA_P2_old     = DATA_P2;
-	float         DATA_T1_old     = DATA_T1;
-	float         DATA_T2_old     = DATA_T2;
-	float         DATA_THR_old    = DATA_THR;
-	unsigned char NEW_DATA_old    = NEW_DATA;
-	unsigned int  MODE_old        = MODE;
-	
 	// Initialize global data
-	DATA_TIME = std::chrono::milliseconds(123456) + START_TIME;
-	STATUS = 0;
-	DATA_P1 = 1;
-	DATA_P2 = 2;
-	DATA_T1 = 3;
-	DATA_T2 = 4;
-	DATA_THR = 5;
-	NEW_DATA = 0x1F;
-	MODE = 2;
+	state::time = std::chrono::milliseconds(123456) + cfg::start_time;
+	state::status = 0;
+	state::p1 = 1;
+	state::p2 = 2;
+	state::t1 = 3;
+	state::t2 = 4;
+	state::thrust = 5;
+	state::new_data = 0x1F;
+	state::mode = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
 	std::vector<unsigned char> packet = { 170, 20, 34,
@@ -342,17 +287,6 @@ bool Test_0x51() {
     {
 		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
-
-	// Reset Old Data
-	DATA_TIME = DATA_TIME_old;
-	STATUS = STATUS_old;
-	DATA_P1 = DATA_P1_old;
-	DATA_P2 = DATA_P2_old;
-	DATA_T1 = DATA_T1_old;
-	DATA_T2 = DATA_T2_old;
-	DATA_THR = DATA_THR_old;
-	NEW_DATA = NEW_DATA_old;
-	MODE = MODE_old;
 	
 	return pass;
 }
@@ -363,34 +297,21 @@ bool Test_0x51() {
 bool Test_0x52() {
 	using namespace Test;
 	using namespace Transmission;
-	using namespace State_Data;
+	using namespace state;
 	using namespace cfg;
 
 	bool pass = true;
 
-	// Save current data
-	auto          DATA_TIME_old    = DATA_TIME;
-	int           STATUS_old       = STATUS;
-	float         DATA_P1_old      = DATA_P1;
-	float         DATA_P2_old      = DATA_P2;
-	float         DATA_T1_old      = DATA_T1;
-	float         DATA_T2_old      = DATA_T2;
-	float         DATA_T3_old      = DATA_T3;
-	float         DATA_THR_old     = DATA_THR;
-	unsigned char NEW_DATA_old     = NEW_DATA;
-	unsigned int  MODE_old         = MODE;
-	
 	// Initialize global data
-	DATA_TIME = std::chrono::milliseconds(123456) + START_TIME;
-	STATUS = 0;
-	DATA_P1 = 1;
-	DATA_P2 = 2;
-	DATA_T1 = 3;
-	DATA_T2 = 4;
-	DATA_T3 = 5;
-	DATA_THR = 6;
-	NEW_DATA = 0x1F;
-	MODE = 2;
+	state::time = std::chrono::milliseconds(123456) + cfg::start_time;
+	state::status = 0;
+	state::p1 = 1;
+	state::p2 = 2;
+	state::t1 = 3;
+	state::t2 = 4;
+	state::thrust = 5;
+	state::new_data = 0x1F;
+	state::mode = 2;
 
 	// Desired output (Obtained using MATLAB Test cases)
 	std::vector<unsigned char> packet = { 170, 20, 38, \
@@ -420,18 +341,6 @@ bool Test_0x52() {
 	for (unsigned int i = 0; i < out.size(); i++) {
 		pass &= assert_equals((long) out[i], (long) packet[i], "bad str");
 	}
-
-	// Reset Old Data
-	DATA_TIME   = DATA_TIME_old;
-	STATUS      = STATUS_old;
-	DATA_P1     = DATA_P1_old;
-	DATA_P2     = DATA_P2_old;
-	DATA_T1     = DATA_T1_old;
-	DATA_T2     = DATA_T2_old;
-	DATA_T3     = DATA_T3_old;
-	DATA_THR    = DATA_THR_old;
-	NEW_DATA    = NEW_DATA_old;
-	MODE        = MODE_old;
 	
 	return pass;
 }

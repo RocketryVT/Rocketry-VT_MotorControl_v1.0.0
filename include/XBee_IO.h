@@ -44,9 +44,6 @@ void reset();
 // displays hex values of the buffer to the XBee port
 void dispbuff();
 
-/* transmits the full data string in ASCII */
-void transmit_data_string();
-
 } // namespace XBeeIO
 
 #endif // XBEE_IO_H
