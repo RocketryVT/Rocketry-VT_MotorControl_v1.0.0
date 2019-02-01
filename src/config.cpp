@@ -4,6 +4,8 @@ namespace cfg
 {
     std::chrono::steady_clock::time_point start_time
         = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point last_ping
+        = std::chrono::steady_clock::now();
     std::chrono::milliseconds
         /* Device interface control variables */
         loop_period = std::chrono::milliseconds(10),
@@ -19,7 +21,7 @@ namespace state
 {
 
 /* Initialize Data variables*/
-std::chrono::steady_clock::time_point time;
+std::chrono::steady_clock::time_point time, last_ping;
 int status = 0;
 float p1 = 0;  // Pressure 1
 float p2 = 0;  // Pressure 3

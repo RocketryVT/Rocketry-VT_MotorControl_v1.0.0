@@ -12,6 +12,7 @@ namespace cfg
     const std::string version = "Motor Control v2019.01.29";
 	const uint64_t xbee_baud = 38400;
     const float loadcell_calibration_factor = -10000;
+    const std::chrono::seconds ping_period(20);
 
     extern std::chrono::steady_clock::time_point start_time;
     extern std::chrono::milliseconds
@@ -28,6 +29,7 @@ namespace cfg
 namespace state
 {
     extern std::chrono::steady_clock::time_point time;
+    extern std::chrono::steady_clock::time_point last_ping;
 	extern int status;
 	extern float p1;  // Pressure 1
 	extern float p2;  // Pressure 2

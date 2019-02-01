@@ -1,6 +1,7 @@
 #include <iostream>
 #include <signal.h>
 #include <chrono>
+#include <cmath>
 
 #include "config.h"
 #include "control.h"
@@ -8,14 +9,21 @@
 
 void printLoop()
 {
-    static size_t state(0);
-    state = (state + 1) % 40;
+    static const uint8_t max_bars = 40;
 
-    for (size_t i = 0; i < state; ++i)
-        std::cout << ":";
-    for (size_t i = 40 - state; i < 40; ++i)
-        std::cout << " ";
-    std::cout << "\r" << std::flush;
+    uint64_t millis = std::chrono::duration_cast<
+        std::chrono::milliseconds>
+        (state::time - state::last_ping).count();
+    std::cout << millis << "\r\t";
+    int current = std::cos(millis/1000.0*M_PI + M_PI)*max_bars/2 + max_bars/2;
+    for (int i = 0; i <= max_bars; ++i)
+    {
+        if (i <= current + 2 && i > current - 2)
+            std::cout << ":";
+        else
+            std::cout << " ";
+    }
+    std::cout << "      \r" << std::flush;
 }
 
 int main()

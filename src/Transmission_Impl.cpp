@@ -127,6 +127,10 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
         case 0x05: XBeeIO::transmit_data(0xB0); // run unit tests
                    break;
 
+                   // reset ping timer
+        case 0x06: state::last_ping = std::chrono::steady_clock::now();
+                   break;
+
         case 0x10: Hardware::openStepperMotor(); // open motor
                    break;
 

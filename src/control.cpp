@@ -56,18 +56,25 @@ bool init()
         return false;
     }
 
-    start_time = std::chrono::steady_clock::now();
+    start_time = state::last_ping = 
+        std::chrono::steady_clock::now();
 
     return ok();
 }
 
 void loop()
 {
-    state::time = std::chrono::steady_clock::now();
     static std::chrono::steady_clock::time_point
         t_lastxbeewrite = state::time,
         t_lastreceivepacket = state::time,
         t_sentpacket = state::time;
+
+    state::time = std::chrono::steady_clock::now();
+    
+    if (state::time - state::last_ping > cfg::ping_period)
+    {
+        control::exit(5);
+    }
 
     // Parse Input buffer and respond to commnands
     if (state::time - t_lastreceivepacket >
