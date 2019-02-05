@@ -131,10 +131,10 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
         case 0x06: state::last_ping = std::chrono::steady_clock::now();
                    break;
 
-        case 0x10: Hardware::openStepperMotor(); // open motor
+        case 0x10: // Hardware::openStepperMotor(); // open motor
                    break;
 
-        case 0x11: Hardware::closeStepperMotor(); // close motor
+        case 0x11: // Hardware::closeStepperMotor(); // close motor
                    break;
 
                    // set parameters
@@ -177,8 +177,8 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
                    state::new_data         = data[8];
                    break;
 
-        case 0xFE: if (data.size() < 2) break;
-                   control::exit(data[1]); // safe shutdown
+        case 0xFE: if (data.size() < 1) break;
+                   control::exit(data[0]); // safe shutdown
                    break;
 
         case 0xFF: control::reset(); // soft reset
@@ -187,12 +187,12 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
         default:   
                    #ifdef DEBUG
                    std::cout << "It's free real estate: 0x"
-                       << std::hex << (int) data[0] << std::endl;
+                       << std::hex << (int) id << std::endl;
                    #endif
                    return false;
                    
     }
-   
+  
     if (!ascii) return true;
 
     std::string msg(data.begin(), data.end());
@@ -208,6 +208,11 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
     else if (msg == "LED OFF")
     {
         Hardware::setLED(false);
+    }
+    else if (msg == "MARCO")
+    {
+        state::last_ping = std::chrono::steady_clock::now();
+        std::cout << "Polo!" << std::endl;
     }
     else if (msg == "VERSION")
     {
@@ -232,7 +237,7 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
     }
     else if (msg == "SHUTDOWN")
     {
-        control::exit(0);
+        control::exit(1); // soft shutdown
     }
     else
     {

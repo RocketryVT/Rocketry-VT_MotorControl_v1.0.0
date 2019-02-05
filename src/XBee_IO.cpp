@@ -101,13 +101,7 @@ void XBeeIO::transmit_data(unsigned int type)
 
 void XBeeIO::flush()
 {
-    auto size = output_buff.size();
-    while (output_buff.size())
-    {
-        auto e = output_buff.front();
-        output_buff.pop_front();
-        Hardware::write(e);
-    }
+    // TODO: implement
 }
 
 void XBeeIO::parse()
@@ -117,7 +111,7 @@ void XBeeIO::parse()
     {
         std::vector<unsigned char> data;
 
-        std::cout << Transmission::packet2str(p) << std::endl;
+        // std::cout << Transmission::packet2str(p) << std::endl;
 
         for (size_t i = 4; i < p.size() - 2; ++i)
         {

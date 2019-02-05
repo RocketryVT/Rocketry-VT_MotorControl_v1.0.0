@@ -2,8 +2,10 @@ cmake_minimum_required(VERSION 3.1)
 
 project(rpi-uav)
 
+set(FLAGS "-g -fsanitize=address -fno-omit-frame-pointer -fsanitize=undefined -Wall -Wpedantic -Wextra")
+
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${FLAGS}")
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -19,12 +21,9 @@ include_directories(include)
 include_directories(test)
  
 add_library(controller
-    src/Adafruit_MAX31855.cpp
     src/control.cpp
     src/config.cpp
     src/Hardware.cpp
-    src/HX711.cpp
-    src/motor.cpp
     src/logging.cpp
     src/Transmission.cpp
     src/Transmission_Impl.cpp

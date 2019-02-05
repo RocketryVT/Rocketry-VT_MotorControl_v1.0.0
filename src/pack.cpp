@@ -6,23 +6,29 @@
 
 int main(int argc, char **argv)
 {
-    if (argc > 1)
+    if (argc == 1) return 1;
+
+    uint8_t id = std::stoi(argv[1]);
+
+    if (id == '#')
     {
-        std::string message = std::string(argv[1]);
-        uint8_t len = (uint8_t) message.length();
-
-        std::vector<uint8_t> packet { 0xAA, 0x14, len, '#' };
-        for (auto e : message)
-            packet.push_back(e);
-        Transmission::appendChecksum(packet);
-
+        std::string message;
+        if (argc > 2)
+        {
+            message = std::string(argv[2]);
+        }
+        auto packet = Transmission::buildPacket(message);
         for (auto e : packet)
             std::cout << e;
     }
     else
     {
-        std::vector<uint8_t> packet = { 0xAA, 0x14, 0x00, 0x06, 0xAA, 0x12 };
-        Transmission::appendChecksum(packet);
+        std::vector<uint8_t> data;
+        for (int i = 2; i < argc; ++i)
+        {
+            data.push_back(std::stoi(argv[i]));
+        }
+        auto packet = Transmission::buildPacket(id, data);
         for (auto e : packet)
             std::cout << e;
     }

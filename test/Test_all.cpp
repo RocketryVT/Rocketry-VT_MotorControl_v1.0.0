@@ -3,7 +3,7 @@
 #include "Test_Transmission.h"
 #include "Test_FloatToBinary.h"
 
-void Test::run_tests(bool istestondevice)
+void Test::run_tests(bool)
 {
 	TestFloatConversions();
 	TestTransmission();

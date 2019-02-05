@@ -7,12 +7,14 @@
 #include <chrono>
 #include <string>
 
+#include <timestamped.h>
+
 namespace cfg
 {
     const std::string version = "Motor Control v2019.01.29";
 	const uint64_t xbee_baud = 38400;
     const float loadcell_calibration_factor = -10000;
-    const std::chrono::seconds ping_period(20);
+    const std::chrono::seconds ping_period(30);
 
     extern std::chrono::steady_clock::time_point start_time;
     extern std::chrono::milliseconds
@@ -28,23 +30,24 @@ namespace cfg
 
 namespace state
 {
+
+enum vehicle_phase : uint8_t
+{
+    pre_oxidizer_loading = 0,
+    oxidizer_loading,
+    pre_launch_checks,
+    launch,
+    motor_firing,
+    coast_to_apogee
+};
+
     extern std::chrono::steady_clock::time_point time;
     extern std::chrono::steady_clock::time_point last_ping;
 	extern int status;
-	extern float p1;  // Pressure 1
-	extern float p2;  // Pressure 2
-	extern float t1;  // Temperature 1
-	extern float t2;  // Temperature 2
-	extern float t3;  // Temperature 3
-	extern float thrust; // Thrust / Force
+    extern vehicle_phase phase;
+	extern timestamped<float> p1, p2, t1, t2, t3, thrust;
 	extern unsigned char new_data;
     extern unsigned int mode;
-	
-	/* Data Timing Control */
-    extern std::chrono::time_point<std::chrono::steady_clock>
-	    last_pressure_time,
-	    last_temperature_time,
-	    last_loadcell_time;
 }
 
 #endif // DEFAULT_CONFIG_H

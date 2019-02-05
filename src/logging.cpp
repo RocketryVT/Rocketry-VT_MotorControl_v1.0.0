@@ -51,13 +51,14 @@ bool ok()
     return !fail_flag;
 }
 
-void exit(int code)
+void exit(int)
 {
     logfile.close();
 }
 
 void reset()
 {
+    flush();
     exit(0);
     init();
 }

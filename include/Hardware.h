@@ -15,13 +15,10 @@ bool init();
 bool ok();
 
 // closes and flushes logs, closes sensor connections
-void exit();
+void exit(int code);
 
 // resets all hardware things
 void reset();
-
-// write a thing to the log file
-void write(unsigned char e);
 
 /**
   Updates data variables by calling functions that control data
@@ -36,13 +33,7 @@ void write(unsigned char e);
          0x00000010 - TEMPERATURE_COMBUSTION
          0x00000100 - Load Cell
 */
-void update_data(const std::chrono::steady_clock::time_point& t);
-
-// Closes the stepper motor
-void closeStepperMotor();
-
-// Opens the stepper motor
-void openStepperMotor();
+void loop();
 
 // reads pressure in oxidizer tank
 // @return float = pressure in oxy tank in psi

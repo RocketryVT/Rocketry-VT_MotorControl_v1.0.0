@@ -2,13 +2,14 @@
 #include <chrono>
 #include <thread>
 #include <signal.h>
+#include <sstream>
 
 #include <control.h>
 #include <logging.h>
+#include <Transmission.h>
 #include <config.h>
 #include <XBee_IO.h>
 #include <Hardware.h>
-#include <Adafruit_MAX31855.h>
 
 namespace control
 {
@@ -64,11 +65,6 @@ bool init()
 
 void loop()
 {
-    static std::chrono::steady_clock::time_point
-        t_lastxbeewrite = state::time,
-        t_lastreceivepacket = state::time,
-        t_sentpacket = state::time;
-
     state::time = std::chrono::steady_clock::now();
     
     if (state::time - state::last_ping > cfg::ping_period)
@@ -76,14 +72,9 @@ void loop()
         control::exit(5);
     }
 
-    // Parse Input buffer and respond to commnands
-    if (state::time - t_lastreceivepacket >
-        cfg::checkbuffer_period)
-    {
-        XBeeIO::update_input_buffer();
-        XBeeIO::parse();
-        t_lastreceivepacket = state::time;
-    }
+    XBeeIO::update_input_buffer();
+    XBeeIO::parse();
+    Hardware::loop();
 
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;
@@ -107,12 +98,30 @@ bool ok()
 
 void exit(int code)
 {
-    #ifdef DEBUG
-    std::cout << "Exiting (code " << code << ")" << std::endl;
-    #endif
-    exit_flag = true;
+    auto exitStr = [] (int code)
+    {
+        switch (code)
+        {
+            case 0: return "Execution completed";
+            case 1: return "Soft shutdown";
+            case 2: return "SIGINT";
+            case 5: return "Ground station connection timeout";
+            default: return "[Reserved exit code]";
+        }
+    };
 
-    Hardware::exit();
+    exit_flag = true;
+    std::stringstream ss;
+    ss << "Controller exiting (code " << code << ": " 
+        << exitStr(code) << ")";
+    #ifdef DEBUG
+    std::cout << ss.str() << std::endl;
+    #endif
+
+    Hardware::exit(code);
+    logging::write(Transmission::buildPacket(ss.str()));
+    logging::flush();
+    logging::exit(code);
 }
 
 } // namespace control

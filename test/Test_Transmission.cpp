@@ -11,7 +11,6 @@ int TestTransmission() {
 	
 	// Initialize
 	bool pass = true;
-	bool temp = true;
 	using namespace std;
 	using namespace Test;
 	//dmsg("=== Begining Test for Packet Compilation ===");
@@ -47,7 +46,6 @@ bool Test_checksum() {
 
 	// Initialize
 	std::vector<unsigned char> packet;
-	// unsigned int len = 5;
 	unsigned char c0;
 	unsigned char c1;
 	unsigned char c0_true = 0x00;
@@ -113,7 +111,6 @@ bool Test_0x01()
 	packet.push_back(c1);
 
 	// Test conversion from float to char (positive)
-	unsigned int len = 0;
 	std::vector<unsigned char> out = buildPacket(0x01);
 
 	// Assert cases

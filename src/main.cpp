@@ -14,7 +14,11 @@ void printLoop()
     uint64_t millis = std::chrono::duration_cast<
         std::chrono::milliseconds>
         (state::time - state::last_ping).count();
-    std::cout << millis << "\r\t";
+    std::cout << std::dec << millis << "      \r\t";
+
+    millis = std::chrono::duration_cast<
+        std::chrono::milliseconds>
+        (state::time - cfg::start_time).count();
     int current = std::cos(millis/1000.0*M_PI + M_PI)*max_bars/2 + max_bars/2;
     for (int i = 0; i <= max_bars; ++i)
     {

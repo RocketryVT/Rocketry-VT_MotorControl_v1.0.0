@@ -51,7 +51,7 @@ void dmsg(const std::string& str)
 * OUTPUTS
 * bool -> The result of the input logical argument
 */
-bool assert_true(bool arg, const std::string& str, bool hard_fail)
+bool assert_true(bool arg, const std::string& str, bool)
 {
 	if (!arg) results_string += "<!>:" + str + '\n';
 	return arg;

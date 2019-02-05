@@ -65,9 +65,8 @@ std::vector<std::vector<unsigned char>>
         }
 
         uint8_t data_length = bytestream[2];
-        uint8_t id = bytestream[3];
 
-        if (bytestream.size() < 4 + data_length + 2) // incomplete data
+        if (bytestream.size() < 4U + data_length + 2U) // incomplete data
         {
             parsing = false;
             continue;
@@ -79,7 +78,7 @@ std::vector<std::vector<unsigned char>>
         std::vector<unsigned char> packet;
 
         // exclude checksum for now
-        for (size_t i = 0; i < 4 + data_length; ++i)
+        for (size_t i = 0; i < 4U + data_length; ++i)
         {
             packet.push_back(bytestream[i]);
         }
@@ -185,7 +184,7 @@ std::string Transmission::packet2str(const std::vector<unsigned char> &data)
         if (i < data.size() - 1 &&
             !(ascii && i > 3 && i < data.size() - 3))
             ss << " ";
-        if (i == 3 || (data.size() > 2 && i == 3 + data[2]))
+        if (i == 3 || (data.size() > 2 && i == 3U + data[2]))
             ss << "| ";
     }
     return ss.str();
