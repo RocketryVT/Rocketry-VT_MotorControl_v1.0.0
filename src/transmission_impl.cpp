@@ -12,17 +12,9 @@
 #include <Assert.h>
 #include <comms.h>
 
-/**
-* Compiles data to a char array so that it can be pushed to the
-* serial port directly. Also this makes it easier to compute a
-* checksum on the data
-*
-* INPUTS
-* unsigned int type -> data transmission packet type (see documentation)
-* 
-* OUTPUTS
-* a std::vector containing the data packet
-*/
+// Compiles data to a char array so that it can be pushed to the
+// serial port directly. Also this makes it easier to compute a
+// checksum on the data
 std::vector<unsigned char> transmission::buildPacket(unsigned int type)
 {
     // packet and header

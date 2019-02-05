@@ -74,6 +74,7 @@ void loop()
 
     comms::loop();
     hardware::loop();
+    logging::write(transmission::buildPacket(state::str()));
 
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;
