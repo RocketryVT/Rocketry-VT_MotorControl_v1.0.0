@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include <Transmission.h>
+#include <transmission.h>
 
 int main(int argc, char **argv)
 {
@@ -17,7 +17,7 @@ int main(int argc, char **argv)
         {
             message = std::string(argv[2]);
         }
-        auto packet = Transmission::buildPacket(message);
+        auto packet = transmission::buildPacket(message);
         for (auto e : packet)
             std::cout << e;
     }
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
         {
             data.push_back(std::stoi(argv[i]));
         }
-        auto packet = Transmission::buildPacket(id, data);
+        auto packet = transmission::buildPacket(id, data);
         for (auto e : packet)
             std::cout << e;
     }

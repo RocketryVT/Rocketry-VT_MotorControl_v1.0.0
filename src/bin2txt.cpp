@@ -1,5 +1,5 @@
 #include <iostream>
-#include <Transmission.h>
+#include <transmission.h>
 
 int main(int argc, char** argv)
 {
@@ -9,11 +9,11 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    auto packets = Transmission::fromFile(argv[1]);
+    auto packets = transmission::fromFile(argv[1]);
 
     for (auto p : packets)
     {
-        std::cout << Transmission::packet2str(p) << std::endl;
+        std::cout << transmission::packet2str(p) << std::endl;
     }
 
     return 0;

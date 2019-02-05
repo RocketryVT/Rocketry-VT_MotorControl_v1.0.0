@@ -5,12 +5,10 @@
 #include <ctime>
 #include <iomanip>
 
-#include "Hardware.h"
-#include "config.h"
-#include "XBee_IO.h"
-#include "Transmission.h"
+#include <hardware.h>
+#include <config.h>
 
-namespace Hardware
+namespace hardware
 {
 
 bool fail_flag = false;

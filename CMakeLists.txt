@@ -23,11 +23,11 @@ include_directories(test)
 add_library(controller
     src/control.cpp
     src/config.cpp
-    src/Hardware.cpp
+    src/hardware.cpp
     src/logging.cpp
-    src/Transmission.cpp
-    src/Transmission_Impl.cpp
-    src/XBee_IO.cpp
+    src/transmission.cpp
+    src/transmission_impl.cpp
+    src/comms.cpp
     test/Assert.cpp
     test/Test_all.cpp
     test/Test_FloatToBinary.cpp

@@ -3,7 +3,7 @@
 #include <iomanip>
 
 #include "config.h"
-#include "Transmission.h"
+#include "transmission.h"
 #include "Assert.h"
 #include "Test_Transmission.h"
 
@@ -26,10 +26,10 @@ int TestTransmission() {
 
 	// Ouput results
 	if (pass) {
-		passed("Test_Transmission");
+		passed("Test_transmission");
 	}
 	else {
-		failed("Test_Transmission");
+		failed("Test_transmission");
 	}
 	return 0;
 }
@@ -39,7 +39,7 @@ int TestTransmission() {
  */
 bool Test_checksum() {
 
-	using namespace Transmission;
+	using namespace transmission;
 	using namespace Test;
 
 	bool pass = true;
@@ -96,7 +96,7 @@ bool Test_checksum() {
 bool Test_0x01()
 {
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 
 	bool pass = true;
 
@@ -127,7 +127,7 @@ bool Test_0x01()
 */
 bool Test_0x02() {
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 
 	bool pass = true;
 
@@ -161,7 +161,7 @@ bool Test_0x02() {
 bool Test_0x10()
 {
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 	using namespace cfg;
 
 	bool pass = true;
@@ -202,7 +202,7 @@ bool Test_0x10()
 bool Test_0x40()
 {
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 	using namespace cfg;
 
 	bool pass = true;
@@ -248,7 +248,7 @@ bool Test_0x40()
 bool Test_0x51()
 {
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 	using namespace cfg;
 
 	bool pass = true;
@@ -293,7 +293,7 @@ bool Test_0x51()
 */
 bool Test_0x52() {
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 	using namespace state;
 	using namespace cfg;
 

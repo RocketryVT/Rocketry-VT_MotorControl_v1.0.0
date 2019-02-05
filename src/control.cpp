@@ -6,10 +6,10 @@
 
 #include <control.h>
 #include <logging.h>
-#include <Transmission.h>
+#include <transmission.h>
 #include <config.h>
-#include <XBee_IO.h>
-#include <Hardware.h>
+#include <comms.h>
+#include <hardware.h>
 
 namespace control
 {
@@ -35,8 +35,8 @@ bool init()
         return false;
     }
 
-    Hardware::init();
-    if (!Hardware::ok())
+    hardware::init();
+    if (!hardware::ok())
     {
         #ifdef DEBUG
         std::cout << "Hardware init failure" << std::endl;
@@ -46,11 +46,11 @@ bool init()
         return false;
     }
 	
-    XBeeIO::init();
-    if (!XBeeIO::ok())
+    comms::init();
+    if (!comms::ok())
     {
         #ifdef DEBUG
-        std::cout << "XBee init failure" << std::endl;
+        std::cout << "Comms init failure" << std::endl;
         #endif
         exit_flag = true;
         fail_flag = true;
@@ -72,9 +72,8 @@ void loop()
         control::exit(5);
     }
 
-    XBeeIO::update_input_buffer();
-    XBeeIO::parse();
-    Hardware::loop();
+    comms::loop();
+    hardware::loop();
 
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;
@@ -118,8 +117,8 @@ void exit(int code)
     std::cout << ss.str() << std::endl;
     #endif
 
-    Hardware::exit(code);
-    logging::write(Transmission::buildPacket(ss.str()));
+    hardware::exit(code);
+    logging::write(transmission::buildPacket(ss.str()));
     logging::flush();
     logging::exit(code);
 }

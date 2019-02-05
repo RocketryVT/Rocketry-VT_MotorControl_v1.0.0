@@ -5,7 +5,7 @@
 #include <deque>
 #include <vector>
 
-namespace XBeeIO
+namespace comms
 {
 
 // initializes xbee interface, buffers, etc
@@ -16,12 +16,11 @@ bool init();
 // returns true on ok, false otherwise
 bool ok();
 
-// Recieves input from the XBee and saves it to "input_buff"
-// bool -> true if the input_buffer was updated
-bool update_input_buffer();
+// clears the input and output buffers
+void reset();
 
-// queues a single char onto the output buffer
-void transmit(unsigned char data);
+// process the things
+void loop();
 
 // queues a vector of chars onto the output buffer
 void transmit(std::vector<unsigned char> data);
@@ -29,20 +28,8 @@ void transmit(std::vector<unsigned char> data);
 // queues a string onto the output buffer
 void transmit(const std::string& str);
 
-// transmits data over the XBee antenna
-void transmit_data(unsigned int type);
-
 // flushes data in the output buffer to the antenna
 void flush();
-
-// Parses the "input_buff" character array
-void parse();
-
-// clears the input and output buffers
-void reset();
-
-// displays hex values of the buffer to the XBee port
-void dispbuff();
 
 } // namespace XBeeIO
 

@@ -8,7 +8,7 @@
 #include <numeric>
 
 #include <logging.h>
-#include <Transmission.h>
+#include <transmission.h>
 
 namespace logging
 {
@@ -36,7 +36,7 @@ bool init()
     std::cout << "Begin log: " << filename.str() << std::endl;
     #endif
 
-    logging::write(Transmission::buildPacket("VT ROCKETRY IS BEST ROCKETRY!"));
+    logging::write(transmission::buildPacket("VT ROCKETRY IS BEST ROCKETRY!"));
 
     system("mkdir -p log/");
     logfile.open(filename.str());

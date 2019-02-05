@@ -1,7 +1,7 @@
 // TestFloatToBinary.cpp : Defines the entry point for the console application.
 //
 
-#include "Transmission.h"
+#include "transmission.h"
 #include "Assert.h"
 #include "Test_FloatToBinary.h"
 
@@ -20,7 +20,7 @@ int TestFloatConversions()
 {
 	using namespace std;
 	using namespace Test;
-	using namespace Transmission;
+	using namespace transmission;
 	//dmsg("=== Begining Test for binary to float ===");
 
 	bool pass = true;

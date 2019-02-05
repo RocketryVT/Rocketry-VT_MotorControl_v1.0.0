@@ -4,13 +4,13 @@
 #include <algorithm>
 
 #include <logging.h>
-#include "Test_all.h"
-#include "Transmission.h"
-#include "Hardware.h"
-#include "control.h"
-#include "config.h"
-#include "Assert.h"
-#include "XBee_IO.h"
+#include <Test_all.h>
+#include <transmission.h>
+#include <hardware.h>
+#include <control.h>
+#include <config.h>
+#include <Assert.h>
+#include <comms.h>
 
 /**
 * Compiles data to a char array so that it can be pushed to the
@@ -23,7 +23,7 @@
 * OUTPUTS
 * a std::vector containing the data packet
 */
-std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
+std::vector<unsigned char> transmission::buildPacket(unsigned int type)
 {
     // packet and header
     std::vector<unsigned char> packet { 0xAA, 0x14 };
@@ -96,24 +96,27 @@ std::vector<unsigned char> Transmission::buildPacket(unsigned int type)
 // the argument data should be stripped of the header,
 // length, and checksum bytes
 // returns true if successful, false if error encountered
-bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
+bool transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
 {
     bool ascii = false;
 
-    auto log_packet = Transmission::buildPacket(id, data);
+    auto log_packet = transmission::buildPacket(id, data);
     logging::write(log_packet);
     logging::flush();
 
     switch (id)
     {
-        case 0x00: XBeeIO::transmit_data(0x00); // echo firmware
-                   break;
-        
-        case 0x01: Hardware::setLED(true); // turn LED on
+                   // echo firmware
+        case 0x00: comms::transmit(transmission::buildPacket(0x00));
                    break;
 
-        case 0x02: Hardware::setLED(false); // turn LED off
+                   /*
+        case 0x01: hardware::setLED(true); // turn LED on
                    break;
+
+        case 0x02: hardware::setLED(false); // turn LED off
+                   break;
+                   */
 
         // why would we need to clear the input buffer?
         case 0x03: // input_buff.clear(); // clear the input buffer
@@ -121,20 +124,21 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
 
         case 0x04: if (data.size() < 2) break;
                    state::mode = data[1]; // set mode
-                   XBeeIO::transmit_data(0x10);
+                   comms::transmit(transmission::buildPacket(0x10));
                    break;
 
-        case 0x05: XBeeIO::transmit_data(0xB0); // run unit tests
+                   // run unit tests
+        case 0x05: comms::transmit(transmission::buildPacket(0xB0));
                    break;
 
                    // reset ping timer
         case 0x06: state::last_ping = std::chrono::steady_clock::now();
                    break;
 
-        case 0x10: // Hardware::openStepperMotor(); // open motor
+        case 0x10: // hardware::openStepperMotor(); // open motor
                    break;
 
-        case 0x11: // Hardware::closeStepperMotor(); // close motor
+        case 0x11: // hardware::closeStepperMotor(); // close motor
                    break;
 
                    // set parameters
@@ -157,10 +161,7 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
         case 0x36: // if (data.size() < 2) break; // edit params
                    // cfg::DATA_OUT_TYPE = data[1];
                    // if (cfg::DATA_OUT_TYPE == 0x10)
-                   //     XBeeIO::transmit_data_string();
-                   break;
-
-        case 0x44: XBeeIO::dispbuff(); // display buffers
+                   //     comms::transmit_string();
                    break;
 
                    // simulation packet
@@ -201,15 +202,7 @@ bool Transmission::dataReceipt(uint8_t id, const std::vector<uint8_t> &data)
         << msg << "\"" << std::endl;
     #endif
  
-    if (msg == "LED ON")
-    {
-        Hardware::setLED(true);
-    }
-    else if (msg == "LED OFF")
-    {
-        Hardware::setLED(false);
-    }
-    else if (msg == "MARCO")
+    if (msg == "MARCO")
     {
         state::last_ping = std::chrono::steady_clock::now();
         std::cout << "Polo!" << std::endl;

@@ -5,7 +5,6 @@
 
 #include "config.h"
 #include "control.h"
-#include "XBee_IO.h"
 
 void printLoop()
 {
@@ -22,10 +21,8 @@ void printLoop()
     int current = std::cos(millis/1000.0*M_PI + M_PI)*max_bars/2 + max_bars/2;
     for (int i = 0; i <= max_bars; ++i)
     {
-        if (i <= current + 2 && i > current - 2)
-            std::cout << ":";
-        else
-            std::cout << " ";
+        if (i <= current + 2 && i > current - 2) std::cout << ":";
+        else std::cout << " ";
     }
     std::cout << "      \r" << std::flush;
 }

@@ -3,13 +3,13 @@
 #include <sstream>
 #include <fstream>
 
-#include "Transmission.h"
+#include <transmission.h>
 
 // builds an ascii message packet
 // the given string is taken as the entire packet data;
 // if it doesn't begin with a '#' character, one will be appended
 // empty strings will be treated as a lone '#' character
-std::vector<unsigned char> Transmission::buildPacket(std::string msg)
+std::vector<unsigned char> transmission::buildPacket(std::string msg)
 {
     if (msg.length() > 255)
         msg = msg.substr(0, 255);
@@ -22,7 +22,7 @@ std::vector<unsigned char> Transmission::buildPacket(std::string msg)
     return packet;
 }
 
-std::vector<unsigned char> Transmission::buildPacket(
+std::vector<unsigned char> transmission::buildPacket(
     uint8_t id, std::vector<unsigned char> data)
 {
     if (data.size() > 255) data.resize(255);
@@ -36,7 +36,7 @@ std::vector<unsigned char> Transmission::buildPacket(
 }
 
 std::vector<std::vector<unsigned char>>
-    Transmission::parse(std::deque<unsigned char>& bytestream)
+    transmission::parse(std::deque<unsigned char>& bytestream)
 {
     bool parsing = true;
     std::vector<std::vector<unsigned char>> packets;
@@ -86,7 +86,7 @@ std::vector<std::vector<unsigned char>>
                       c1 = bytestream[5 + data_length];
 
         unsigned char c0_true, c1_true;
-        Transmission::xorchecksum(packet, c0_true, c1_true);
+        transmission::xorchecksum(packet, c0_true, c1_true);
 
         if (c0 != c0_true || c1 != c1_true) // shit, checksum error
         {
@@ -124,7 +124,7 @@ std::vector<std::vector<unsigned char>>
 * unsigned char* c1 -> First byte of checksum
 * unsigned char* c2 -> Second byte of checksum
 */
-void Transmission::xorchecksum(const std::vector<unsigned char> &packet,
+void transmission::xorchecksum(const std::vector<unsigned char> &packet,
     unsigned char &c0, unsigned char &c1)
 {
 	c0 = 0;
@@ -144,7 +144,7 @@ void Transmission::xorchecksum(const std::vector<unsigned char> &packet,
 }
 
 // appends a checksum onto a packet
-void Transmission::appendChecksum(std::vector<unsigned char> &packet)
+void transmission::appendChecksum(std::vector<unsigned char> &packet)
 {
     unsigned char c0, c1;
     xorchecksum(packet, c0, c1);
@@ -153,7 +153,7 @@ void Transmission::appendChecksum(std::vector<unsigned char> &packet)
 
 // reads a binary file and returns a list of packets
 std::vector<std::vector<unsigned char>>
-    Transmission::fromFile(const std::string &filename)
+    transmission::fromFile(const std::string &filename)
 {
     std::ifstream infile(filename, std::ios::binary);
     if (!infile) return std::vector<std::vector<unsigned char>>();
@@ -166,11 +166,11 @@ std::vector<std::vector<unsigned char>>
 	for (size_t i = 0; i < end; ++i) 
 		bytestream.push_back(infile.get());
 
-    return Transmission::parse(bytestream);
+    return transmission::parse(bytestream);
 }
 
 // converts a packet to a nice human readable form
-std::string Transmission::packet2str(const std::vector<unsigned char> &data)
+std::string transmission::packet2str(const std::vector<unsigned char> &data)
 {
     std::stringstream ss;
     ss << std::hex;

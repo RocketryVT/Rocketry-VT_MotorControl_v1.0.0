@@ -6,7 +6,7 @@
 #include <string>
 #include <deque>
 
-namespace Transmission
+namespace transmission
 {
 
 enum packet_t : unsigned char
