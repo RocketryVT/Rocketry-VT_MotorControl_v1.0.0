@@ -13,7 +13,8 @@ std::chrono::milliseconds
     loop_period = std::chrono::milliseconds(50),
     pressure_period = std::chrono::milliseconds(500),
     temperature_period = std::chrono::milliseconds(1000),
-    loadcell_period = std::chrono::milliseconds(2000);
+    nitrous_period = std::chrono::milliseconds(1500),
+    thrust_period = std::chrono::milliseconds(2500);
 
 } // namespace cfg
 
@@ -23,12 +24,10 @@ namespace state
 /* Initialize Data variables*/
 std::chrono::steady_clock::time_point time, last_ping;
 int status = 0;
-timestamped<float> p1 = 0, p2 = 0, t1 = 0, t2 = 0, t3 = 0, thrust = 0;
+timestamped<float> o2p = 0, o2t = 0, cp = 0, ct = 0, nh = 0, thrust = 0;
 vehicle_phase phase;
 unsigned char new_data = 0;
 unsigned int mode = 0;
-
-std::chrono::steady_clock::time_point start_time;
 
 std::string str()
 {
@@ -45,11 +44,11 @@ std::string str()
         default: ss << "INVALID PHASE";
     }
     
-    ss << ", " << p1 << ", "
-       << p2 << ", "
-       << t1 << ", "
-       << t2 << ", "
-       << t3 << ", "
+    ss << ", " << o2p << ", "
+       << o2t << ", "
+       << cp << ", "
+       << ct << ", "
+       << nh << ", "
        << thrust;
 
     return ss.str();

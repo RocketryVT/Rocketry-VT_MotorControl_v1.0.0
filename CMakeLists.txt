@@ -26,17 +26,13 @@ add_library(controller
     src/hardware.cpp
     src/logging.cpp
     src/transmission.cpp
-    src/transmission_impl.cpp
-    src/comms.cpp
-    test/Assert.cpp
-    test/Test_all.cpp
-    test/Test_FloatToBinary.cpp
-    test/Test_Transmission.cpp)
+    src/behavior.cpp
+    src/comms.cpp)
 
 add_executable(main src/main.cpp)
 target_link_libraries(main controller)
-add_executable(unit_test test/Unit-Tests-PC.cpp)
-target_link_libraries(unit_test controller)
+# add_executable(unit_test test/Unit-Tests-PC.cpp)
+# target_link_libraries(unit_test controller)
 add_executable(bin2txt src/bin2txt.cpp)
 target_link_libraries(bin2txt controller)
 add_executable(pack src/pack.cpp)

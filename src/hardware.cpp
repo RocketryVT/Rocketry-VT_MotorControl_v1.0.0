@@ -51,34 +51,24 @@ void reset()
 */
 void loop()
 {
-    // New Data
-	unsigned char nd = 0;
+	if (state::o2p.age() > cfg::pressure_period)
+		state::o2p = 0;
 
-	// Update Pressure
-	if (state::p1.age() > cfg::pressure_period)
-    {
-		state::p1 = 0; // get_pressure_1_data(); // Insert Patrick's code here
-		state::p2 = 0; // get_pressure_2_data(); // Insert Patrick's code here
-		nd |= 0b00000001; // 0x01;
-	}
-	
-	// Update Temperature
-	if (state::t1.age() > cfg::temperature_period)
-    {
-		state::t1 = 0; // thermocouple_1.readFarenheit();
-		state::t2 = 0; // thermocouple_2.readFarenheit();
-		state::t3 = 0; // thermocouple_3.readFarenheit();
-		nd |= 0b00000010; // 0x02;
-	}
-	
-	// Update Load Cell
-	if (state::thrust.age() > cfg::loadcell_period)
-    {
-		state::thrust = 0; // loadcell.get_units(); // Load cell measure thrust
-		nd |= 0b00000100; // 0x04;
-	}
-	
-	state::new_data = nd;
+    if (state::cp.age() > cfg::pressure_period)
+        state::cp = 0;
+
+    if (state::o2t.age() > cfg::temperature_period)
+        state::o2t = 0;
+
+    if (state::ct.age() > cfg::temperature_period)
+        state::ct = 0;
+
+    if (state::nh.age() > cfg::nitrous_period)
+        state::nh = 0;
+
+    if (state::thrust.age() > cfg::thrust_period)
+        state::thrust = 0;
+
 	return;
 }
 

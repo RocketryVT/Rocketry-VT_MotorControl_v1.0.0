@@ -1,36 +1,41 @@
-#ifndef XBEE_IO_H
-#define XBEE_IO_H
+#ifndef COMMS_H
+#define COMMS_H
 
 #include <fstream>
 #include <deque>
 #include <vector>
 
+/// \brief Handles all incoming and outgoing communications
+/// for the motor controller.
 namespace comms
 {
 
-// initializes xbee interface, buffers, etc
-// returns true on success, false otherwise
+/// \brief Initializes the comms hardware and buffers.
+/// \return true on goodie goodie, false otherwise.
 bool init();
 
-// checks if anything is wrong
-// returns true on ok, false otherwise
+/// \brief Checks if anything is wrong.
+/// \return true on ok, false otherwise.
 bool ok();
 
-// clears the input and output buffers
+/// \brief Resets the comms module.
 void reset();
 
-// process the things
+/// \brief Call this every few milliseconds to update the
+/// input and output buffers and receive packets.
 void loop();
 
-// queues a vector of chars onto the output buffer
+/// \brief Queues a std::vector onto the output buffer.
+/// \param data A vector of bytes to be transmitted.
 void transmit(std::vector<unsigned char> data);
 
-// queues a string onto the output buffer
+/// \brief Queues a std::string onto the output buffer.
+/// \param str A string to be transmitted.
 void transmit(const std::string& str);
 
-// flushes data in the output buffer to the antenna
+/// \brief Flushes the output buffer to the hardware device.
 void flush();
 
-} // namespace XBeeIO
+} // namespace comms
 
-#endif // XBEE_IO_H
+#endif // COMMS_H

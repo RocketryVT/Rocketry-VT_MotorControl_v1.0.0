@@ -80,6 +80,8 @@ std::vector<std::vector<unsigned char>>
 // converts a packet to a nice human readable form
 std::string packet2str(const std::vector<unsigned char> &data);
 
+} // namespace Transmission
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
 //  MAGIC TEMPLATE FUNCTIONS BELOW
@@ -178,7 +180,5 @@ std::vector<unsigned char>& operator >>
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-} // namespace Transmission
 
 #endif // TRANSMISSION_H
