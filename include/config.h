@@ -1,3 +1,5 @@
+/*! \file */
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -16,7 +18,7 @@ const std::string version = "Motor Control v2019.02.05";
 /// The maximum period of time the controller will
 /// continue without a ping from ground control
 /// before shutting down.
-const std::chrono::seconds ping_period(30);
+const auto ping_period = std::chrono::seconds(30);
 
 /// The time at which controller operation began.
 extern std::chrono::steady_clock::time_point start_time;

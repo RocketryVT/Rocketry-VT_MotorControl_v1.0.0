@@ -1,8 +1,9 @@
+/*! \file */
+
 #ifndef LOGGING_H
 #define LOGGING_H
 
 #include <vector>
-#include <string>
 
 /// \brief Handles internal system status logging.
 namespace logging

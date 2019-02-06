@@ -1,3 +1,5 @@
+/*! \file */
+
 #ifndef TRANSMISSION_H
 #define TRANSMISSION_H
 
@@ -6,81 +8,72 @@
 #include <string>
 #include <deque>
 
+/// \brief A library which handles transmission protocol.
+/// \details This namespace is more of a library than a
+/// module of the controller, and can be used outside of
+/// this project, ideally. It should take away the guess
+/// work of constructing and decoding packets.
 namespace transmission
 {
 
-enum packet_t : unsigned char
-{
-    echo_version        = 0x00,
-    log_begin           = 0x01,
-    log_end             = 0x02,
-    echo_mode           = 0x10,
-    solid_motor_test    = 0x40,
-    cold_flow_test      = 0x51,
-    cold_flow_test_exr  = 0x52,
-    run_unit_tests      = 0xB0
-};
-
-// Compiles data to a char array so that it can be pushed to the 
-// serial port directly. Also this makes it easier to compute a
-// checksum on the data
-//
-// INPUTS
-// unsigned int type -> data transmission packet type (see documentation)
-//
-// OUTPUT
-// std::vector<unsigned char> -> requested data packet
-//
-std::vector<unsigned char> buildPacket(unsigned int type);
-
-// builds an ascii message packet out of a string
+/// \brief Builds an ascii message packet out of a string.
+/// \details Takes a std::string and constructs an ASCII
+/// packet out of it.
+/// \param msg The message to wrap in a packet.
+/// \return A vector of bytes containing the packet.
 std::vector<unsigned char> buildPacket(std::string msg);
 
-// builds a packet given an arbitrary id and bytestring
+/// \brief Builds a packet given an arbitrary id and bytestring.
+/// \param id The id of the packet.
+/// \param data The data the packet will contain.
+/// \return A vector of bytes containing the packet.
 std::vector<unsigned char> buildPacket(
     uint8_t id, std::vector<uint8_t> data);
 
-// parses a vector of bytes and sifts out all the good packets
-// which it returns in a vector of packets
-//
-// this function modifies the std::deque which is passed to it,
-// popping off bytes which are processed and leaving alone bytes
-// that are not
+/// \brief Parses a deque of bytes.
+/// \details Takes a deque of bytes and parses it for all the
+/// valid packets it can find; these packets are returned.
+/// WARNING: the passed deque is stripped of the bytes which
+/// are successfully parsed.
+/// \param bytestream The deque of bytes.
+/// \return A vector of packets.
 std::vector<std::vector<unsigned char>>
     parse(std::deque<unsigned char>& bytestream);
 
-// Computes the exclusive or parity check of the bytes in a message
-//
-// INPUTS
-// std::vector &packet -> data packet to calculate checksum for
-// unsigned char &c0 -> First byte of checksum
-// unsigned char &c1 -> Second byte of checksum
+/// \brief Computes the exclusive or parity check of a packet.
+/// \param packet A data packet to calculate checksum for.
+/// \param c0 First byte of checksum.
+/// \param c1 Second byte of checksum.
 void xorchecksum(const std::vector<unsigned char> &packet,
     unsigned char &c0, unsigned char &c1);
 
-// appends a checksum onto a vector
-// 
-//    *slaps roof of vector*
-//      this bad boy can fit so many checksums in it
-//
+/// \brief Appends a checksum onto a vector.
+/// \details
+///    *slaps roof of vector*
+///      this bad boy can fit so many checksums in it
+/// \param packet The packet to add a checksum to.
 void appendChecksum(std::vector<unsigned char> &packet);
 
-// called upon the successful receipt of a data packet
-// the argument data should be stripped of the header,
-// length, and checksum bytes
-// returns true if successful, false if error encountered
+/// \brief Called upon the successful receipt of a data packet
+/// \details The argument data should be stripped of the header, length,
+/// and checksum bytes
+/// \param id The packet ID byte.
+/// \param data The packet data array.
+/// \return true if successful, false if error encountered
 bool dataReceipt(uint8_t id, const std::vector<unsigned char> &data);
 
-// reads all the packets in a binary file and puts all valid
-// ones into a vector of packets; returns an empty list
-// if the given filename is invalid
+/// \brief Reads all the packets in a binary file
+/// \param filename The name of the binary file
+/// \return A vector of packets contained in the file
 std::vector<std::vector<unsigned char>>
     fromFile(const std::string& filename);
 
-// converts a packet to a nice human readable form
+/// \brief Converts a packet to a human-readable string
+/// \param data The packet to convert.
+/// \return A string representation of the packet.
 std::string packet2str(const std::vector<unsigned char> &data);
 
-} // namespace Transmission
+} // namespace transmission
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //
@@ -119,6 +112,10 @@ std::string packet2str(const std::vector<unsigned char> &data);
 //
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+/// \brief Converts a variable to bytes and stores them
+/// \param vec The vector to store the bytes in
+/// \param data A variable containing data to be converted
+/// \return The original vector with added bytes
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator <<
@@ -132,6 +129,10 @@ std::vector<unsigned char>& operator <<
     return vec;
 }
 
+/// \brief Converts a variable to bytes and stores them
+/// \param vec The vector to store the bytes in
+/// \param data A vector of data to be converted
+/// \return The original vector with added bytes
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator <<
@@ -143,9 +144,10 @@ std::vector<unsigned char>& operator <<
     return vec;
 }
 
-// note: this function's behavior is not guaranteed
-// to be any good if the vector doesn't contain enough
-// bytes to fill whatever you're trying to fill
+/// \brief Extracts bytes from a vector
+/// \param vec The vector of bytes
+/// \param data The variable to fill with bytes
+/// \return The original vector, with a few less bytes
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator >>
@@ -164,6 +166,10 @@ std::vector<unsigned char>& operator >>
     return vec;
 }
 
+/// \brief Extracts bytes from a vector
+/// \param vec The vector of bytes
+/// \param data A vector of variables to populate
+/// \return The original vector, with some bytes missing
 template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator >>

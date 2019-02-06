@@ -1,3 +1,5 @@
+/*! \file */
+
 #ifndef CONTROL_MAIN_H
 #define CONTROL_MAIN_H
 

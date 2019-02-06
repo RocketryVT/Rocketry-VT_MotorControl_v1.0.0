@@ -1,9 +1,11 @@
+/*! \file */
+
 #ifndef BEHAVIOR_H
 #define BEHAVIOR_H
 
 #include <vector>
-#include <cstdlib>
 
+/// \brief Describes behavior idioms apart from specific modules.
 namespace behavior
 {
 

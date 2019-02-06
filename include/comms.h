@@ -1,3 +1,5 @@
+/*! \file */
+
 #ifndef COMMS_H
 #define COMMS_H
 
@@ -20,6 +22,10 @@ bool ok();
 
 /// \brief Resets the comms module.
 void reset();
+
+/// \brief Exits the comms module.
+/// \param code The reason for exiting.
+void exit(int code);
 
 /// \brief Call this every few milliseconds to update the
 /// input and output buffers and receive packets.

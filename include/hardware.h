@@ -1,27 +1,30 @@
+/*! \file */
+
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
-#include <fstream>
-
-#include "config.h"
-
+/// \brief Manages external hardware connections.
+/// \details This module handles all hardware things
+/// that aren't comms and logging. This includes
+/// sensors, motors, solenoids, etc.
 namespace hardware {
 
-// initializes logging and sensors; returns true if ok
+/// \brief Initializes external sensor connections.
+/// \return true if all good, false otherwise.
 bool init();
 
-// checks if hardware is ok
-// returns true on ok
+/// \brief Checks if hardware is ok.
+/// \return true on ok, false on big bad.
 bool ok();
 
-// closes and flushes logs, closes sensor connections
+/// \brief closes and flushes logs, closes sensor connections.
+/// \param code The reason for exiting.
 void exit(int code);
 
-// resets all hardware things
+/// \brief Resets all hardware things back to initialization.
 void reset();
 
-// Updates data variables by calling functions that control data
-// acquisition from connected devices
+/// \brief Updates sensor data and handles physical device control
 void loop();
 
 }

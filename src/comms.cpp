@@ -93,6 +93,8 @@ void transmit(const std::string& str)
 
 void flush()
 {
+
 }
 
+} // namespace comms
 

@@ -1,3 +1,5 @@
+/*! \file */
+
 #ifndef TIMESTAMPED_H
 #define TIMESTAMPED_H
 

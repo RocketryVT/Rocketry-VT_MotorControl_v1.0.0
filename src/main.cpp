@@ -6,7 +6,6 @@
 #include <config.h>
 #include <control.h>
 
-/// \brief Prints a fun animation to stdout.
 void printLoop()
 {
     static const uint8_t max_bars = 40;
@@ -28,7 +27,6 @@ void printLoop()
     std::cout << "      \r" << std::flush;
 }
 
-/// Starts the controller.
 int main()
 {
     #ifdef DEBUG
