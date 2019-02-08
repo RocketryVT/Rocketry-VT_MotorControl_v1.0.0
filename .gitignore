@@ -3,3 +3,5 @@ bin
 log/*
 !log/.gitkeep
 in.bin
+html
+latex
