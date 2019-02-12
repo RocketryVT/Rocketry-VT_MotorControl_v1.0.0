@@ -23,12 +23,36 @@ def parse(bytes):
             parsing = False
             continue
         packet = []
-        for i in range(0, 6 + data_len):
+        for i in range(0, 4 + data_len):
             packet.append(bytes[i])
+
+        c0_true, c1_true = xorchecksum(packet)
+        c0 = bytes[4+data_len]
+        c1 = bytes[5+data_len]
+
+        if c0 != c0_true or c1 != c1_true:
+            print("Checksum error: got (" + "{:02x}".format(c0) + ", {:02x}".format(c1) + "), expected " + "({:02x}".format(c0_true) + ", {:02x}".format(c1_true) + ")")
+            bytes.popleft()
+            continue
+        packet.append(c0)
+        packet.append(c1)
+        
         packets.append(packet)
         for i in range(0, len(packet)):
             bytes.popleft()
     return packets
+
+def xorchecksum(packet):
+    c0 = 0
+    c1 = 0
+    i = 0
+    while i < len(packet) - 1:
+        c0 ^= packet[i]
+        c1 ^= packet[i+1]
+        i += 2
+    if i < len(packet):
+        c0 ^= packet[i]
+    return c0, c1
 
 def fromFile(filename):
     bytes = open(filename, "rb").read()

@@ -12,6 +12,8 @@ namespace hardware
 {
 
 bool fail_flag = false;
+uint8_t next_lock = 0;
+const uint8_t max_lock = 3;
 
 bool init()
 {
@@ -34,21 +36,6 @@ void reset()
 
 }
 
-/**
-   Updates data variables by calling functions that control data
-   acquisition from connected devices
-
-   INPUT
-   void
-
-   OUTPUT
-   Hexidecimal value, one activated for each datum obtained successfully
-          0x00000001 - PRESSURE_OXIDIZER
-          0x00000010 - PRESSURE_COMBUSTION
-          0x00000100 - TEMPERATURE_OXIDIZER
-          0x00001000 - TEMPERATURE_COMBUSTION
-          0x00010000 - THRUST
-*/
 void loop()
 {
 	if (state::o2p.age() > cfg::pressure_period)
@@ -90,15 +77,26 @@ float get_pressure_2_data()
     return pressure_psi;
 }
 
-// get LED state
-bool getLED()
+void unlock(uint8_t code)
 {
-    return false;
+    if (next_lock == max_lock) return;
+    else if (code == next_lock) ++next_lock;
+    else next_lock = 0;
 }
 
-// set LED state
-void setLED(bool)
+void lock()
 {
+    next_lock = 0;
+}
+
+bool isLocked()
+{
+    return next_lock < max_lock;
+}
+
+uint8_t lockState()
+{
+    return next_lock;
 }
 
 } // namespace Hardware

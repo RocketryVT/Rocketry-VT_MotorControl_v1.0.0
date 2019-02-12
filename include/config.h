@@ -18,7 +18,7 @@ const std::string version = "Motor Control v2019.02.05";
 /// The maximum period of time the controller will
 /// continue without a ping from ground control
 /// before shutting down.
-const auto ping_period = std::chrono::seconds(30);
+const auto ping_period = std::chrono::seconds(300);
 
 /// The time at which controller operation began.
 extern std::chrono::steady_clock::time_point start_time;
@@ -44,26 +44,12 @@ extern std::chrono::milliseconds
 namespace state
 {
 
-/// An enumeration representing the different vehicle
-/// operating phases.
-enum vehicle_phase : uint8_t
-{
-    pre_oxidizer_loading = 0,
-    oxidizer_loading,
-    pre_launch_checks,
-    launch,
-    motor_firing,
-    coast_to_apogee
-};
-
 /// The current time.
 extern std::chrono::steady_clock::time_point time;
 /// The time of the receipt of the last ping.
 extern std::chrono::steady_clock::time_point last_ping;
-/// The vehicle's status.
-extern int status;
-/// The current phase of the pre-launch to launch process.
-extern vehicle_phase phase;
+/// The vehicle's status, a bitmask.
+extern uint8_t status;
 extern timestamped<float>
     /// The oxidizer tank pressure, in pascals.
     o2p,

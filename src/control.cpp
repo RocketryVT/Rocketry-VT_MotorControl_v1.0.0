@@ -57,7 +57,7 @@ bool init()
         return false;
     }
 
-    start_time = state::last_ping = 
+    start_time = state::time = state::last_ping =
         std::chrono::steady_clock::now();
 
     return ok();
@@ -89,6 +89,10 @@ void reset()
 
     exit_flag = false;
     fail_flag = false;
+
+    comms::reset();
+    hardware::reset();
+    logging::reset();
 }
 
 bool ok()

@@ -33,11 +33,11 @@ void loop();
 
 /// \brief Queues a std::vector onto the output buffer.
 /// \param data A vector of bytes to be transmitted.
-void transmit(std::vector<unsigned char> data);
+void transmit(const std::vector<unsigned char> &data);
 
 /// \brief Queues a std::string onto the output buffer.
 /// \param str A string to be transmitted.
-void transmit(const std::string& str);
+void transmit(const std::string &str);
 
 /// \brief Flushes the output buffer to the hardware device.
 void flush();

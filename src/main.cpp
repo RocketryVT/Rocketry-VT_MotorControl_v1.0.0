@@ -2,19 +2,24 @@
 #include <signal.h>
 #include <chrono>
 #include <cmath>
+#include <bitset>
 
 #include <config.h>
 #include <control.h>
 
 void printLoop()
 {
-    static const uint8_t max_bars = 40;
-
     uint64_t millis = std::chrono::duration_cast<
         std::chrono::milliseconds>
         (state::time - state::last_ping).count();
-    std::cout << std::dec << millis << "      \r\t";
+    std::cout << std::dec << millis << "  \t";
 
+    std::bitset<8> bits(state::status);
+    for (size_t i = 0; i < 8; ++i)
+        std::cout << (bits[i] ? "#" : ".");
+    std::cout << "      \r" << std::flush;
+
+    /*
     millis = std::chrono::duration_cast<
         std::chrono::milliseconds>
         (state::time - cfg::start_time).count();
@@ -25,6 +30,12 @@ void printLoop()
         else std::cout << " ";
     }
     std::cout << "      \r" << std::flush;
+
+    char chars[] = {'/', '-', '\\', '|'};
+    static int index = 0;
+    index = (index + 1) % 4;
+    std::cout << chars[index] << "\r" << std::endl;
+    */
 }
 
 int main()

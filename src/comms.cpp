@@ -16,15 +16,9 @@
 namespace comms
 {
 
-/// Input and output buffers containing bytes waiting
-/// to be sent to their fun homes.
 std::deque<unsigned char> input_buff, output_buff;
-/// The filestream from which bytes come and to
-/// which bytes go.
 std::ifstream txstream;
-/// The name of the comms hardware device.
 const std::string txfilepath = "in.bin";
-/// The failure state of this namespace.
 bool fail_flag = false;
 
 bool init()
@@ -80,7 +74,7 @@ void reset()
 }
 
 // queues a vector of chars onto the output buffer
-void transmit(std::vector<unsigned char> data)
+void transmit(const std::vector<unsigned char> &data)
 {
     for (auto e : data) output_buff.push_back(e);
 }

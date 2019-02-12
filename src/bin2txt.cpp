@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <transmission.h>
 
 int main(int argc, char** argv)
@@ -11,9 +12,12 @@ int main(int argc, char** argv)
 
     auto packets = transmission::fromFile(argv[1]);
 
+    size_t count = 0;
     for (auto p : packets)
     {
-        std::cout << transmission::packet2str(p) << std::endl;
+        std::cout << std::hex << std::setfill('0') << std::setw(4)
+            << count << "    " << transmission::packet2str(p) << std::endl;
+        ++count;
     }
 
     return 0;
