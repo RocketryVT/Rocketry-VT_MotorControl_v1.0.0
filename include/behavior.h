@@ -9,7 +9,9 @@
 namespace behavior
 {
 
-/// \brief Called upon the reciept of a data packet.
+/// \brief Called upon the successful receipt of a data packet
+/// \details The argument data should be stripped of the header, length,
+/// and checksum bytes
 /// \param id The packet ID.
 /// \param data The data contained in the packet.
 void dataReceipt(uint8_t id, const std::vector<uint8_t> &data);

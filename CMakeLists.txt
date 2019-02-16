@@ -18,6 +18,7 @@ if(DEBUG)
 endif(DEBUG)
 
 include_directories(include)
+include_directories(include/drivers)
 include_directories(test)
  
 add_library(controller
@@ -27,12 +28,11 @@ add_library(controller
     src/logging.cpp
     src/transmission.cpp
     src/behavior.cpp
-    src/comms.cpp)
+    src/comms.cpp
+    src/drivers/led.cpp)
 
 add_executable(main src/main.cpp)
 target_link_libraries(main controller)
-# add_executable(unit_test test/Unit-Tests-PC.cpp)
-# target_link_libraries(unit_test controller)
 add_executable(bin2txt src/bin2txt.cpp)
 target_link_libraries(bin2txt controller)
 add_executable(pack src/pack.cpp)

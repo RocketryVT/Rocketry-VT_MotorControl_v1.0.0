@@ -54,14 +54,6 @@ void xorchecksum(const std::vector<unsigned char> &packet,
 /// \param packet The packet to add a checksum to.
 void appendChecksum(std::vector<unsigned char> &packet);
 
-/// \brief Called upon the successful receipt of a data packet
-/// \details The argument data should be stripped of the header, length,
-/// and checksum bytes
-/// \param id The packet ID byte.
-/// \param data The packet data array.
-/// \return true if successful, false if error encountered
-bool dataReceipt(uint8_t id, const std::vector<unsigned char> &data);
-
 /// \brief Reads all the packets in a binary file
 /// \param filename The name of the binary file
 /// \return A vector of packets contained in the file

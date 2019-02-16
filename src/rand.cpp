@@ -8,8 +8,6 @@
 int main()
 {
     srand(std::chrono::steady_clock::now().time_since_epoch().count());
-    size_t num_packets = 1;
-    // for (size_t i = 0; i < num_packets; ++i)
     while (true)
     {
         uint8_t len = rand() % 256;

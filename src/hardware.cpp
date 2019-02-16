@@ -8,6 +8,10 @@
 #include <hardware.h>
 #include <config.h>
 
+#include <led.h>
+#include <pressure_sensor.h>
+#include <thermocouple.h>
+
 namespace hardware
 {
 
@@ -56,25 +60,9 @@ void loop()
     if (state::thrust.age() > cfg::thrust_period)
         state::thrust = 0;
 
+    drivers::led::set(state::status);
+
 	return;
-}
-
-// returns oxidizer tank pressure in PSI
-float get_pressure_1_data()
-{
-    int sensorVal = 0; // analogRead(cfg::pin_P1);
-    float voltage = (sensorVal * 5.0) / 1024.0;
-    float pressure_psi = (((250.0f * voltage)) - 125.0f);
-    return pressure_psi;
-}
-
-// returns combustion chamber pressure in PSI
-float get_pressure_2_data()
-{
-    int sensorVal = 0; // analogRead(cfg::pin_P2);
-    float voltage = (sensorVal * 5.0) / 1024.0;
-    float pressure_psi = (((250.0f * voltage)) - 125.0f);
-    return pressure_psi;
 }
 
 void unlock(uint8_t code)

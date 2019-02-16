@@ -10,6 +10,7 @@
 #include <config.h>
 #include <comms.h>
 #include <hardware.h>
+#include <drivers/led.h>
 
 namespace control
 {
@@ -75,6 +76,8 @@ void loop()
     comms::loop();
     hardware::loop();
     logging::write(transmission::buildPacket(state::str()));
+
+    drivers::led::set(state::status);
 
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;

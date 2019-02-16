@@ -15,13 +15,6 @@
 namespace behavior
 {
 
-// fill nitrous
-// bleed nitrous
-// continuity test
-// motor unlock dead period (10 seconds)
-// ignition
-// check if fill valve is attached
-
 struct action
 {
     std::string description;
@@ -123,6 +116,34 @@ std::map<uint8_t, action> on_receive
     {
         state::status = data[0];
     }
+}}},
+
+// motor unlock dead period (10 seconds)
+// ignition
+// check if fill valve is attached
+
+{0x50, {"Begin filling the nitrous tank.",
+[] (std::vector<uint8_t>)
+{
+    #ifdef DEBUG
+    std::cout << "Filling the nitrous tank... (TODO)" << std::endl;
+    #endif
+}}},
+
+{0x55, {"Bleed nitrous from the tank.",
+[] (std::vector<uint8_t>)
+{
+    #ifdef DEBUG
+    std::cout << "Bleeding nitrous... (TODO)" << std::endl;
+    #endif
+}}},
+
+{0x60, {"Perform a continuity test.",
+[] (std::vector<uint8_t>)
+{
+    #ifdef DEBUG
+    std::cout << "Continuity test... (TODO)" << std::endl;
+    #endif
 }}},
 
 {126, {"Resets the controller.",
