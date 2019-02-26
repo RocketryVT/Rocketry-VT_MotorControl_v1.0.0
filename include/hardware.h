@@ -3,11 +3,14 @@
 #ifndef HARDWARE_H
 #define HARDWARE_H
 
+#include <cstdint>
+
 /// \brief Manages external hardware connections.
 /// \details This module handles all hardware things
 /// that aren't comms and logging. This includes
 /// sensors, motors, solenoids, etc.
-namespace hardware {
+namespace hardware
+{
 
 /// \brief Initializes external sensor connections.
 /// \return true if all good, false otherwise.
@@ -22,7 +25,8 @@ bool ok();
 void exit(int code);
 
 /// \brief Resets all hardware things back to initialization.
-void reset();
+/// \return true if reinitialization is successful.
+bool reset();
 
 /// \brief Updates sensor data and handles physical device control
 void loop();
@@ -32,7 +36,7 @@ void loop();
 /// to be robustly unlocked; it must be called with 0, 1, and 2,
 /// in that order, to be unlocked. Receipt of these codes
 /// out of order will re-lock all motor locks.
-/// \param The code to unlock.
+/// \param code The code to unlock.
 void unlock(uint8_t code);
 
 /// \brief Locks the motor.
@@ -51,7 +55,14 @@ bool isLocked();
 /// \return The lock state.
 uint8_t lockState();
 
-}
+/// \brief Performs a continuity test and returns the result.
+/// \return true of continuity is good, false otherwise.
+bool continuity();
+
+/// \brief Disconnects the oxidizer feed line.
+void disconnectFeedLine();
+
+} // namespace hardware
 
 #endif // HARDWARE_H
 

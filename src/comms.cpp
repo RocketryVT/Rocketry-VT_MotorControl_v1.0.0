@@ -6,6 +6,7 @@
 #include <bitset>
 
 #include <comms.h>
+#include <logging.h>
 #include <config.h>
 #include <control.h>
 #include <transmission.h>
@@ -17,22 +18,37 @@ namespace comms
 {
 
 std::deque<unsigned char> input_buff, output_buff;
-std::ifstream txstream;
-const std::string txfilepath = "in.bin";
+std::ifstream in;
+std::ofstream out;
+const std::string rxfilepath = "in.bin";
+const std::string txfilepath = "out.bin";
 bool fail_flag = false;
 
 bool init()
 {
-    txstream.open(txfilepath);
-    if (!txstream)
+    in.open(rxfilepath);
+    if (!in)
     {
-        #ifdef DEBUG
-        std::cout << "Failed to open comms device: \""
-            << txfilepath << "\"" << std::endl;
-        #endif
+        logging::announce("Failed to open rx comms device: \"" +
+            rxfilepath + "\"", true, true);
         fail_flag = true;
         return false;
     }
+    in.seekg(0, std::ios::end);
+
+    logging::announce("Opened rx comms device: " + rxfilepath, true, true);
+
+    out.open(txfilepath);
+    if (!out)
+    {
+        logging::announce("Failed to open tx comms device: \"" +
+            txfilepath + "\"", true, true);
+        fail_flag = true;
+        return false;
+    }
+
+    logging::announce("Opened tx comms device: " + txfilepath, true, true);
+
     return true;
 }
 
@@ -43,15 +59,14 @@ bool ok()
 
 void loop()
 {
-    size_t rptr = txstream.tellg();
-    txstream.seekg(0, std::ios::end);
-    size_t end = txstream.tellg();
-    if (rptr > end) rptr = 0;
-    txstream.seekg(rptr);
+    size_t rptr = in.tellg();
+    in.seekg(0, std::ios::end);
+    size_t end = in.tellg();
+    in.seekg(rptr);
 
 	while (rptr < end) 
     {
-        char char_in = txstream.get();
+        char char_in = in.get();
 		input_buff.push_back(char_in);
         ++rptr;
 	}
@@ -82,12 +97,17 @@ void transmit(const std::vector<unsigned char> &data)
 // queues a string onto the output buffer
 void transmit(const std::string& str)
 {
-    for (auto e : str) output_buff.push_back(e);
+    transmit(transmission::buildPacket(str));
 }
 
 void flush()
 {
-
+    while (output_buff.size() > 0)
+    {
+        out << output_buff.front();
+        output_buff.pop_front();
+    }
+    out.flush();
 }
 
 } // namespace comms

@@ -22,15 +22,11 @@ std::chrono::milliseconds runtime;
 
 bool init()
 {
-    #ifdef DEBUG
-    std::cout << "Controller init" << std::endl;
-    #endif
+    logging::announce("Controller init", true, true);
 
     if (!logging::init())
     {
-        #ifdef DEBUG
-        std::cout << "Logging init failure" << std::endl;
-        #endif
+        logging::announce("Logging init failure", true, true);
         exit_flag = true;
         fail_flag = true;
         return false;
@@ -39,9 +35,7 @@ bool init()
     hardware::init();
     if (!hardware::ok())
     {
-        #ifdef DEBUG
-        std::cout << "Hardware init failure" << std::endl;
-        #endif
+        logging::announce("Hardware init failure", true, true);
         exit_flag = true;
         fail_flag = true;
         return false;
@@ -50,9 +44,7 @@ bool init()
     comms::init();
     if (!comms::ok())
     {
-        #ifdef DEBUG
-        std::cout << "Comms init failure" << std::endl;
-        #endif
+        logging::announce("Comms init failure", true, true);
         exit_flag = true;
         fail_flag = true;
         return false;
@@ -75,9 +67,7 @@ void loop()
 
     comms::loop();
     hardware::loop();
-    logging::write(transmission::buildPacket(state::str()));
-
-    drivers::led::set(state::status);
+    logging::loop();
 
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;
@@ -86,9 +76,7 @@ void loop()
 
 void reset()
 {
-    #ifdef DEBUG
-    std::cout << "Controller reset" << std::endl;
-    #endif
+    logging::announce("Controller reset", true, true);
 
     exit_flag = false;
     fail_flag = false;
@@ -121,14 +109,8 @@ void exit(int code)
     std::stringstream ss;
     ss << "Controller exiting (code " << code << ": " 
         << exitStr(code) << ")";
-    #ifdef DEBUG
-    std::cout << ss.str() << std::endl;
-    #endif
-
+    logging::announce(ss.str(), true, true);
     hardware::exit(code);
-    logging::write(transmission::buildPacket(ss.str()));
-    logging::flush();
-    logging::exit(code);
 }
 
 } // namespace control

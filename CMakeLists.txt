@@ -29,6 +29,7 @@ add_library(controller
     src/transmission.cpp
     src/behavior.cpp
     src/comms.cpp
+    src/predicates.cpp
     src/drivers/led.cpp)
 
 add_executable(main src/main.cpp)
@@ -39,3 +40,5 @@ add_executable(pack src/pack.cpp)
 target_link_libraries(pack controller)
 add_executable(rand src/rand.cpp)
 target_link_libraries(rand controller)
+add_executable(drivertest src/drivers/test.cpp)
+target_link_libraries(drivertest controller)

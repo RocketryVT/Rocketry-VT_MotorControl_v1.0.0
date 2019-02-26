@@ -12,6 +12,15 @@ namespace drivers
 namespace led
 {
 
+/// \brief Initializes the LEDs. Must be called before
+/// any operations in this namespace.
+/// \return true if initialization succeeds.
+bool init();
+
+/// \brief Checks if the LEDs are a-ok.
+/// \return true if ok.
+bool ok();
+
 /// \brief Sets the LEDs to a particular state.
 /// \details Sets the 8 LEDs to a particular
 /// state encoded by an 8 bit integer.

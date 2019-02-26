@@ -6,58 +6,61 @@
 
 #include <config.h>
 #include <control.h>
+#include <logging.h>
+#include <comms.h>
+#include <transmission.h>
 
 void printLoop()
 {
-    uint64_t millis = std::chrono::duration_cast<
-        std::chrono::milliseconds>
-        (state::time - state::last_ping).count();
-    std::cout << std::dec << millis << "  \t";
-
-    std::bitset<8> bits(state::status);
-    for (size_t i = 0; i < 8; ++i)
-        std::cout << (bits[i] ? "#" : ".");
-    std::cout << "      \r" << std::flush;
-
-    /*
-    millis = std::chrono::duration_cast<
-        std::chrono::milliseconds>
-        (state::time - cfg::start_time).count();
-    int current = std::cos(millis/1000.0*M_PI + M_PI)*max_bars/2 + max_bars/2;
-    for (int i = 0; i <= max_bars; ++i)
+    const char icons[] = {'-', '\\', '|', '/'};
+    static uint8_t index = 0;
+    static auto last_called = state::time;
+    std::cout << icons[index] << '\r' << std::flush;
+    
+    auto now = std::chrono::steady_clock::now();
+    const auto period = std::chrono::milliseconds(250);
+    if (now - last_called >= period)
     {
-        if (i <= current + 2 && i > current - 2) std::cout << ":";
-        else std::cout << " ";
+        index = (index + 1) % sizeof(icons);
+        last_called = now;
     }
-    std::cout << "      \r" << std::flush;
-
-    char chars[] = {'/', '-', '\\', '|'};
-    static int index = 0;
-    index = (index + 1) % 4;
-    std::cout << chars[index] << "\r" << std::endl;
-    */
 }
 
 int main()
 {
-    #ifdef DEBUG
-    std::cout << "Debug output is enabled" << std::endl;
-    #endif
-
     signal(SIGINT, control::exit);
 
     if (!control::init())
     {
-        std::cout << "Controller init error" << std::endl;
+        logging::announce("Controller init error", true, true);
         return 1;
     }
+
+    logging::addRecipe(0x00, "Vehicle state binary log.", [] ()
+    {
+        std::vector<uint8_t> data;
+        uint8_t id = 200;
+        data << (uint64_t) state::millis(state::time)
+            << (uint8_t) state::status
+            << (float) state::o2p
+            << (float) state::o2t
+            << (float) state::cp
+            << (float) state::ct
+            << (float) state::nh
+            << (float) state::thrust;
+        return transmission::buildPacket(id, data);
+    });
+    logging::addLog(0x00, std::chrono::milliseconds(500));
+
     while (control::ok())
     {
         control::loop();
         printLoop();
     }
 
-    std::cout << "Exited successfully." << std::endl;
+    logging::announce("Exited successfully.", true, true);
+    logging::flush();
+    comms::flush();
     return 0;
 }
 
