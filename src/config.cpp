@@ -10,7 +10,7 @@ std::chrono::steady_clock::time_point start_time
 std::chrono::steady_clock::time_point last_ping
     = std::chrono::steady_clock::now();
 std::chrono::milliseconds
-    loop_period = std::chrono::milliseconds(5),
+    loop_period = std::chrono::milliseconds(1),
     pressure_period = std::chrono::milliseconds(500),
     temperature_period = std::chrono::milliseconds(1000),
     nitrous_period = std::chrono::milliseconds(1500),

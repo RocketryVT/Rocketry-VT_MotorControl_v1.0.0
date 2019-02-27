@@ -13,6 +13,8 @@
 #include <comms.h>
 #include <transmission.h>
 
+#include <config.h>
+
 namespace logging
 {
 
@@ -21,6 +23,7 @@ std::ofstream logfile;
 bool fail_flag = false;
 
 std::map<uint8_t, std::chrono::milliseconds> logs;
+std::map<uint8_t, std::chrono::steady_clock::time_point> last_sent;
 std::map<uint8_t, recipe> recipe_book;
 
 bool init()
@@ -36,9 +39,9 @@ bool init()
         << std::setw(2) << std::setfill('0') << utc.tm_mday << "-"
         << std::setw(2) << std::setfill('0') << utc.tm_hour << "-"
         << std::setw(2) << std::setfill('0') << utc.tm_min << "-"
-        << std::setw(2) << std::setfill('0') << utc.tm_sec << ".docx";
+        << std::setw(2) << std::setfill('0') << utc.tm_sec << ".rvt";
 
-    logging::announce("Begin log: " + filename.str(), false, true);
+    logging::announce("Begin log: " + filename.str(), true, true);
 
     std::string command("echo '" + filename.str() + "' > .lastlog");
     system(command.c_str());
@@ -58,9 +61,6 @@ bool ok()
 
 void loop()
 {
-    using logstamp = std::chrono::steady_clock::time_point;
-    static std::map<uint8_t, logstamp> last_sent;
-    
     for (auto log : logs)
     {
         uint8_t logID = log.first;
@@ -70,11 +70,15 @@ void loop()
         {
             auto now = std::chrono::steady_clock::now();
             // only send this log if the log period has passed
-            if (now - last_sent[logID] >= log.second)
+            if (last_sent.find(logID) == last_sent.end() ||
+                now - last_sent[logID] >= log.second)
             {
                 auto packet = recipe->second.function();
                 logging::announce(packet, true, false);
-                last_sent[logID] = now;
+                if (last_sent.find(logID) != last_sent.end())
+                    last_sent[logID] += log.second;
+                else
+                    last_sent.insert(std::make_pair(logID, now));
             }
         }
     }
@@ -85,6 +89,7 @@ void loop()
 
 void exit(int)
 {
+    clearLogs();
     flush();
     logfile.close();
 }
@@ -129,11 +134,13 @@ void addLog(uint8_t id, const std::chrono::milliseconds &dur)
 void removeLog(uint8_t id)
 {
     logs.erase(id);
+    last_sent.erase(id);
 }
 
 void clearLogs()
 {
     logs.clear();
+    last_sent.clear();
 }
 
 const std::map<uint8_t, std::chrono::milliseconds>& loglist()

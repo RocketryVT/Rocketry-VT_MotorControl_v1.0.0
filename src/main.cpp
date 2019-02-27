@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cmath>
 #include <bitset>
+#include <sstream>
 
 #include <config.h>
 #include <control.h>
@@ -36,10 +37,10 @@ int main()
         return 1;
     }
 
-    logging::addRecipe(0x00, "Vehicle state binary log.", [] ()
+    logging::addRecipe(130, "Vehicle state binary log.", [] ()
     {
         std::vector<uint8_t> data;
-        uint8_t id = 200;
+        uint8_t id = 130;
         data << (uint64_t) state::millis(state::time)
             << (uint8_t) state::status
             << (float) state::o2p
@@ -50,7 +51,12 @@ int main()
             << (float) state::thrust;
         return transmission::buildPacket(id, data);
     });
-    logging::addLog(0x00, std::chrono::milliseconds(500));
+    logging::addRecipe(131, "Timing analysis log.", [] ()
+    {
+        std::vector<uint8_t> data;
+        data << state::millis(state::time);
+        return transmission::buildPacket(131, data);
+    });
 
     while (control::ok())
     {

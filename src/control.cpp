@@ -23,6 +23,10 @@ std::chrono::milliseconds runtime;
 bool init()
 {
     logging::announce("Controller init", true, true);
+    std::stringstream ss;
+        ss << "Update rate: "
+            << 1000.0/state::millis(cfg::loop_period) << " Hz";
+    logging::announce(ss.str(), true, true);
 
     if (!logging::init())
     {

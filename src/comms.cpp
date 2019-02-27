@@ -86,6 +86,11 @@ void reset()
 {
     input_buff.clear();
     output_buff.clear();
+
+    out.flush();
+    in.close();
+    out.close();
+    init();
 }
 
 // queues a vector of chars onto the output buffer

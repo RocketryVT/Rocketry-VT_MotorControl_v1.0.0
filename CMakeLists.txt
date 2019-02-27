@@ -11,12 +11,6 @@ set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-option(DEBUG "Toggle debugging output" ON)
-
-if(DEBUG)
-    add_definitions(-DDEBUG)
-endif(DEBUG)
-
 include_directories(include)
 include_directories(include/drivers)
 include_directories(test)
@@ -42,3 +36,5 @@ add_executable(rand src/rand.cpp)
 target_link_libraries(rand controller)
 add_executable(drivertest src/drivers/test.cpp)
 target_link_libraries(drivertest controller)
+add_executable(readin src/readin.cpp)
+target_link_libraries(readin controller)

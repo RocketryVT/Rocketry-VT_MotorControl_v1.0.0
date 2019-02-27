@@ -1,12 +1,22 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include <transmission.h>
 
 int main(int argc, char **argv)
 {
-    if (argc == 1) return 1;
+    if (argc == 1)
+    {
+        while (true)
+        {
+            std::cout << " (pack) " << std::flush;
+            std::string input;
+            std::getline(std::cin, input);
+            system(std::string("./bin/pack " + input + " >> in.bin").c_str());
+        }
+    }
 
     uint8_t id = std::stoi(argv[1]);
 

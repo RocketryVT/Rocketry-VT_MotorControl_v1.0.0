@@ -60,7 +60,8 @@ std::map<uint8_t, action> on_receive
     {
         std::stringstream ss;
         ss << "0x" << std::hex << std::setw(2)
-            << std::setfill('0') << (int) id << std::dec
+            << std::setfill('0') << (int) id << " | "
+            << std::dec << std::setw(3) << (int) id
             << " (" << dur.count() << "ms): " << desc;
         return ss.str();
     };
@@ -87,8 +88,9 @@ std::map<uint8_t, action> on_receive
     {
         std::stringstream ss;
         ss << "0x" << std::hex << std::setw(2)
-            << std::setfill('0') << (int) id
-            << ": " << str << std::dec;
+            << std::setfill('0') << (int) id << " | "
+            << std::dec << std::setw(3) << (int) id
+            << ": " << str;
         return ss.str();
     };
 
@@ -258,11 +260,12 @@ std::map<uint8_t, action> on_receive
     control::reset();
 }}},
 
-{127, {"SHUTDOWN <uint8_t code>",
+{127, {"SHUTDOWN [uint8_t code = 0]",
 [] (std::vector<uint8_t> data)
 {
-    if (data.size() < 1) return;
-    control::exit(data[0]);
+    uint8_t code = 0;
+    if (data.size() > 0) code = data[0];
+    control::exit(code);
 }}},
 
 }; // on_receive

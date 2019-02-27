@@ -18,7 +18,7 @@ const std::string version = "Motor Control v2019.02.05";
 /// The maximum period of time the controller will
 /// continue without a ping from ground control
 /// before shutting down.
-const auto ping_period = std::chrono::hours(1);
+const auto ping_period = std::chrono::minutes(2);
 
 /// The minimum period to wait between disengaging
 /// software locks on the motor and related systems.

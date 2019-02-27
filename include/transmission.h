@@ -7,6 +7,8 @@
 #include <vector>
 #include <string>
 #include <deque>
+#include <map>
+#include <functional>
 
 /// \brief A library which handles transmission protocol.
 /// \details This namespace is more of a library than a
@@ -61,9 +63,22 @@ std::vector<std::vector<unsigned char>>
     fromFile(const std::string& filename);
 
 /// \brief Converts a packet to a human-readable string
-/// \param data The packet to convert.
+/// \param packet The packet to convert.
 /// \return A string representation of the packet.
-std::string packet2str(const std::vector<unsigned char> &data);
+std::string packet2str(const std::vector<unsigned char> &packet);
+
+/// \brief Converts a packet to a human-readable string,
+/// provided a list of binary-to-text translations.
+/// \details This function is similar to the packet2str which
+/// only takes a std::vector, but augments this function with
+/// a list of translation functions, which are functions that
+/// map packets of a certain ID to an ASCII string.
+/// \param packet The packet to convert.
+/// \param translations A map of IDs to translation functions.
+/// \return A string representation of the packet.
+std::string packet2str(const std::vector<unsigned char> &packet,
+    std::map<uint8_t, std::function<
+        std::string(std::vector<uint8_t>)>> &translations);
 
 } // namespace transmission
 

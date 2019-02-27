@@ -90,12 +90,10 @@ std::vector<std::vector<unsigned char>>
 
         if (c0 != c0_true || c1 != c1_true) // shit, checksum error
         {
-            #ifdef DEBUG
             std::cout << "Checksum error: got (" << std::hex
                 << (int) c0 << ", " << (int) c1 << "), expected ("
                 << (int) c0_true << ", " << (int) c1_true << ")"
                 << std::endl;
-            #endif
             bytestream.pop_front();
             continue;
         }
@@ -188,5 +186,24 @@ std::string transmission::packet2str(const std::vector<unsigned char> &data)
             ss << "| ";
     }
     return ss.str();
+}
+
+std::string transmission::packet2str(
+    const std::vector<unsigned char> &packet,
+    std::map<uint8_t, std::function<
+        std::string(std::vector<uint8_t>)>> &translations)
+{
+    if (packet.size() < 6) return "";
+
+    uint8_t id = packet[3];
+    std::vector<uint8_t> data(packet.begin() + 4, packet.end() - 2);
+    auto tr = translations.find(id);
+    if (tr != translations.end())
+    {
+        std::stringstream ss;
+        ss << (int) id << ": [" << tr->second(data) << "]";
+        return ss.str();
+    }
+    return packet2str(packet);
 }
 
