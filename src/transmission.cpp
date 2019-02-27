@@ -201,7 +201,7 @@ std::string transmission::packet2str(
     if (tr != translations.end())
     {
         std::stringstream ss;
-        ss << (int) id << ": [" << tr->second(data) << "]";
+        ss << (int) id << " " << tr->second(data);
         return ss.str();
     }
     return packet2str(packet);

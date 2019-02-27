@@ -24,7 +24,6 @@ int main(int argc, char **argv)
 
     std::map<uint8_t, std::function<
         std::string(std::vector<uint8_t>)>> translations{
-
     { 130, [] (std::vector<uint8_t> data)
     {
         uint64_t millis;
@@ -33,26 +32,19 @@ int main(int argc, char **argv)
         data >> millis >> status >> o2p
             >> o2t >> cp >> ct >> nh >> thrust;
         std::stringstream ss;
-        ss << "time: " << millis
-            << ", status: " << (int) status
-            << ", o2p: " << o2p
-            << ", o2t: " << o2t
-            << ", cp: " << cp
-            << ", ct: " << ct
-            << ", nh: " << nh
-            << ", thrust: " << thrust;
+        ss << millis << " " << (int) status << " " << o2p << " " << o2t
+            << " " << cp << " " << ct << " " << nh << " " << thrust;
         return ss.str();
     }},
-    
+
     { 131, [] (std::vector<uint8_t> data)
     {
         uint64_t millis;
         data >> millis;
         std::stringstream ss;
-        ss << "time: " << millis;
+        ss << millis;
         return ss.str();
     }}};
-
 
     auto start = std::chrono::steady_clock::now();
     std::deque<uint8_t> buffer;

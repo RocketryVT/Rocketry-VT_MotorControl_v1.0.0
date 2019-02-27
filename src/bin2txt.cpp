@@ -29,14 +29,8 @@ int main(int argc, char** argv)
         data >> millis >> status >> o2p
             >> o2t >> cp >> ct >> nh >> thrust;
         std::stringstream ss;
-        ss << "time: " << millis
-            << ", status: " << (int) status
-            << ", o2p: " << o2p
-            << ", o2t: " << o2t
-            << ", cp: " << cp
-            << ", ct: " << ct
-            << ", nh: " << nh
-            << ", thrust: " << thrust;
+        ss << millis << " " << (int) status << " " << o2p << " " << o2t
+            << " " << cp << " " << ct << " " << nh << " " << thrust;
         return ss.str();
     }},
 
@@ -45,7 +39,7 @@ int main(int argc, char** argv)
         uint64_t millis;
         data >> millis;
         std::stringstream ss;
-        ss << "time: " << millis;
+        ss << millis;
         return ss.str();
     }}};
 
