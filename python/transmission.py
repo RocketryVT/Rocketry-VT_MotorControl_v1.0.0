@@ -74,6 +74,15 @@ def packet2str(packet):
             str = str + "| "
     return str
 
+def appendChecksum(packet):
+    c0, c1 = xorchecksum(packet)
+    packet.append(c0)
+    packet.append(c1)
 
-
+def buildPacket(message):
+    packet = [0xAA, 0x55, len(message), ord('#')]
+    for c in message:
+        packet.append(c)
+    appendChecksum(packet)
+    return packet
 
