@@ -16,9 +16,10 @@ wait = now + 1
 
 while True:
 
-    len = np.random.randint(15,25)
-    packet = tr.buildPacket(np.random.randint(1,255,len))
-    print(packet)
+    len = np.random.randint(5,50)
+    packet = tr.buildPacket(np.random.randint(1,30),
+        np.random.randint(1,255,len))
+    print(tr.packet2str(packet))
     file.write(bytearray(packet))
     file.flush()   
  

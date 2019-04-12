@@ -31,7 +31,9 @@ def parse(bytes):
         c1 = bytes[5+data_len]
 
         if c0 != c0_true or c1 != c1_true:
-            print("Checksum error: got (" + "{:02x}".format(c0) + ", {:02x}".format(c1) + "), expected " + "({:02x}".format(c0_true) + ", {:02x}".format(c1_true) + ")")
+            print("Checksum error: got (" + "{:02x}".format(c0) +
+            ", {:02x}".format(c1) + "), expected " +
+            "({:02x}".format(c0_true) + ", {:02x}".format(c1_true) + ")")
             bytes.popleft()
             continue
         packet.append(c0)
@@ -79,8 +81,8 @@ def appendChecksum(packet):
     packet.append(c0)
     packet.append(c1)
 
-def buildPacket(message):
-    packet = [0xAA, 0x55, len(message), ord('#')]
+def buildPacket(id, message):
+    packet = [0xAA, 0x14, len(message), id]
     for c in message:
         packet.append(c)
     appendChecksum(packet)
