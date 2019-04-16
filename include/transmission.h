@@ -18,19 +18,35 @@
 namespace transmission
 {
 
+/// \brief Get the list of available channels.
+/// \return A list of channels, a vector of strings.
+const std::vector<std::string>& channels();
+
+/// \brief Get the ID of a particular channel, if that channel exists.
+/// \param The name of the channel to ID.
+/// \return The ID of the channel, a uint8_t.
+uint8_t getId(const std::string &channel_name);
+
+/// \brief Get the channel name with the associated ID. Returns the null channel
+/// if no such ID exists.
+/// \param The ID of the queried channel.
+/// \return The name of the channel, a std::string.
+const std::string& getChannel(uint8_t id);
+
 /// \brief Builds an ascii message packet out of a string.
 /// \details Takes a std::string and constructs an ASCII
 /// packet out of it.
+/// \param channel The channel this packet will be broadcast to.
 /// \param msg The message to wrap in a packet.
 /// \return A vector of bytes containing the packet.
 std::vector<unsigned char> buildPacket(std::string msg);
 
 /// \brief Builds a packet given an arbitrary id and bytestring.
-/// \param id The id of the packet.
+/// \param channel The name of the channel to be broadcast to.
 /// \param data The data the packet will contain.
 /// \return A vector of bytes containing the packet.
 std::vector<unsigned char> buildPacket(
-    uint8_t id, std::vector<uint8_t> data);
+    const std::string &channel, std::vector<uint8_t> data);
 
 /// \brief Parses a deque of bytes.
 /// \details Takes a deque of bytes and parses it for all the
@@ -144,7 +160,22 @@ template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator <<
     (std::vector<unsigned char> &vec,
-    const std::vector<unsigned char> &data)
+    const std::vector<T> &data)
+{
+    for (auto e : data)
+        vec << e;
+    return vec;
+}
+
+/// \brief Converts a variable to bytes and stores them
+/// \param vec The vector to store the bytes in
+/// \param data An array of data to be converted
+/// \return The original vector with added bytes
+template <typename T, size_t N, typename U =
+    std::enable_if_t<std::is_fundamental<T>::value, T>>
+std::vector<unsigned char>& operator <<
+    (std::vector<unsigned char> &vec,
+    const std::array<T, N> &data)
 {
     for (auto e : data)
         vec << e;
@@ -181,7 +212,7 @@ template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator >>
     (std::vector<unsigned char> &vec,
-    const std::vector<unsigned char> &data)
+    const std::vector<T> &data)
 {
     while (vec.size() >= sizeof(T))
     {

@@ -5,6 +5,17 @@
 namespace predicates
 {
 
+std::vector<test> test_list
+{
+    { "Fill line connected?", fillLineConnected },
+    { "Nitrous tank full?", nitrousTankFull },
+    { "Nitrous tank stable?", nitrousTankStable },
+    { "Continuity good?", continuityOk },
+    { "Telemetry good?", telemetryOk },
+    { "Overpressure event occurred?", overpressureOccurred },
+    { "Motor locked?", motorLocked }
+};
+
 bool fillLineConnected()
 {
     return false;
@@ -30,10 +41,10 @@ bool continuityOk()
 
 bool telemetryOk()
 {
-    return true;
+    return false;
 }
 
-bool overpressureOccured()
+bool overpressureOccurred()
 {
     return false;
 }
@@ -41,6 +52,11 @@ bool overpressureOccured()
 bool motorLocked()
 {
     return hardware::isLocked();
+}
+
+std::vector<test> tests()
+{
+    return test_list;
 }
 
 } // namespace predicates

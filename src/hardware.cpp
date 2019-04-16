@@ -48,22 +48,26 @@ bool reset()
 void loop()
 {
 	if (state::o2p.age() > cfg::pressure_period)
-		state::o2p = (rand() & 10000)/100.0;
+		state::o2p = (rand() % 10000)/100.0;
 
     if (state::cp.age() > cfg::pressure_period)
-        state::cp = (rand() & 10000)/100.0;
+        state::cp = (rand() % 10000)/100.0;
 
     if (state::o2t.age() > cfg::temperature_period)
-        state::o2t = (rand() & 10000)/100.0;
+        state::o2t = (rand() % 10000)/100.0;
 
     if (state::ct.age() > cfg::temperature_period)
-        state::ct = (rand() & 10000)/100.0;
+        state::ct = (rand() % 10000)/100.0;
 
     if (state::nh.age() > cfg::nitrous_period)
-        state::nh = (rand() & 10000)/100.0;
+        state::nh = (rand() % 10000)/100.0;
 
     if (state::thrust.age() > cfg::thrust_period)
-        state::thrust = (rand() & 10000)/100.0;
+        state::thrust = (rand() % 10000)/100.0;
+
+    for (auto &e : state::voltage)
+        e = (rand() % 1800)/1000.0;
+    state::voltage[7] = 1.79 + (rand() % 10)/1000.0;
 
     drivers::led::set(state::status);
 

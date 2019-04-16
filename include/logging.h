@@ -95,17 +95,10 @@ void clearLogs();
 /// builds a particular log from those variables available in
 /// namespace state. A "log" in this context is a fully fleshed out
 /// packet, with a header, checksum, and data.
-/// \param id The log ID of this recipe.
-/// \param desc A human-readable description of this log.
+/// \param desc The channel name of this log.
 /// \param func A std::function which constructs a log.
-void addRecipe(uint8_t id, const std::string &desc,
+void addRecipe(uint8_t id, const std::string &channel,
     const std::function<std::vector<uint8_t>(void)> &func);
-
-/// \brief Removes a recipe of a given ID from the recipe book.
-/// \details If a recipe exists under a given ID, this function
-/// removes it from the list of log recipes.
-/// \param id The ID of the log recipe to remove.
-void removeRecipe(uint8_t id);
 
 /// \brief Returns the list of recipes currently loaded.
 /// \return A std::map of IDs to recipes.

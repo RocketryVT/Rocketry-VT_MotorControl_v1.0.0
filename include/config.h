@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <string>
+#include <array>
 
 #include <timestamped.h>
 
@@ -18,7 +19,7 @@ const std::string version = "Motor Control v2019.02.05";
 /// The maximum period of time the controller will
 /// continue without a ping from ground control
 /// before shutting down.
-const auto ping_period = std::chrono::minutes(2);
+const auto ping_period = std::chrono::minutes(60);
 
 /// The minimum period to wait between disengaging
 /// software locks on the motor and related systems.
@@ -67,6 +68,11 @@ extern timestamped<float>
     nh,
     /// The current thrust, in kilonewtons.
     thrust;
+
+/// Voltage read from the analog-to-digital converter, in volts.
+/// Stores voltages in order, from 0 to 7:
+/// [AI0, AI1, AI2, AI3, AI4, AI5, AI6, VDD]
+extern std::array<float, 8> voltage;
 
 /// Converts the vehicle's current state into a human-readable string.
 /// \return A std::string containing the vehicle state.

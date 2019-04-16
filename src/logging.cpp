@@ -159,11 +159,6 @@ void addRecipe(uint8_t id, const std::string &desc,
     }
 }
 
-void removeRecipe(uint8_t id)
-{
-    recipe_book.erase(id);
-}
-
 const std::map<uint8_t, recipe>& recipes()
 {
     return recipe_book;
