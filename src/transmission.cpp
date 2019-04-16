@@ -237,13 +237,12 @@ std::string transmission::packet2str(const std::vector<unsigned char> &packet)
     ss << std::hex;
     uint8_t channel = packet[3];
     std::string channelstr = channel_list[channel];
-    ss << channelstr + "\t";
+    ss << std::setw(25) << std::left << std::setfill(' ') << channelstr;
+    ss << std::right;
     for (size_t i = 0; i < packet.size(); ++i)
     {
-        if (std::isprint(packet[i]))
-            ss << std::setfill(' ') << std::setw(2) << packet[i];
-        else
-            ss << std::setfill('0') << std::setw(2) << (int) packet[i];
+        ss << std::setfill('0') << std::setw(2) << (int) packet[i];
+        if (i < packet.size() - 1) ss << " ";
     }
     return ss.str();
 }
@@ -261,7 +260,8 @@ std::string transmission::packet2str(
     if (tr != translations.end())
     {
         std::stringstream ss;
-        ss << (int) id << " " << tr->second(data);
+        ss << std::setw(25) << std::left << std::setfill(' ')
+            << transmission::getChannel(id) << tr->second(data);
         return ss.str();
     }
     return packet2str(packet);

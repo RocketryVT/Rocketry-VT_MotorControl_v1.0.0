@@ -212,13 +212,34 @@ template <typename T, typename U =
     std::enable_if_t<std::is_fundamental<T>::value, T>>
 std::vector<unsigned char>& operator >>
     (std::vector<unsigned char> &vec,
-    const std::vector<T> &data)
+     std::vector<T> &data)
 {
     while (vec.size() >= sizeof(T))
     {
         T elem;
         vec >> elem;
         data.push_back(elem);
+    }
+    return vec;
+}
+
+/// \brief Extracts bytes from a vector
+/// \param vec The vector of bytes
+/// \param data An array of variables to populate
+/// \return The original vector, with some bytes missing
+template <typename T, size_t N, typename U =
+    std::enable_if_t<std::is_fundamental<T>::value, T>>
+std::vector<unsigned char>& operator >>
+    (std::vector<unsigned char> &vec,
+     std::array<T, N> &data)
+{
+    size_t index = 0;
+    while (vec.size() >= sizeof(T) && index < N)
+    {
+        T elem;
+        vec >> elem;
+        data[index] = elem;
+        ++index;
     }
     return vec;
 }
