@@ -64,16 +64,10 @@ def packet2str(packet):
     str = ""
     if len(packet) < 6:
         return "Packet not long enough"
-    isText = packet[3] == 0x23
     for i in range(0, len(packet)):
-        if isText and i > 3 and i < len(packet) - 2:
-            str = str + chr(packet[i])
-        else:
-            str = str + "{:02x}".format(packet[i])
-        if i < len(packet) - 1 and not(isText and i > 3 and i < len(packet) - 3):
+        str = str + "{:02x}".format(packet[i])
+        if i < len(packet) - 1:
             str = str + " "
-        if i == 3 or i == 3 + packet[2]:
-            str = str + "| "
     return str
 
 def appendChecksum(packet):
