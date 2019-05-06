@@ -2,6 +2,7 @@
 
 import numpy as np
 from collections import deque
+import struct
 
 def parse(bytes):
     parsing = True
@@ -81,4 +82,67 @@ def buildPacket(id, message):
         packet.append(c)
     appendChecksum(packet)
     return packet
+
+def packetify(formatted):
+
+    ret = bytes(0);
+
+    for token in formatted.split(' '):
+
+        try:
+
+            if token.endswith('n8'):
+                num = int(token[0:-2])
+                ret += struct.pack(">b", num)
+
+            elif token.endswith('n16'):
+                num = int(token[0:-3])
+                ret += struct.pack(">h", num)
+
+            elif token.endswith('n32'):
+                num = int(token[0:-3])
+                ret += struct.pack(">l", num)
+
+            elif token.endswith('n64'):
+                num = int(token[0:-3])
+                ret += struct.pack(">q", num)
+
+            elif token.endswith('u8'):
+                num = int(token[0:-2])
+                ret += struct.pack(">c", num)
+
+            elif token.endswith('u16'):
+                num = int(token[0:-3])
+                ret += struct.pack(">H", num)
+
+            elif token.endswith('u32'):
+                num = int(token[0:-3])
+                ret += struct.pack(">L", num)
+
+            elif token.endswith('u64'):
+                num = int(token[0:-3])
+                ret += struct.pack(">Q", num)
+
+            elif token.endswith('f'):
+                num = float(token[0:-1])
+                print(num)
+                ret += struct.pack(">f", num)
+
+            elif token.endswith('d'):
+                num = float(token[0:-1])
+                ret += struct.pack(">d", num)
+
+            elif token.startswith('\"') and token.endswith('\"'):
+                string = token[1:-1];
+                ret += bytes(string, 'utf-8')
+
+            else:
+                print("Unrecognized token: " + token)
+
+        except ValueError:
+            print("Encountered an error parsing token: " + token)
+            continue
+
+    return list(ret);
+
 
