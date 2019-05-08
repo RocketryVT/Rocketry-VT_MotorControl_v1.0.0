@@ -24,7 +24,8 @@ add_library(controller
     src/behavior.cpp
     src/comms.cpp
     src/predicates.cpp
-    src/drivers/led.cpp)
+    src/drivers/led.cpp
+    src/drivers/analog_sensor.cpp)
 
 add_executable(main src/main.cpp)
 target_link_libraries(main controller)

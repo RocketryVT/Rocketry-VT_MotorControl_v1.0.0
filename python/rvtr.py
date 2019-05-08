@@ -93,6 +93,7 @@ def packetify(formatted):
 
             if token.endswith('n8'):
                 num = int(token[0:-2])
+                print(num)
                 ret += struct.pack(">b", num)
 
             elif token.endswith('n16'):
@@ -109,7 +110,7 @@ def packetify(formatted):
 
             elif token.endswith('u8'):
                 num = int(token[0:-2])
-                ret += struct.pack(">c", num)
+                ret += struct.pack(">c", bytes([num]))
 
             elif token.endswith('u16'):
                 num = int(token[0:-3])
@@ -125,7 +126,6 @@ def packetify(formatted):
 
             elif token.endswith('f'):
                 num = float(token[0:-1])
-                print(num)
                 ret += struct.pack(">f", num)
 
             elif token.endswith('d'):
@@ -139,7 +139,7 @@ def packetify(formatted):
             else:
                 print("Unrecognized token: " + token)
 
-        except ValueError:
+        except:
             print("Encountered an error parsing token: " + token)
             continue
 
