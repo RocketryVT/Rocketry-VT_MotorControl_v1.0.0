@@ -3,11 +3,12 @@
 import numpy as np
 from collections import deque
 import struct
+import shlex
 
 def parse(bytes):
     parsing = True
     packets = []
-    
+
     while len(bytes) > 0 and parsing:
         while len(bytes) > 0 and bytes[0] != 0xAA:
             bytes.popleft()
@@ -28,22 +29,23 @@ def parse(bytes):
             packet.append(bytes[i])
 
         c0_true, c1_true = xorchecksum(packet)
-        c0 = bytes[4+data_len]
-        c1 = bytes[5+data_len]
+        c0 = bytes[4 + data_len]
+        c1 = bytes[5 + data_len]
 
         if c0 != c0_true or c1 != c1_true:
             print("Checksum error: got (" + "{:02x}".format(c0) +
-            ", {:02x}".format(c1) + "), expected " +
-            "({:02x}".format(c0_true) + ", {:02x}".format(c1_true) + ")")
+                  ", {:02x}".format(c1) + "), expected " +
+                  "({:02x}".format(c0_true) + ", {:02x}".format(c1_true) + ")")
             bytes.popleft()
             continue
         packet.append(c0)
         packet.append(c1)
-        
+
         packets.append(packet)
         for i in range(0, len(packet)):
             bytes.popleft()
     return packets
+
 
 def xorchecksum(packet):
     c0 = 0
@@ -51,15 +53,17 @@ def xorchecksum(packet):
     i = 0
     while i < len(packet) - 1:
         c0 ^= packet[i]
-        c1 ^= packet[i+1]
+        c1 ^= packet[i + 1]
         i += 2
     if i < len(packet):
         c0 ^= packet[i]
     return c0, c1
 
+
 def fromFile(filename):
     bytes = open(filename, "rb").read()
     return parse(deque(bytes))
+
 
 def packet2str(packet):
     str = ""
@@ -71,10 +75,12 @@ def packet2str(packet):
             str = str + " "
     return str
 
+
 def appendChecksum(packet):
     c0, c1 = xorchecksum(packet)
     packet.append(c0)
     packet.append(c1)
+
 
 def buildPacket(id, message):
     packet = [0xAA, 0x14, len(message), id]
@@ -83,17 +89,20 @@ def buildPacket(id, message):
     appendChecksum(packet)
     return packet
 
+
 def packetify(formatted):
+    ret = bytes(0)
 
-    ret = bytes(0);
-
-    for token in formatted.split(' '):
+    for token in shlex.split(formatted):
 
         try:
 
-            if token.endswith('n8'):
+            if token.startswith('#'):
+                string = token[1:len(token)]
+                ret += bytes(string, 'utf-8')
+
+            elif token.endswith('n8'):
                 num = int(token[0:-2])
-                print(num)
                 ret += struct.pack(">b", num)
 
             elif token.endswith('n16'):
@@ -126,23 +135,19 @@ def packetify(formatted):
 
             elif token.endswith('f'):
                 num = float(token[0:-1])
+                print(num)
                 ret += struct.pack(">f", num)
 
             elif token.endswith('d'):
                 num = float(token[0:-1])
                 ret += struct.pack(">d", num)
 
-            elif token.startswith('\"') and token.endswith('\"'):
-                string = token[1:-1];
-                ret += bytes(string, 'utf-8')
-
             else:
-                print("Unrecognized token: " + token)
+                print("Not sure how to parse token: " + token)
+                return list(bytes(0));
 
         except:
             print("Encountered an error parsing token: " + token)
-            continue
+            return list(bytes(0));
 
     return list(ret);
-
-
