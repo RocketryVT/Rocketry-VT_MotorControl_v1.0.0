@@ -2,6 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include <fstream>
+#include <thread>
 
 #include <transmission.h>
 
@@ -38,11 +39,16 @@ std::vector<unsigned char> transmission::buildPacket(
 std::vector<std::vector<unsigned char>>
     transmission::parse(std::deque<unsigned char>& bytestream)
 {
+    auto now = std::chrono::steady_clock::now(), start = now;
+    auto timeout = std::chrono::milliseconds(100);
+
     bool parsing = true;
     std::vector<std::vector<unsigned char>> packets;
 
-    while (bytestream.size() && parsing)
+    while (bytestream.size() && parsing && now - start < timeout)
     {
+        now = std::chrono::steady_clock::now();
+
         // go to next 0xAA 0x14
         while (bytestream.size() > 0 && bytestream.front() != 0xAA)
         {
