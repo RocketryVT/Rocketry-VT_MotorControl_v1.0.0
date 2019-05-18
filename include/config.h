@@ -14,7 +14,7 @@ namespace cfg
 {
 
 /// The current controller version.
-const std::string version = "Motor Control v2019.02.05";
+const std::string version = "Motor Control v2019.05.18";
 
 /// The maximum period of time the controller will
 /// continue without a ping from ground control

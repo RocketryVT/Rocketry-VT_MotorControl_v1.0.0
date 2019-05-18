@@ -138,13 +138,13 @@ std::map<uint8_t, action> on_receive
 }}},
 
 {transmission::getId("/ground/motor-unlock"), {"UNLOCK MOTOR <uint8_t id>",
-[] (std::vector<uint8_t> data)
+[] (std::vector<uint8_t>)
 {
     logging::announce("Unlocking motor. (TODO)", true, true);
 }}},
 
 {transmission::getId("/ground/motor-lock"), {"LOCK MOTOR",
-[] (std::vector<uint8_t> data)
+[] (std::vector<uint8_t>)
 {
     logging::announce("Locking motor. (TODO)", true, true);
 }}},
@@ -256,14 +256,17 @@ std::map<uint8_t, action> on_receive
     else if (msg == "SHUTDOWN")
         control::exit(1); // soft shutdown
     else
-        logging::announce("Unknown ASCII message: \"" + msg, true, true);
+        logging::announce("Unknown ASCII message: \"" +
+            msg + "\"", true, true);
 }}},
 
 {transmission::getId("/ground/set-status"), {"SET STATUS <uint8_t status>",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
+    {
         state::status = data[0];
+    }
 }}},
 
 {transmission::getId("/ground/echo-status") , {"ECHO STATUS",
@@ -309,6 +312,14 @@ std::map<uint8_t, action> on_receive
 [] (std::vector<uint8_t>)
 {
     logging::announce("Bleeding nitrous... (TODO)", true, true);
+}}},
+
+{transmission::getId("/ground/hardware-reboot"), {"HARDWARE REBOOT",
+[] (std::vector<uint8_t>)
+{
+    logging::announce("Rebooting Beaglebone...", true, true);
+    comms::flush();
+    std::system("sudo reboot");
 }}},
 
 {transmission::getId("/ground/abort"), {"ABORT (WARNING: VERY UNGRACEFUL)",

@@ -19,9 +19,12 @@ bool exit_flag = false;
 bool fail_flag = false;
 std::chrono::steady_clock::time_point start_time;
 std::chrono::milliseconds runtime;
+uint64_t counter = 0;
 
 bool init()
 {
+    hardware::setLed(255);
+
     logging::announce("Controller init", true, true);
     std::stringstream ss;
         ss << "Update rate: "
@@ -36,6 +39,8 @@ bool init()
         return false;
     }
 
+    hardware::setLed(0);
+
     hardware::init();
     if (!hardware::ok())
     {
@@ -44,7 +49,9 @@ bool init()
         fail_flag = true;
         return false;
     }
-	
+
+    hardware::setLed(255);
+
     comms::init();
     if (!comms::ok())
     {
@@ -54,8 +61,12 @@ bool init()
         return false;
     }
 
+    hardware::setLed(0);
+
     start_time = state::time = state::last_ping =
         std::chrono::steady_clock::now();
+
+    logging::announce("Init complete.", true, true);
 
     return ok();
 }
@@ -66,14 +77,13 @@ void loop()
     
     if (state::time - state::last_ping > cfg::ping_period)
     {
-        control::exit(5);
+        control::exit(connection_timeout);
     }
 
     comms::loop();
     hardware::loop();
+    hardware::setLed(state::millis(state::time)/200);
     logging::loop();
-
-    comms::flush();
 
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;
@@ -103,11 +113,16 @@ void exit(int code)
     {
         switch (code)
         {
-            case 0: return "Execution completed";
-            case 1: return "Soft shutdown";
-            case 2: return "SIGINT";
-            case 5: return "Ground station connection timeout";
-            case 6: return "Failed to map channel to id";
+            case execution_complete:
+                return "Execution completed";
+            case soft_shutdown:
+                return "Soft shutdown";
+            case sigint:
+                return "SIGINT";
+            case connection_timeout:
+                return "Ground station connection timeout";
+            case failed_channel_map:
+                return "Failed to map channel to id";
             default: return "[Reserved exit code]";
         }
     };
@@ -118,6 +133,7 @@ void exit(int code)
         << exitStr(code) << ")";
     logging::announce(ss.str(), true, true);
     hardware::exit(code);
+    comms::exit(code);
 }
 
 } // namespace control

@@ -32,6 +32,7 @@ const std::map<uint8_t, std::string> channel_list
     {85,  "/ground/bleed-nitrous"},
     {96,  "/ground/echo-tests"},
     {97,  "/ground/perform-test"},
+    {124, "/ground/hardware-reboot"},
     {125, "/ground/abort"},
     {126, "/ground/reset"},
     {127, "/ground/shutdown"},

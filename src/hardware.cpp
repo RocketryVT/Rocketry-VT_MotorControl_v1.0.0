@@ -5,6 +5,9 @@
 #include <ctime>
 #include <iomanip>
 #include <cstdlib>
+#include <unistd.h>
+#include <gpio.hpp>
+#include <bitset>
 
 #include <hardware.h>
 #include <config.h>
@@ -109,6 +112,15 @@ bool continuity()
 void disconnectFeedLine()
 {
 
+}
+
+void setLed(uint8_t bitmask)
+{
+    std::bitset<4> bits(bitmask);
+    for (uint8_t i = 0; i < 4; ++i)
+    {
+        gpio::led_set_value(i, bits[i]);
+    }
 }
 
 } // namespace Hardware

@@ -3,6 +3,19 @@
 #ifndef CONTROL_MAIN_H
 #define CONTROL_MAIN_H
 
+enum exit_code : int
+{
+    execution_complete = 0,
+    soft_shutdown = 1,
+    sigint = 2,
+    connection_timeout = 5,
+    failed_channel_map = 6,
+    termios_get_fail = 10,
+    termios_set_fail = 11,
+    termios_baud_fail = 12,
+    not_a_tty = 13
+};
+
 /// \brief Contains administrative functions which form
 /// the backbone of the controller flow of control.
 namespace control

@@ -40,6 +40,10 @@ void transmit(const std::vector<unsigned char> &data);
 void transmit(const std::string &str);
 
 /// \brief Flushes the output buffer to the hardware device.
+/// \param blocking A switch to enable blocking transmission.
+/// \details Flushes the output buffer to the radio via the
+/// TTY USB port. The function will attempt to write
+/// all bytes in the buffer before returning.
 void flush();
 
 } // namespace comms

@@ -62,6 +62,8 @@ bool continuity();
 /// \brief Disconnects the oxidizer feed line.
 void disconnectFeedLine();
 
+void setLed(uint8_t bitmask);
+
 } // namespace hardware
 
 #endif // HARDWARE_H
