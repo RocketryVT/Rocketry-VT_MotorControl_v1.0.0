@@ -5,69 +5,63 @@
 #include <thread>
 #include <algorithm>
 #include <cctype>
+#include <map>
 
 #include <transmission.h>
+#include <control.h>
 
-const std::vector<std::string> channel_list
+const std::map<uint8_t, std::string> channel_list
 {
-    "null", // must be the first element - trash channel
-    "ground/ping",
-    "rocket/ping",
-    "relay/ping",
-    "rocket/console",
-    "relay/rocket/console",
-    "relay/console",
-    "rocket/status",
-    "relay/rocket/status",
-    "rocket/imudata",
-    "relay/rocket/imudata",
-    "rocket/voltage",
-    "relay/rocket/voltage",
-    "rocket/motor-info",
-    "relay/rocket/motor-info",
-    "ground/shutdown",
-    "ground/reset",
-    "ground/abort",
-    "ground/perform-test",
-    "ground/relay-mode",
-    "relay/ground/relay-mode",
-    "ground/echo-lexicon",
-    "ground/echo-loglist",
-    "ground/echo-recipes",
-    "ground/log",
-    "ground/unlog",
-    "ground/echo-tests",
-    "ground/echo-channels",
-    "ground/set-lock",
-    "ground/small-talk",
-    "ground/set-status",
-    "ground/echo-status",
-    "ground/fill-nitrous",
-    "ground/disconnect-feed",
-    "ground/bleed-nitrous",
+    {0,   "/null"}, // do not change!
+    {1,   "/ground/ping"},
+    {2,   "/ground/echo-commands"},
+    {3,   "/ground/echo-loglist"},
+    {4,   "/ground/echo-logs"},
+    {5,   "/ground/echo-channels"},
+    {8,   "/ground/unlog-all"},
+    {9,   "/ground/begin-log"},
+    {18,  "/ground/set-lock"},
+    {34,  "/ground/small-talk"},
+    {35,  "/rocket/console"},
+    {47,  "/ground/echo-status"},
+    {48,  "/ground/set-status"},
+    {80,  "/ground/fill-nitrous"},
+    {81,  "/ground/disc-feedline"},
+    {85,  "/ground/bleed-nitrous"},
+    {96,  "/ground/echo-tests"},
+    {97,  "/ground/perform-test"},
+    {125, "/ground/abort"},
+    {126, "/ground/reset"},
+    {127, "/ground/shutdown"},
+    {130, "/rocket/motor-info"},
+    {131, "/rocket/timing"}
 };
 
-const std::vector<std::string>& transmission::channels()
+const std::map<uint8_t, std::string>& transmission::channels()
 {
     return channel_list;
 }
 
 uint8_t transmission::getId(const std::string &channel_name)
 {
-    auto loc = std::find(channel_list.begin(), channel_list.end(), channel_name);
-    if (loc == channel_list.end())
+    for (auto pair : channel_list)
     {
-        std::cerr << "Cannot find ID for channel "
-            << channel_name << std::endl;
-        return 0;
+        if (pair.second == channel_name) return pair.first;
     }
-    return std::distance(channel_list.begin(), loc);
+
+    std::cerr << "Cannot find ID for channel "
+        << channel_name << std::endl;
+    control::exit(6);
+    return 0;
 }
 
 const std::string& transmission::getChannel(uint8_t id)
 {
-    if (id >= channel_list.size()) return channel_list[0];
-    return channel_list[id];
+    if (channel_list.find(id) == channel_list.end())
+    {
+        return channel_list.at(0);
+    }
+    return channel_list.at(id);
 }
 
 // builds an ascii message packet
@@ -78,7 +72,7 @@ std::vector<unsigned char> transmission::buildPacket(std::string msg)
         msg = msg.substr(0, 255);
 
     uint8_t len = msg.length();
-    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("rocket/console") };
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("/rocket/console") };
     for (auto e : msg)
         packet.push_back(e);
     appendChecksum(packet); 
@@ -241,9 +235,9 @@ std::string transmission::packet2str(const std::vector<unsigned char> &packet)
 {
     std::stringstream ss;
     ss << std::hex;
-    uint8_t channel = packet[3];
-    std::string channelstr = channel_list[channel];
-    ss << std::setw(25) << std::left << std::setfill(' ') << channelstr;
+    uint8_t id = packet[3];
+    std::string channel = getChannel(id);
+    ss << std::setw(25) << std::left << std::setfill(' ') << channel;
     ss << std::right;
     for (size_t i = 0; i < packet.size(); ++i)
     {

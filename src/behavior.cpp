@@ -27,14 +27,14 @@ struct action
 std::map<uint8_t, action> on_receive
 {
 
-{transmission::getId("ground/ping"), {"MARCO",
+{transmission::getId("/ground/ping"), {"MARCO",
 [] (std::vector<uint8_t>)
 {
     logging::announce("POLO", true, true);
     state::last_ping = std::chrono::steady_clock::now();
 }}},
 
-{transmission::getId("ground/echo-lexicon"), {"ECHO LEXICON",
+{transmission::getId("/ground/echo-commands"), {"ECHO LEXICON",
 [] (std::vector<uint8_t>)
 {
     auto lexMsg = [] (uint8_t id, const std::string &str)
@@ -47,12 +47,12 @@ std::map<uint8_t, action> on_receive
         return ss.str();
     };
 
-    logging::announce("Lexicon query:", true, true);
+    logging::announce("Commands query:", true, true);
     for (auto e : on_receive)
         logging::announce(lexMsg(e.first, e.second.description), true, true);
 }}},
 
-{transmission::getId("ground/echo-channels"), {"ECHO CHANNELS",
+{transmission::getId("/ground/echo-channels"), {"ECHO CHANNELS",
 [] (std::vector<uint8_t>)
 {
     auto lexMsg = [] (uint8_t id, const std::string &str)
@@ -71,7 +71,7 @@ std::map<uint8_t, action> on_receive
         logging::announce(lexMsg(i, channels[i]), true, true);
 }}},
 
-{transmission::getId("ground/echo-loglist"), {"ECHO LOGLIST",
+{transmission::getId("/ground/echo-loglist"), {"ECHO LOGLIST",
 [] (std::vector<uint8_t>)
 {
     auto logMsg = [] (uint8_t id, const std::chrono::milliseconds &dur,
@@ -100,7 +100,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("ground/echo-recipes"), {"ECHO RECIPES",
+{transmission::getId("/ground/echo-logs"), {"ECHO LOGS",
 [] (std::vector<uint8_t>)
 {
     auto recipeMsg = [] (uint8_t id, const std::string &str)
@@ -113,7 +113,7 @@ std::map<uint8_t, action> on_receive
         return ss.str();
     };
 
-    logging::announce("Recipe query:", true, true);
+    logging::announce("Log query:", true, true);
     for (auto e : logging::recipes())
     {
         logging::announce(recipeMsg(e.first,
@@ -121,7 +121,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("ground/echo-tests"), {"ECHO TESTS",
+{transmission::getId("/ground/echo-tests"), {"ECHO TESTS",
 [] (std::vector<uint8_t>)
 {
     logging::announce("Test query:", true, true);
@@ -138,7 +138,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("ground/perform-test"), {"PERFORM TEST <uint8_t id>",
+{transmission::getId("/ground/perform-test"), {"PERFORM TEST <uint8_t id>",
 [] (std::vector<uint8_t> data) 
 {
     if (data.size() == 0) return;
@@ -153,7 +153,7 @@ std::map<uint8_t, action> on_receive
         (ret ? "YES" : "NO"), true, true);
 }}},
 
-{transmission::getId("ground/unlog"), {"UNLOG [uint8_t id = ALL]",
+{transmission::getId("/ground/unlog-all"), {"UNLOG [uint8_t id = ALL]",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 0)
@@ -167,7 +167,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("ground/log"), {"LOG <uint8_t id> [uint16_t millis = 1000]",
+{transmission::getId("/ground/begin-log"), {"LOG <uint8_t id> [uint16_t millis = 1000]",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
@@ -192,7 +192,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("ground/set-lock"), {"SET LOCK [uint8_t lockstate = 0]",
+{transmission::getId("/ground/set-lock"), {"SET LOCK [uint8_t lockstate = 0]",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 0) hardware::lock();
@@ -209,7 +209,7 @@ std::map<uint8_t, action> on_receive
     logging::announce(ss.str(), true, true);
 }}},
 
-{transmission::getId("ground/small-talk"), {"ASCII message packet.",
+{transmission::getId("/ground/small-talk"), {"HAVE A CHAT <string message>",
 [] (std::vector<uint8_t> data)
 {
     std::string msg(data.begin(), data.end());
@@ -242,14 +242,14 @@ std::map<uint8_t, action> on_receive
         logging::announce("Unknown ASCII message: \"" + msg, true, true);
 }}},
 
-{transmission::getId("ground/set-status"), {"SET STATUS <uint8_t status>",
+{transmission::getId("/ground/set-status"), {"SET STATUS <uint8_t status>",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
         state::status = data[0];
 }}},
 
-{transmission::getId("ground/echo-status") , {"ECHO STATUS",
+{transmission::getId("/ground/echo-status") , {"ECHO STATUS",
 [] (std::vector<uint8_t>)
 {
     std::stringstream ss;
@@ -267,7 +267,7 @@ std::map<uint8_t, action> on_receive
     logging::announce(ss.str(), true, true);
 }}},
 
-{transmission::getId("ground/fill-nitrous"), {"FILL NITROUS <uint8_t percent>",
+{transmission::getId("/ground/fill-nitrous"), {"FILL NITROUS <uint8_t percent>",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
@@ -281,32 +281,32 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("ground/disconnect-feed"), {"DISCONNECT FEED LINE",
+{transmission::getId("/ground/disc-feedline"), {"DISCONNECT FEED LINE",
 [] (std::vector<uint8_t>)
 {
     logging::announce("Disconnecting feed line... (TODO)", true, true);
     hardware::disconnectFeedLine();
 }}},
 
-{transmission::getId("ground/bleed-nitrous"), {"BLEED NITROUS",
+{transmission::getId("/ground/bleed-nitrous"), {"BLEED NITROUS",
 [] (std::vector<uint8_t>)
 {
     logging::announce("Bleeding nitrous... (TODO)", true, true);
 }}},
 
-{transmission::getId("ground/abort"), {"ABORT",
+{transmission::getId("/ground/abort"), {"ABORT (WARNING: VERY UNGRACEFUL)",
 [] (std::vector<uint8_t>)
 {
-    logging::announce("Abort (TODO)", true, true);
+    std::abort();
 }}},
 
-{transmission::getId("ground/reset"), {"RESET",
+{transmission::getId("/ground/reset"), {"RESET",
 [] (std::vector<uint8_t>)
 {
     control::reset();
 }}},
 
-{transmission::getId("ground/shutdown"), {"SHUTDOWN [uint8_t code = 0]",
+{transmission::getId("/ground/shutdown"), {"SHUTDOWN [uint8_t code = 0]",
 [] (std::vector<uint8_t> data)
 {
     uint8_t code = 0;

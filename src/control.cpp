@@ -107,6 +107,7 @@ void exit(int code)
             case 1: return "Soft shutdown";
             case 2: return "SIGINT";
             case 5: return "Ground station connection timeout";
+            case 6: return "Failed to map channel to id";
             default: return "[Reserved exit code]";
         }
     };

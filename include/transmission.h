@@ -20,7 +20,7 @@ namespace transmission
 
 /// \brief Get the list of available channels.
 /// \return A list of channels, a vector of strings.
-const std::vector<std::string>& channels();
+const std::map<uint8_t, std::string>& channels();
 
 /// \brief Get the ID of a particular channel, if that channel exists.
 /// \param The name of the channel to ID.
