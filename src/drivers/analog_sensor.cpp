@@ -1,18 +1,21 @@
-
 #include <analog_sensor.h>
 #include <iostream>
 
 namespace drivers
 {
 
-analog_sensor::analog_sensor(const std::string &fn,
+analog_sensor::analog_sensor(uint8_t ain,
     const std::function<double(double)> &calibration)
-    : _calibration(calibration)
+    : _adc(ain), _fd(adc::fd_open(ain)), _calibration(calibration)
 {
-    _file = std::ifstream(fn);
-    if (!_file)
-        std::cerr << "Error: voltage file \"" << fn
+    if (_fd < 0)
+        std::cerr << "Error: ADC port \"" << (int) ain
             << "\" is inaccessible" << std::endl;
+}
+
+analog_sensor::~analog_sensor()
+{
+    adc::fd_close(_fd);
 }
 
 double analog_sensor::read()
@@ -22,16 +25,11 @@ double analog_sensor::read()
 
 double analog_sensor::raw()
 {
-    std::string line;
-    std::getline(_file, line);
-    _file.seekg(0, _file.beg);
-    double ret = 0;
-    try
-    {
-        ret = std::stod(line);
-    }
-    catch (...) { }
-    return ret;
+    unsigned int voltage = 0;
+    unsigned int ground = 0;
+    adc::read_value(_adc, voltage);
+    adc::read_value(7, ground);
+    return voltage*1.8/ground;
 }
 
 } // namespace drivers

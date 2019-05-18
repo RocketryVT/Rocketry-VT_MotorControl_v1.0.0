@@ -167,7 +167,7 @@ const std::map<uint8_t, recipe>& recipes()
 void announce(const std::string &str, bool radio, bool console)
 {
     logging::write(str);
-    if (radio)
+    // if (radio)
     {
         comms::transmit(str);
     }

@@ -73,6 +73,8 @@ void loop()
     hardware::loop();
     logging::loop();
 
+    comms::flush();
+
     auto next = start_time + runtime + cfg::loop_period;
     runtime += cfg::loop_period;
     std::this_thread::sleep_until(next);

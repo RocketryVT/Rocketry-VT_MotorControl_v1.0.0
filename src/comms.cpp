@@ -4,6 +4,9 @@
 #include <cctype>
 #include <iomanip>
 #include <bitset>
+#include <fcntl.h>
+#include <unistd.h>
+#include <thread>
 
 #include <comms.h>
 #include <logging.h>
@@ -18,37 +21,26 @@ namespace comms
 {
 
 std::deque<unsigned char> input_buff, output_buff;
-std::ifstream in;
+int arduino;
 std::ofstream out;
-const std::string rxfilepath = "in.bin";
-const std::string txfilepath = "out.bin";
+const std::string filepath = "/dev/serial/by-id/usb-Arduino_"
+        "Srl_Arduino_Mega_85535303636351714190-if00";
 bool fail_flag = false;
-
 bool init()
 {
-    in.open(rxfilepath);
-    if (!in)
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    arduino = open(filepath.c_str(), O_RDWR | O_NONBLOCK | O_NOCTTY | O_SYNC);
+    if (arduino < 0)
     {
         logging::announce("Failed to open rx comms device: \"" +
-            rxfilepath + "\"", true, true);
-        fail_flag = true;
-        return false;
-    }
-    in.seekg(0, std::ios::end);
-
-    logging::announce("Opened rx comms device: " + rxfilepath, true, true);
-
-    out.open(txfilepath);
-    if (!out)
-    {
-        logging::announce("Failed to open tx comms device: \"" +
-            txfilepath + "\"", true, true);
+            filepath + "\"", true, true);
         fail_flag = true;
         return false;
     }
 
-    logging::announce("Opened tx comms device: " + txfilepath, true, true);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
 
+    logging::announce("Opened comms device: " + filepath, true, true);
     return true;
 }
 
@@ -59,19 +51,14 @@ bool ok()
 
 void loop()
 {
-    size_t rptr = in.tellg();
-    in.seekg(0, std::ios::end);
-    size_t end = in.tellg();
-    in.seekg(rptr);
-
-	while (rptr < end) 
+    char char_in[1];
+    while (read(arduino, char_in, 1) > 0)
     {
-        char char_in = in.get();
-		input_buff.push_back(char_in);
-        ++rptr;
-	}
+	    input_buff.push_back(char_in[0]);
+    }
 
     auto packets = transmission::parse(input_buff);
+
     for (auto p : packets)
     {
         std::vector<unsigned char> data;
@@ -87,9 +74,7 @@ void reset()
     input_buff.clear();
     output_buff.clear();
 
-    out.flush();
-    in.close();
-    out.close();
+    close(arduino);
     init();
 }
 
@@ -107,12 +92,20 @@ void transmit(const std::string& str)
 
 void flush()
 {
+    std::vector<unsigned char> outgoing;
+
     while (output_buff.size() > 0)
     {
-        out << output_buff.front();
-        output_buff.pop_front();
+        unsigned char byte = output_buff.front();
+        int ret = write(arduino, &byte, 1);
+        if (ret < 0)
+        {
+            std::cout << "An error occurred while transmitting." << std::endl;
+            std::cout << std::string(std::strerror(errno)) << std::endl;
+        }
+        else output_buff.pop_front();
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    out.flush();
 }
 
 } // namespace comms
