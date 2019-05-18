@@ -104,7 +104,7 @@ void flush()
             std::cout << std::string(std::strerror(errno)) << std::endl;
         }
         else output_buff.pop_front();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
     }
 }
 

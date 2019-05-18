@@ -66,9 +66,8 @@ std::map<uint8_t, action> on_receive
     };
 
     logging::announce("Channel query:", true, true);
-    auto channels = transmission::channels();
-    for (size_t i = 0; i < channels.size(); ++i)
-        logging::announce(lexMsg(i, channels[i]), true, true);
+    for (auto pair : transmission::channels())
+        logging::announce(lexMsg(pair.first, pair.second), true, true);
 }}},
 
 {transmission::getId("/ground/echo-loglist"), {"ECHO LOGLIST",
@@ -138,19 +137,37 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{transmission::getId("/ground/perform-test"), {"PERFORM TEST <uint8_t id>",
+{transmission::getId("/ground/motor-unlock"), {"UNLOCK MOTOR <uint8_t id>",
+[] (std::vector<uint8_t> data)
+{
+    logging::announce("Unlocking motor. (TODO)", true, true);
+}}},
+
+{transmission::getId("/ground/motor-lock"), {"LOCK MOTOR",
+[] (std::vector<uint8_t> data)
+{
+    logging::announce("Locking motor. (TODO)", true, true);
+}}},
+
+{transmission::getId("/ground/perform-test"), {"PERFORM TEST <uint8_t... id>",
 [] (std::vector<uint8_t> data) 
 {
-    if (data.size() == 0) return;
-    
-    uint8_t id = data[0];
-    auto tests = predicates::tests();
-    if (id >= tests.size()) return;
-    auto test = predicates::tests()[id];
-    logging::announce("Performing test: " + test.description, true, true);
-    bool ret = test.function();
-    logging::announce(test.description + " -> " +
-        (ret ? "YES" : "NO"), true, true);
+    for (uint8_t id : data)
+    {
+        auto tests = predicates::tests();
+        if (id >= tests.size())
+        {
+            std::stringstream ss;
+            ss << "No test with ID " << (int) id;
+            logging::announce(ss.str(), true, true);
+            continue;
+        }
+        auto test = predicates::tests()[id];
+        logging::announce("Performing test: " + test.description, true, true);
+        bool ret = test.function();
+        logging::announce(test.description + " -> " +
+            (ret ? "YES" : "NO"), true, true);
+    }
 }}},
 
 {transmission::getId("/ground/unlog-all"), {"UNLOG [uint8_t id = ALL]",
@@ -309,7 +326,7 @@ std::map<uint8_t, action> on_receive
 {transmission::getId("/ground/shutdown"), {"SHUTDOWN [uint8_t code = 0]",
 [] (std::vector<uint8_t> data)
 {
-    uint8_t code = 0;
+    uint8_t code = 1;
     if (data.size() > 0) code = data[0];
     control::exit(code);
 }}},

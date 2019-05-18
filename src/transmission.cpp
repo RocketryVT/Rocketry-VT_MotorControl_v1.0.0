@@ -25,6 +25,8 @@ const std::map<uint8_t, std::string> channel_list
     {35,  "/rocket/console"},
     {47,  "/ground/echo-status"},
     {48,  "/ground/set-status"},
+    {60,  "/ground/motor-unlock"},
+    {61,  "/ground/motor-lock"},
     {80,  "/ground/fill-nitrous"},
     {81,  "/ground/disc-feedline"},
     {85,  "/ground/bleed-nitrous"},
@@ -34,7 +36,7 @@ const std::map<uint8_t, std::string> channel_list
     {126, "/ground/reset"},
     {127, "/ground/shutdown"},
     {130, "/rocket/motor-info"},
-    {131, "/rocket/timing"}
+    {131, "/rocket/voltage"}
 };
 
 const std::map<uint8_t, std::string>& transmission::channels()

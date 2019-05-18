@@ -37,8 +37,8 @@ int main()
         return 1;
     }
 
-    logging::addRecipe(transmission::getId("rocket/motor-info"),
-        "rocket/motor-info", [] ()
+    logging::addRecipe(transmission::getId("/rocket/motor-info"),
+        "/rocket/motor-info", [] ()
     {
         std::vector<uint8_t> data;
         data << (uint64_t) state::millis(state::time)
@@ -49,14 +49,14 @@ int main()
             << (float) state::ct
             << (float) state::nh
             << (float) state::thrust;
-        return transmission::buildPacket("rocket/motor-info", data);
+        return transmission::buildPacket("/rocket/motor-info", data);
     });
-    logging::addRecipe(transmission::getId("rocket/voltage"),
-        "rocket/voltage", [] ()
+    logging::addRecipe(transmission::getId("/rocket/voltage"),
+        "/rocket/voltage", [] ()
     {
         std::vector<uint8_t> data;
         data << (uint64_t) state::millis(state::time) << state::voltage;
-        return transmission::buildPacket("rocket/voltage", data);
+        return transmission::buildPacket("/rocket/voltage", data);
     });
 
     while (control::ok())
