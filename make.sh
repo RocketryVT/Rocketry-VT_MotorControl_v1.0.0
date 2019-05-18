@@ -3,5 +3,9 @@
 mkdir -p build/
 cd build/
 cmake ..
-make main
+if [ "$1" = "" ]; then
+    make main
+else
+    make $1
+fi
 cd ..

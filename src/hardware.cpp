@@ -10,9 +10,9 @@
 #include <config.h>
 #include <timestamped.h>
 
-#include <led.h>
-#include <pressure_sensor.h>
-#include <thermocouple.h>
+// #include <led.h>
+// #include <pressure_sensor.h>
+// #include <thermocouple.h>
 
 namespace hardware
 {
@@ -69,7 +69,7 @@ void loop()
         e = (rand() % 1800)/1000.0;
     state::voltage[7] = 1.79 + (rand() % 10)/1000.0;
 
-    drivers::led::set(state::status);
+    // drivers::led::set(state::status);
 
 	return;
 }
