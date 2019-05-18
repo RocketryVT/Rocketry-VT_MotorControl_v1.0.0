@@ -25,6 +25,7 @@ namespace state
 std::chrono::steady_clock::time_point time, last_ping;
 uint8_t status = 0;
 timestamped<float> o2p = 0, o2t = 0, cp = 0, ct = 0, nh = 0, thrust = 0;
+std::array<float, 8> voltage;
 unsigned char new_data = 0;
 unsigned int mode = 0;
 

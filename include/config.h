@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <string>
+#include <array>
 
 #include <timestamped.h>
 
@@ -67,6 +68,11 @@ extern timestamped<float>
     nh,
     /// The current thrust, in kilonewtons.
     thrust;
+
+/// Voltage read from the analog-to-digital converter, in volts.
+/// Stores voltages in order, from 0 to 7:
+/// [AI0, AI1, AI2, AI3, AI4, AI5, AI6, VDD]
+extern std::array<float, 8> voltage;
 
 /// Converts the vehicle's current state into a human-readable string.
 /// \return A std::string containing the vehicle state.

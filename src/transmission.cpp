@@ -3,20 +3,82 @@
 #include <sstream>
 #include <fstream>
 #include <thread>
+#include <algorithm>
+#include <cctype>
 
 #include <transmission.h>
 
+const std::vector<std::string> channel_list
+{
+    "null", // must be the first element - trash channel
+    "ground/ping",
+    "rocket/ping",
+    "relay/ping",
+    "rocket/console",
+    "relay/rocket/console",
+    "relay/console",
+    "rocket/status",
+    "relay/rocket/status",
+    "rocket/imudata",
+    "relay/rocket/imudata",
+    "rocket/voltage",
+    "relay/rocket/voltage",
+    "rocket/motor-info",
+    "relay/rocket/motor-info",
+    "ground/shutdown",
+    "ground/reset",
+    "ground/abort",
+    "ground/perform-test",
+    "ground/relay-mode",
+    "relay/ground/relay-mode",
+    "ground/echo-lexicon",
+    "ground/echo-loglist",
+    "ground/echo-recipes",
+    "ground/log",
+    "ground/unlog",
+    "ground/echo-tests",
+    "ground/echo-channels",
+    "ground/set-lock",
+    "ground/small-talk",
+    "ground/set-status",
+    "ground/echo-status",
+    "ground/fill-nitrous",
+    "ground/disconnect-feed",
+    "ground/bleed-nitrous",
+};
+
+const std::vector<std::string>& transmission::channels()
+{
+    return channel_list;
+}
+
+uint8_t transmission::getId(const std::string &channel_name)
+{
+    auto loc = std::find(channel_list.begin(), channel_list.end(), channel_name);
+    if (loc == channel_list.end())
+    {
+        std::cerr << "Cannot find ID for channel "
+            << channel_name << std::endl;
+        return 0;
+    }
+    return std::distance(channel_list.begin(), loc);
+}
+
+const std::string& transmission::getChannel(uint8_t id)
+{
+    if (id >= channel_list.size()) return channel_list[0];
+    return channel_list[id];
+}
+
 // builds an ascii message packet
-// the given string is taken as the entire packet data;
-// if it doesn't begin with a '#' character, one will be appended
-// empty strings will be treated as a lone '#' character
+// the given string is taken as the entire packet data
 std::vector<unsigned char> transmission::buildPacket(std::string msg)
 {
     if (msg.length() > 255)
         msg = msg.substr(0, 255);
 
     uint8_t len = msg.length();
-    std::vector<unsigned char> packet { 0xAA, 0x14, len, '#' };
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("rocket/console") };
     for (auto e : msg)
         packet.push_back(e);
     appendChecksum(packet); 
@@ -24,12 +86,12 @@ std::vector<unsigned char> transmission::buildPacket(std::string msg)
 }
 
 std::vector<unsigned char> transmission::buildPacket(
-    uint8_t id, std::vector<unsigned char> data)
+    const std::string& channel, std::vector<unsigned char> data)
 {
     if (data.size() > 255) data.resize(255);
 
     uint8_t len = data.size();
-    std::vector<unsigned char> packet { 0xAA, 0x14, len, id };
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId(channel) };
     for (auto e : data)
         packet.push_back(e);
     appendChecksum(packet);
@@ -167,29 +229,26 @@ std::vector<std::vector<unsigned char>>
     infile.seekg(0, std::ios::beg);
 
     std::deque<unsigned char> bytestream;
-	for (size_t i = 0; i < end; ++i) 
-		bytestream.push_back(infile.get());
+	  for (size_t i = 0; i < end; ++i) 
+		    bytestream.push_back(infile.get());
 
     return transmission::parse(bytestream);
 }
 
-// converts a packet to a nice human readable form
-std::string transmission::packet2str(const std::vector<unsigned char> &data)
+// converts a packet to a nice human readable form.
+// assumes the packet is a valid packet
+std::string transmission::packet2str(const std::vector<unsigned char> &packet)
 {
     std::stringstream ss;
     ss << std::hex;
-    bool ascii = data.size() > 3 && data[3] == '#';
-    for (size_t i = 0; i < data.size(); ++i)
+    uint8_t channel = packet[3];
+    std::string channelstr = channel_list[channel];
+    ss << std::setw(25) << std::left << std::setfill(' ') << channelstr;
+    ss << std::right;
+    for (size_t i = 0; i < packet.size(); ++i)
     {
-        if (ascii && i > 3 && i < data.size() - 2)
-            ss << data[i];
-        else
-            ss << std::setfill('0') << std::setw(2) << (int) data[i];
-        if (i < data.size() - 1 &&
-            !(ascii && i > 3 && i < data.size() - 3))
-            ss << " ";
-        if (i == 3 || (data.size() > 2 && i == 3U + data[2]))
-            ss << "| ";
+        ss << std::setfill('0') << std::setw(2) << (int) packet[i];
+        if (i < packet.size() - 1) ss << " ";
     }
     return ss.str();
 }
@@ -207,7 +266,8 @@ std::string transmission::packet2str(
     if (tr != translations.end())
     {
         std::stringstream ss;
-        ss << (int) id << " " << tr->second(data);
+        ss << std::setw(25) << std::left << std::setfill(' ')
+            << transmission::getChannel(id) << tr->second(data);
         return ss.str();
     }
     return packet2str(packet);

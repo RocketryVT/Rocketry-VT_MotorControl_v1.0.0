@@ -16,7 +16,7 @@ int main()
         for (size_t i = 0; i < len; ++i)
             data.push_back(rand() % 256);
 
-        auto packet = transmission::buildPacket(id, data);
+        auto packet = transmission::buildPacket(transmission::getChannel(id), data);
 
         // mess up a random byte in 1/5 packets
         if (rand() % 100 < 20)

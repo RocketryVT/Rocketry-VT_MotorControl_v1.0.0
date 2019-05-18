@@ -20,8 +20,16 @@ int main(int argc, char** argv)
 
     std::map<uint8_t, std::function<
         std::string(std::vector<uint8_t>)>> translations{
+
+    { transmission::getId("rocket/console"), [] (std::vector<uint8_t> data)
+    {
+        std::stringstream ss;
+        for (auto e : data)
+            ss << (char) e;
+        return ss.str();
+    }},
     
-    { 130, [] (std::vector<uint8_t> data)
+    { transmission::getId("rocket/motor-info"), [] (std::vector<uint8_t> data)
     {
         uint64_t millis;
         uint8_t status;
@@ -34,15 +42,18 @@ int main(int argc, char** argv)
         return ss.str();
     }},
 
-    { 131, [] (std::vector<uint8_t> data)
+    { transmission::getId("rocket/voltage"), [] (std::vector<uint8_t> data)
     {
         uint64_t millis;
+        std::array<float, 8> voltage;
         data >> millis;
+        data >> voltage;
         std::stringstream ss;
         ss << millis;
+        for (auto e : voltage)
+            ss << " " << e;
         return ss.str();
     }}};
-
 
     int count = 0;
     for (auto p : packets)

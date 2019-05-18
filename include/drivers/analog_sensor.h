@@ -17,7 +17,6 @@ class analog_sensor
         const std::function<double(double)> &calibration);
 
     ~analog_sensor();
-
     double read();
 
     double raw();

@@ -27,14 +27,14 @@ struct action
 std::map<uint8_t, action> on_receive
 {
 
-{0x01, {"MARCO",
+{transmission::getId("ground/ping"), {"MARCO",
 [] (std::vector<uint8_t>)
 {
     logging::announce("POLO", true, true);
     state::last_ping = std::chrono::steady_clock::now();
 }}},
 
-{0x02, {"ECHO LEXICON",
+{transmission::getId("ground/echo-lexicon"), {"ECHO LEXICON",
 [] (std::vector<uint8_t>)
 {
     auto lexMsg = [] (uint8_t id, const std::string &str)
@@ -52,7 +52,26 @@ std::map<uint8_t, action> on_receive
         logging::announce(lexMsg(e.first, e.second.description), true, true);
 }}},
 
-{0x03, {"ECHO LOGLIST",
+{transmission::getId("ground/echo-channels"), {"ECHO CHANNELS",
+[] (std::vector<uint8_t>)
+{
+    auto lexMsg = [] (uint8_t id, const std::string &str)
+    {
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setw(2)
+            << std::setfill('0') << (int) id << " | "
+            << std::dec << std::setw(3) << (int) id
+            << ": " << str;
+        return ss.str();
+    };
+
+    logging::announce("Channel query:", true, true);
+    auto channels = transmission::channels();
+    for (size_t i = 0; i < channels.size(); ++i)
+        logging::announce(lexMsg(i, channels[i]), true, true);
+}}},
+
+{transmission::getId("ground/echo-loglist"), {"ECHO LOGLIST",
 [] (std::vector<uint8_t>)
 {
     auto logMsg = [] (uint8_t id, const std::chrono::milliseconds &dur,
@@ -81,7 +100,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{0x04, {"ECHO RECIPES",
+{transmission::getId("ground/echo-recipes"), {"ECHO RECIPES",
 [] (std::vector<uint8_t>)
 {
     auto recipeMsg = [] (uint8_t id, const std::string &str)
@@ -102,7 +121,39 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{0x08, {"UNLOG [uint8_t id = ALL]",
+{transmission::getId("ground/echo-tests"), {"ECHO TESTS",
+[] (std::vector<uint8_t>)
+{
+    logging::announce("Test query:", true, true);
+    size_t id = 0;
+    for (auto e : predicates::tests())
+    {
+        std::stringstream ss;
+        ss << "0x" << std::hex << std::setw(2)
+            << std::setfill('0') << id << " | "
+            << std::dec << std::setw(3) << id
+            << ": " << e.description;
+        logging::announce(ss.str(), true, true);
+        ++id;
+    }
+}}},
+
+{transmission::getId("ground/perform-test"), {"PERFORM TEST <uint8_t id>",
+[] (std::vector<uint8_t> data) 
+{
+    if (data.size() == 0) return;
+    
+    uint8_t id = data[0];
+    auto tests = predicates::tests();
+    if (id >= tests.size()) return;
+    auto test = predicates::tests()[id];
+    logging::announce("Performing test: " + test.description, true, true);
+    bool ret = test.function();
+    logging::announce(test.description + " -> " +
+        (ret ? "YES" : "NO"), true, true);
+}}},
+
+{transmission::getId("ground/unlog"), {"UNLOG [uint8_t id = ALL]",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 0)
@@ -116,7 +167,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{0x09, {"LOG <uint8_t id> [uint16_t millis = 1000]",
+{transmission::getId("ground/log"), {"LOG <uint8_t id> [uint16_t millis = 1000]",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
@@ -141,7 +192,7 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{0x18, {"SET LOCK [uint8_t lockstate = 0]",
+{transmission::getId("ground/set-lock"), {"SET LOCK [uint8_t lockstate = 0]",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 0) hardware::lock();
@@ -158,7 +209,7 @@ std::map<uint8_t, action> on_receive
     logging::announce(ss.str(), true, true);
 }}},
 
-{0x23, {"ASCII message packet.",
+{transmission::getId("ground/small-talk"), {"ASCII message packet.",
 [] (std::vector<uint8_t> data)
 {
     std::string msg(data.begin(), data.end());
@@ -191,14 +242,14 @@ std::map<uint8_t, action> on_receive
         logging::announce("Unknown ASCII message: \"" + msg, true, true);
 }}},
 
-{0x30, {"SET STATUS <uint8_t status>",
+{transmission::getId("ground/set-status"), {"SET STATUS <uint8_t status>",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
         state::status = data[0];
 }}},
 
-{0x31, {"ECHO STATUS",
+{transmission::getId("ground/echo-status") , {"ECHO STATUS",
 [] (std::vector<uint8_t>)
 {
     std::stringstream ss;
@@ -216,7 +267,7 @@ std::map<uint8_t, action> on_receive
     logging::announce(ss.str(), true, true);
 }}},
 
-{0x50, {"FILL NITROUS <uint8_t percent>",
+{transmission::getId("ground/fill-nitrous"), {"FILL NITROUS <uint8_t percent>",
 [] (std::vector<uint8_t> data)
 {
     if (data.size() == 1)
@@ -230,37 +281,32 @@ std::map<uint8_t, action> on_receive
     }
 }}},
 
-{0x51, {"DISCONNECT FEED LINE",
+{transmission::getId("ground/disconnect-feed"), {"DISCONNECT FEED LINE",
 [] (std::vector<uint8_t>)
 {
     logging::announce("Disconnecting feed line... (TODO)", true, true);
     hardware::disconnectFeedLine();
 }}},
 
-{0x55, {"BLEED NITROUS",
+{transmission::getId("ground/bleed-nitrous"), {"BLEED NITROUS",
 [] (std::vector<uint8_t>)
 {
     logging::announce("Bleeding nitrous... (TODO)", true, true);
 }}},
 
-{0x60, {"CONTINUITY TEST.",
+{transmission::getId("ground/abort"), {"ABORT",
 [] (std::vector<uint8_t>)
 {
-    logging::announce("Testing continuity...", true, true);
-    bool success = predicates::continuityOk();
-    if (success)
-        logging::announce("Continuity is good.", true, true);
-    else
-        logging::announce("Continuity is not good.", true, true);
+    logging::announce("Abort (TODO)", true, true);
 }}},
 
-{126, {"RESET",
+{transmission::getId("ground/reset"), {"RESET",
 [] (std::vector<uint8_t>)
 {
     control::reset();
 }}},
 
-{127, {"SHUTDOWN [uint8_t code = 0]",
+{transmission::getId("ground/shutdown"), {"SHUTDOWN [uint8_t code = 0]",
 [] (std::vector<uint8_t> data)
 {
     uint8_t code = 0;

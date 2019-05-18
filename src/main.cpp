@@ -37,10 +37,10 @@ int main()
         return 1;
     }
 
-    logging::addRecipe(130, "Vehicle state binary log.", [] ()
+    logging::addRecipe(transmission::getId("rocket/motor-info"),
+        "rocket/motor-info", [] ()
     {
         std::vector<uint8_t> data;
-        uint8_t id = 130;
         data << (uint64_t) state::millis(state::time)
             << (uint8_t) state::status
             << (float) state::o2p
@@ -49,13 +49,14 @@ int main()
             << (float) state::ct
             << (float) state::nh
             << (float) state::thrust;
-        return transmission::buildPacket(id, data);
+        return transmission::buildPacket("rocket/motor-info", data);
     });
-    logging::addRecipe(131, "Timing analysis log.", [] ()
+    logging::addRecipe(transmission::getId("rocket/voltage"),
+        "rocket/voltage", [] ()
     {
         std::vector<uint8_t> data;
-        data << state::millis(state::time);
-        return transmission::buildPacket(131, data);
+        data << (uint64_t) state::millis(state::time) << state::voltage;
+        return transmission::buildPacket("rocket/voltage", data);
     });
 
     while (control::ok())
