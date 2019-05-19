@@ -23,8 +23,9 @@ namespace comms
 
 std::deque<unsigned char> input_buff, output_buff;
 int arduino;
-const std::string filepath = "/dev/serial/by-id/usb-Arduino_"
-        "Srl_Arduino_Mega_85535303636351714190-if00";
+// const std::string filepath = "/dev/serial/by-id/usb-Arduino_"
+//         "Srl_Arduino_Mega_85535303636351714190-if00";
+const std::string filepath = "/dev/ttyACM0";
 bool fail_flag = false;
 
 bool init()
