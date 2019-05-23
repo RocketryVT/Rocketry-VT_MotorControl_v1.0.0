@@ -143,6 +143,7 @@ void transmit(const std::string& str)
 void flush()
 {
     int32_t iters = 10000;
+    bool send_callsign = output_buff.size() > 0;
     while (output_buff.size() > 0 && --iters > 0)
     {
         unsigned char byte = output_buff.front();
@@ -155,6 +156,12 @@ void flush()
         }
         else output_buff.pop_front();
         std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    if (send_callsign)
+    {
+        const char *callsign = "KM4BTL";
+        write(arduino, callsign, 6);
     }
 }
 
