@@ -8,40 +8,30 @@ namespace predicates
 std::vector<test> test_list
 {
     { "Fill line connected?", fillLineConnected },
+    { "Fill ongoing?", fillOngoing },
     { "Nitrous tank full?", nitrousTankFull },
-    { "Nitrous tank stable?", nitrousTankStable },
     { "Continuity good?", continuityOk },
-    { "Telemetry good?", telemetryOk },
-    { "Overpressure event occurred?", overpressureOccurred },
     { "Motor locked?", motorLocked }
 };
 
 bool fillLineConnected()
 {
-    return false;
+    return hardware::feedLineConnected();
+}
+
+bool fillOngoing()
+{
+    return hardware::isFillOngoing();
 }
 
 bool nitrousTankFull()
 {
-    // centimeters at which tank is considered full
-    // const uint16_t nitrousFull = 300;
-    // return state::nh >= nitrousFull;
-    return false;
-}
-
-bool nitrousTankStable()
-{
-    return true;
+    return state::nh >= cfg::max_nitrous_level;
 }
 
 bool continuityOk()
 {
     return hardware::continuity();
-}
-
-bool telemetryOk()
-{
-    return false;
 }
 
 bool overpressureOccurred()

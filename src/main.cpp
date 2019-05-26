@@ -37,6 +37,8 @@ int main()
         return 1;
     }
 
+    /*
+
     logging::addRecipe(transmission::getId("/rocket/motor-info"),
         "/rocket/motor-info", [] ()
     {
@@ -58,6 +60,8 @@ int main()
         data << (uint64_t) state::millis(state::time) << state::voltage;
         return transmission::buildPacket("/rocket/voltage", data);
     });
+
+    */
 
     while (control::ok())
     {

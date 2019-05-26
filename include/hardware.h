@@ -59,8 +59,26 @@ uint8_t lockState();
 /// \return true of continuity is good, false otherwise.
 bool continuity();
 
+/// \brief Closes all valves on the vehicle.
+void closeValves();
+
+/// \brief Opens all valves on the vehicle.
+void openValves();
+
+/// \brief Launches the rocket.
+void launch();
+
+/// \brief Get the state of the feed line.
+bool feedLineConnected();
+
 /// \brief Disconnects the oxidizer feed line.
 void disconnectFeedLine();
+
+/// \brief Start fill operations.
+void beginFill(); 
+
+/// \brief Get whether a fill is ongoing.
+bool isFillOngoing();
 
 void setLed(uint8_t bitmask);
 

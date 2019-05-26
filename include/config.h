@@ -21,6 +21,8 @@ const std::string version = "Motor Control v2019.05.18";
 /// before shutting down.
 const auto ping_period = std::chrono::minutes(60);
 
+const double max_nitrous_level = 1;
+
 /// The minimum period to wait between disengaging
 /// software locks on the motor and related systems.
 const auto motor_lock_cooldown = std::chrono::seconds(1);

@@ -9,35 +9,65 @@
 
 #include <transmission.h>
 #include <control.h>
+#include <logging.h>
 
 const std::map<uint8_t, std::string> channel_list
 {
+    // NULL
     {0,   "/null"}, // do not change!
-    {1,   "/ground/ping"},
-    {2,   "/ground/echo-commands"},
-    {3,   "/ground/echo-loglist"},
-    {4,   "/ground/echo-logs"},
-    {5,   "/ground/echo-channels"},
-    {8,   "/ground/unlog-all"},
-    {9,   "/ground/begin-log"},
-    {18,  "/ground/set-lock"},
-    {34,  "/ground/small-talk"},
-    {35,  "/rocket/console"},
-    {47,  "/ground/echo-status"},
-    {48,  "/ground/set-status"},
-    {60,  "/ground/motor-unlock"},
-    {61,  "/ground/motor-lock"},
-    {80,  "/ground/fill-nitrous"},
-    {81,  "/ground/disc-feedline"},
-    {85,  "/ground/bleed-nitrous"},
-    {96,  "/ground/echo-tests"},
-    {97,  "/ground/perform-test"},
-    {124, "/ground/hardware-reboot"},
-    {125, "/ground/abort"},
-    {126, "/ground/reset"},
-    {127, "/ground/shutdown"},
-    {130, "/rocket/motor-info"},
-    {131, "/rocket/voltage"}
+    // NETWORKING
+    {1,   "/control/motor/ping"},
+    {2,   "/control/motor/small-talk"},
+    {3,   "/control/support/ping"},
+    {4,   "/control/support/small-talk"},
+    // HARDWARE LOCKS
+    {5,   "/control/motor/lock"},
+    {6,   "/control/motor/unlock"},
+    {7,   "/control/support/lock"},
+    {8,   "/control/support/unlock"},
+    // HARDWARE OPERATIONS
+    {9,   "/control/begin-fill"},
+    {10,  "/control/stop-fill"},
+    {11,  "/control/detach-fill-line"},
+    {12,  "/control/open-valves"},
+    {13,  "/control/close-valves"},
+    {14,  "/control/launch"},
+    // CONSOLE OUTPUT
+    {15,  "/motor/console"},
+    {16,  "/support/console"},
+    // PROGRAM REFLECTION
+    {17,  "/control/motor/echo-channels"},
+    {18,  "/control/motor/echo-commands"},
+    {19,  "/control/support/echo-channels"},
+    {20,  "/control/support/echo-commands"},
+    // LOGGING
+    {21,  "/control/motor/begin-log"},
+    {22,  "/control/motor/echo-active-logs"},
+    {23,  "/control/motor/echo-logs"},
+    {24,  "/control/motor/stop-logs"},
+    {25,  "/control/support/begin-log"},
+    {26,  "/control/support/echo-active-logs"},
+    {27,  "/control/support/echo-logs"},
+    {28,  "/control/support/stop-logs"},
+    // PROGRAM TERMINATION
+    {29,  "/control/abort-all"},
+    {30,  "/control/motor/abort"},
+    {31,  "/control/motor/reboot"},
+    {32,  "/control/motor/reset"},
+    {33,  "/control/motor/shutdown"},
+    {34,  "/control/support/abort"},
+    {35,  "/control/support/reboot"},
+    {36,  "/control/support/reset"},
+    {37,  "/control/support/shutdown"},
+    // UNIT TESTS
+    {38,  "/control/motor/echo-tests"},
+    {39,  "/control/motor/perform-tests"},
+    {40,  "/control/support/echo-tests"},
+    {41,  "/control/support/perform-tests"},
+    // INTERNAL TRANSMISSION CHANNELS
+    {42,  "/motor/support/line-disconnected"},
+    {43,  "/motor/support/tank-full"},
+    {44,  "/support/motor/fuel-begin"}
 };
 
 const std::map<uint8_t, std::string>& transmission::channels()
@@ -52,9 +82,10 @@ uint8_t transmission::getId(const std::string &channel_name)
         if (pair.second == channel_name) return pair.first;
     }
 
-    std::cerr << "Cannot find ID for channel "
-        << channel_name << std::endl;
-    control::exit(6);
+    std::stringstream ss;
+    ss <<  "WARNING: Cannot find ID for channel "
+       << channel_name << std::endl;
+    logging::announce(ss.str(), false, true);
     return 0;
 }
 
@@ -75,7 +106,7 @@ std::vector<unsigned char> transmission::buildPacket(std::string msg)
         msg = msg.substr(0, 255);
 
     uint8_t len = msg.length();
-    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("/rocket/console") };
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("/motor/console") };
     for (auto e : msg)
         packet.push_back(e);
     appendChecksum(packet); 

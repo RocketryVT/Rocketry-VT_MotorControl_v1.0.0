@@ -1,5 +1,6 @@
 #include <iostream>
 #include <chrono>
+#include <thread>
 #include <string>
 #include <sstream>
 #include <ctime>
@@ -10,22 +11,26 @@
 #include <bitset>
 
 #include <hardware.h>
+#include <logging.h>
+#include <transmission.h>
+#include <comms.h>
 #include <config.h>
 #include <timestamped.h>
-
-// #include <led.h>
-// #include <pressure_sensor.h>
-// #include <thermocouple.h>
 
 namespace hardware
 {
 
-bool fail_flag = false;
-timestamped<uint8_t> next_lock = 0;
+bool fill_ongoing;
+bool feed_line_connected;
+bool fail_flag;
+timestamped<uint8_t> next_lock;
 const uint8_t max_lock = 3;
 
 bool init()
 {
+    logging::announce("Init hardware.", false, true);
+    fill_ongoing = false;
+    feed_line_connected = true;
     fail_flag = false;
     next_lock = 0;
     return ok();
@@ -37,9 +42,11 @@ bool ok()
     return !fail_flag;
 }
 
-void exit(int)
+void exit(int code)
 {
-
+    std::stringstream ss;
+    ss << "Exit hardware with code " << code;
+    logging::announce(ss.str(), false, true);
 }
 
 bool reset()
@@ -51,46 +58,74 @@ bool reset()
 void loop()
 {
 	if (state::o2p.age() > cfg::pressure_period)
-		state::o2p = (rand() % 10000)/100.0;
+		state::o2p = 0;
 
     if (state::cp.age() > cfg::pressure_period)
-        state::cp = (rand() % 10000)/100.0;
+        state::cp = 0;
 
     if (state::o2t.age() > cfg::temperature_period)
-        state::o2t = (rand() % 10000)/100.0;
+        state::o2t = 0;
 
     if (state::ct.age() > cfg::temperature_period)
-        state::ct = (rand() % 10000)/100.0;
+        state::ct = 0;
 
     if (state::nh.age() > cfg::nitrous_period)
-        state::nh = (rand() % 10000)/100.0;
+    {
+        state::nh = 0;
+    }
 
     if (state::thrust.age() > cfg::thrust_period)
-        state::thrust = (rand() % 10000)/100.0;
+        state::thrust = 0;
 
     for (auto &e : state::voltage)
-        e = (rand() % 1800)/1000.0;
-    state::voltage[7] = 1.79 + (rand() % 10)/1000.0;
+        e = 0;
 
-    // drivers::led::set(state::status);
-
-	return;
+    if (state::nh > cfg::max_nitrous_level)
+    {
+        logging::announce("Tank full!", false, true);
+        auto packet = transmission::buildPacket(
+            "/motor/support/tank-full", {});
+        // make damn sure support gets this packet
+        comms::transmit(packet);
+        comms::flush();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        comms::transmit(packet);
+        comms::flush();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        comms::transmit(packet);
+        comms::flush();
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        fill_ongoing = false;
+    }
 }
 
 void unlock(uint8_t code)
 {
-    if (next_lock == max_lock ||
-        next_lock.age() < cfg::motor_lock_cooldown)
+    if (next_lock == max_lock)
+    {
+        logging::announce("Already unlocked.", true, true);
+    }
+
+    if (next_lock.age() < cfg::motor_lock_cooldown)
+    {
         return;
+    }
     else if (code == next_lock)
     {
+        logging::announce("Lock advanced.", true, true);
         next_lock.update(next_lock + 1);
     }
     else next_lock = 0;
+
+    if (!isLocked())
+    {
+        logging::announce("Unlocked.", true, true);
+    }
 }
 
 void lock()
 {
+    logging::announce("Locked.", true, true);
     next_lock = 0;
 }
 
@@ -109,9 +144,102 @@ bool continuity()
     return false;
 }
 
+bool feedLineConnected()
+{
+    return feed_line_connected;
+}
+
 void disconnectFeedLine()
 {
+    if (isLocked())
+    {
+        logging::announce("Cannot disconnect feed line: "
+            "hardware locked.", true, true);
+        return;
+    }
 
+    logging::announce("Disconnecting feed line. (TODO)", true, true);
+    feed_line_connected = false;
+
+    logging::announce("Feed line disconnected!", false, true);
+    auto packet = transmission::buildPacket(
+        "/motor/support/line-disconnected", {});
+    // make damn sure support gets this packet
+    comms::transmit(packet);
+    comms::flush();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    comms::transmit(packet);
+    comms::flush();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    comms::transmit(packet);
+    comms::flush();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+}
+
+void closeValves()
+{
+    logging::announce("Closing valves. (TODO)", true, true);
+}
+
+void openValves()
+{
+    if (isLocked())
+    {
+        logging::announce("Cannot open valves: "
+            "hardware locked.", true, true);
+        return;
+    }
+    logging::announce("Opening valves. (TODO)", true, true);
+}
+
+void launch()
+{
+    if (isLocked())
+    {
+        logging::announce("Cannot launch: "
+            "hardware locked.", true, true);
+        return;
+    }
+    if (fill_ongoing)
+    {
+        logging::announce("Cannot launch: "
+            "fill ongoing.", true, true);
+    }
+    if (!continuity())
+    {
+        logging::announce("Cannot launch: "
+            "continuity test failed.", true, true);
+        return;
+    }
+    if (feed_line_connected)
+    {
+        logging::announce("Cannot launch: "
+            "feed line still connected.", true, true);
+        return;
+    }    
+}
+
+void beginFill()
+{
+    if (isLocked())
+    {
+        logging::announce("Cannot begin fill: "
+            "hardware locked.", true, true);
+        return;
+    }
+    if (!feed_line_connected)
+    {
+        logging::announce("Cannot begin fill: "
+            "feed line disconnected.", true, true);
+        return;
+    }
+    logging::announce("Waiting for tank to be filled.", false, true);
+    fill_ongoing = true;
+}
+
+bool isFillOngoing()
+{
+    return fill_ongoing;
 }
 
 void setLed(uint8_t bitmask)

@@ -34,6 +34,10 @@ struct test
 /// \return true if the fill line is connected.
 bool fillLineConnected();
 
+/// \brief Checks whether a fill is ongoing.
+/// \return True if fill ongoing.
+bool fillOngoing();
+
 /// \brief Checks whether the nitrous tank is full, within a
 /// certain threshold.
 /// \return true if the tank is full.
