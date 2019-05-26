@@ -8,9 +8,9 @@ namespace gpio
 
 int led_set_value(unsigned int led, bool value);
 
-// int export(unsigned int gpio);
+int export_gpio(unsigned int gpio);
 
-// int unexport(unsigned int gpio);
+int unexport_gpio(unsigned int gpio);
 
 int set_dir(unsigned int gpio, bool out_flag);
 
@@ -37,4 +37,4 @@ int fd_close(int fd);
 
 } // namespace adc
 
-#endif /* SIMPLEGPIO_H_ */
+#endif /* RVT_GPIO_HPP */

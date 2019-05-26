@@ -34,8 +34,7 @@ int led_set_value(unsigned int led, bool value)
     return 0;
 }
 
-/*
-int export(unsigned int gpio)
+int export_gpio(unsigned int gpio)
 {
     char buf[MAX_BUF];
     int fd = open((SYSFS_GPIO_DIR +
@@ -51,7 +50,7 @@ int export(unsigned int gpio)
     return 0;
 }
 
-int unexport(unsigned int gpio)
+int unexport_gpio(unsigned int gpio)
 {
     char buf[MAX_BUF];
     int fd = open((SYSFS_GPIO_DIR +
@@ -66,7 +65,7 @@ int unexport(unsigned int gpio)
     write(fd, buf, len);
     close(fd);
     return 0;
-}*/
+}
 
 int set_dir(unsigned int gpio, bool out_flag)
 {
