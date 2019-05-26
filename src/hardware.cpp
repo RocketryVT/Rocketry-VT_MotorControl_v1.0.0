@@ -151,29 +151,8 @@ bool feedLineConnected()
 
 void disconnectFeedLine()
 {
-    if (isLocked())
-    {
-        logging::announce("Cannot disconnect feed line: "
-            "hardware locked.", true, true);
-        return;
-    }
-
-    logging::announce("Disconnecting feed line. (TODO)", true, true);
+    logging::announce("Disconnecting feed line.", true, true);
     feed_line_connected = false;
-
-    logging::announce("Feed line disconnected!", false, true);
-    auto packet = transmission::buildPacket(
-        "/motor/support/line-disconnected", {});
-    // make damn sure support gets this packet
-    comms::transmit(packet);
-    comms::flush();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    comms::transmit(packet);
-    comms::flush();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    comms::transmit(packet);
-    comms::flush();
-    std::this_thread::sleep_for(std::chrono::seconds(1));
 }
 
 void closeValves()
@@ -192,33 +171,6 @@ void openValves()
     logging::announce("Opening valves. (TODO)", true, true);
 }
 
-void launch()
-{
-    if (isLocked())
-    {
-        logging::announce("Cannot launch: "
-            "hardware locked.", true, true);
-        return;
-    }
-    if (fill_ongoing)
-    {
-        logging::announce("Cannot launch: "
-            "fill ongoing.", true, true);
-    }
-    if (!continuity())
-    {
-        logging::announce("Cannot launch: "
-            "continuity test failed.", true, true);
-        return;
-    }
-    if (feed_line_connected)
-    {
-        logging::announce("Cannot launch: "
-            "feed line still connected.", true, true);
-        return;
-    }    
-}
-
 void beginFill()
 {
     if (isLocked())
@@ -235,6 +187,12 @@ void beginFill()
     }
     logging::announce("Waiting for tank to be filled.", false, true);
     fill_ongoing = true;
+}
+
+void stopFill()
+{
+    logging::announce("Stopping fill.", true, true);
+    fill_ongoing = false;
 }
 
 bool isFillOngoing()

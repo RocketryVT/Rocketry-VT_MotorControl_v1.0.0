@@ -33,12 +33,12 @@ std::map<std::string, std::function
     <void(std::vector<uint8_t>)>> on_receive
 {
 
-{"/control/motor/ping", [] (std::vector<uint8_t>)
+{"/control/support/ping", [] (std::vector<uint8_t>)
 {
     logging::announce("POLO", true, true);
 }},
 
-{"/control/motor/small-talk", [] (std::vector<uint8_t> data)
+{"/control/support/small-talk", [] (std::vector<uint8_t> data)
 {
     std::string msg(data.begin(), data.end());
     std::stringstream ss;
@@ -73,12 +73,12 @@ std::map<std::string, std::function
 
 // HARDWARE LOCKS
 
-{"/control/motor/lock", [] (std::vector<uint8_t>)
+{"/control/support/lock", [] (std::vector<uint8_t>)
 {
     hardware::lock();
 }},
 
-{"/control/motor/unlock", [] (std::vector<uint8_t> data)
+{"/control/support/unlock", [] (std::vector<uint8_t> data)
 {
     if (data.size() == 0) hardware::lock();
     if (data.size() == 1)
@@ -93,6 +93,11 @@ std::map<std::string, std::function
 {"/control/begin-fill", [] (std::vector<uint8_t>)
 {
     hardware::beginFill();
+}},
+
+{"/control/stop-fill", [] (std::vector<uint8_t>)
+{
+    hardware::stopFill();
 }},
 
 {"/control/detach-fill-line", [] (std::vector<uint8_t>)
@@ -110,21 +115,16 @@ std::map<std::string, std::function
     hardware::closeValves();
 }},
 
-{"/control/launch", [] (std::vector<uint8_t>)
-{
-    hardware::launch();
-}},
-
 // PROGRAM REFLECTION
 
-{"/control/motor/echo-commands", [] (std::vector<uint8_t>)
+{"/control/support/echo-commands", [] (std::vector<uint8_t>)
 {
     logging::announce("Commands query:", true, true);
     for (auto e : on_receive)
         logging::announce(channel_str(e.first), true, true);
 }},
 
-{"/control/motor/echo-channels", [] (std::vector<uint8_t>)
+{"/control/support/echo-channels", [] (std::vector<uint8_t>)
 {
     logging::announce("Channel query:", true, true);
     for (auto e : transmission::channels())
@@ -225,7 +225,7 @@ std::map<std::string, std::function
 
 // UNIT TESTS
 
-{"/control/motor/echo-tests", [] (std::vector<uint8_t>)
+{"/control/support/echo-tests", [] (std::vector<uint8_t>)
 {
     logging::announce("Test query:", true, true);
     size_t id = 0;
@@ -241,7 +241,7 @@ std::map<std::string, std::function
     }
 }},
 
-{"/control/motor/perform-tests", [] (std::vector<uint8_t> data)
+{"/control/support/perform-tests", [] (std::vector<uint8_t> data)
 {
     for (uint8_t id : data)
     {
@@ -269,24 +269,24 @@ std::map<std::string, std::function
     std::abort();
 }},
 
-{"/control/motor/abort", [] (std::vector<uint8_t>)
+{"/control/support/abort", [] (std::vector<uint8_t>)
 {
     std::abort();
 }},
 
-{"/control/motor/reboot", [] (std::vector<uint8_t>)
+{"/control/support/reboot", [] (std::vector<uint8_t>)
 {
-    logging::announce("Rebooting motor BB...", true, true);
+    logging::announce("Rebooting support BB...", true, true);
     comms::flush();
     std::system("sudo reboot");
 }},
 
-{"/control/motor/reset", [] (std::vector<uint8_t>)
+{"/control/support/reset", [] (std::vector<uint8_t>)
 {
     control::reset();
 }},
 
-{"/control/motor/shutdown", [] (std::vector<uint8_t> data)
+{"/control/support/shutdown", [] (std::vector<uint8_t> data)
 {
     uint8_t code = exit_code::soft_shutdown;
     if (data.size() > 0) code = data[0];

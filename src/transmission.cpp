@@ -106,7 +106,7 @@ std::vector<unsigned char> transmission::buildPacket(std::string msg)
         msg = msg.substr(0, 255);
 
     uint8_t len = msg.length();
-    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("/motor/console") };
+    std::vector<unsigned char> packet { 0xAA, 0x14, len, getId("/support/console") };
     for (auto e : msg)
         packet.push_back(e);
     appendChecksum(packet); 

@@ -77,6 +77,9 @@ void disconnectFeedLine();
 /// \brief Start fill operations.
 void beginFill(); 
 
+/// \brief Stop the fill operation.
+void stopFill();
+
 /// \brief Get whether a fill is ongoing.
 bool isFillOngoing();
 

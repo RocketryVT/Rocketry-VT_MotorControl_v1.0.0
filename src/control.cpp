@@ -82,7 +82,7 @@ void loop()
 
     comms::loop();
     hardware::loop();
-    hardware::setLed(state::millis(state::time)/200);
+    hardware::setLed(~state::millis(state::time)/200);
     logging::loop();
 
     auto next = start_time + runtime + cfg::loop_period;
