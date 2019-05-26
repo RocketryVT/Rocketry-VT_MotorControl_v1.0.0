@@ -23,8 +23,6 @@ namespace comms
 
 std::deque<unsigned char> input_buff, output_buff;
 int arduino;
-// const std::string filepath = "/dev/serial/by-id/usb-Arduino_"
-//         "Srl_Arduino_Mega_85535303636351714190-if00";
 const std::string filepath = "/dev/ttyACM0";
 bool fail_flag = false;
 
@@ -33,6 +31,9 @@ bool init()
     struct termios config;
     arduino = open(filepath.c_str(), O_RDWR | O_NONBLOCK |
                                      O_NOCTTY | O_SYNC);
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
     if (arduino < 0)
     {
         logging::announce("Failed to open rx comms device: \"" +
@@ -148,14 +149,15 @@ void flush()
     {
         unsigned char byte = output_buff.front();
         int ret = write(arduino, &byte, 1);
-        if (ret < 0)
+        fsync(arduino);
+        if (ret < 1)
         {
-            logging::announce("Transmission error.", true, true);
+            logging::announce("Warning: radio overloaded.", true, true);
             std::cout << std::string(std::strerror(errno)) << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         else output_buff.pop_front();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     if (send_callsign)
