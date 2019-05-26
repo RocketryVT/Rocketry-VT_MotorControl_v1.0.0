@@ -26,10 +26,6 @@ bool init()
     hardware::setLed(255);
 
     logging::announce("Controller init", true, true);
-    std::stringstream ss;
-        ss << "Update rate: "
-            << 1000.0/state::millis(cfg::loop_period) << " Hz";
-    logging::announce(ss.str(), true, true);
 
     if (!logging::init())
     {
@@ -67,6 +63,7 @@ bool init()
         std::chrono::steady_clock::now();
 
     logging::announce("Init complete.", true, true);
+    logging::announce(cfg::version, true, true);
 
     return ok();
 }
