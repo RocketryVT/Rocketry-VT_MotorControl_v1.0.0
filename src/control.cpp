@@ -63,7 +63,7 @@ bool init()
         std::chrono::steady_clock::now();
 
     logging::announce("Init complete.", true, true);
-    logging::announce(cfg::version, true, true);
+    logging::announce(cfg::version(), true, true);
 
     return ok();
 }

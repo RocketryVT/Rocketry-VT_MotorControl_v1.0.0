@@ -16,6 +16,11 @@ std::chrono::milliseconds
     nitrous_period = std::chrono::milliseconds(1500),
     thrust_period = std::chrono::milliseconds(2500);
 
+std::string version()
+{
+    return "Support Control v2019.05.27";
+}
+
 } // namespace cfg
 
 namespace state

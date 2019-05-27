@@ -53,7 +53,7 @@ std::map<std::string, std::function
     else if (msg == "VERSION")
     {
         logging::announce("Current firmware is "
-            + cfg::version, true, true);
+            + cfg::version(), true, true);
     }
     else if (msg == "SAY HI")
         logging::announce("Hello, world!", true, true);
