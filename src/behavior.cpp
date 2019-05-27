@@ -53,7 +53,7 @@ std::map<std::string, std::function
     else if (msg == "VERSION")
     {
         logging::announce("Current firmware is "
-            + cfg::version, true, true);
+            + cfg::version(), true, true);
     }
     else if (msg == "SAY HI")
         logging::announce("Hello, world!", true, true);
@@ -293,7 +293,7 @@ std::map<std::string, std::function
     control::exit(code);
 }},
 
-{"/control/support/system", [] (std::vector<uint8_t> data)
+{"/control/motor/system", [] (std::vector<uint8_t> data)
 {
     if (data.size() == 0) return;
     std::string command(data.begin(), data.end());
