@@ -67,7 +67,10 @@ const std::map<uint8_t, std::string> channel_list
     // INTERNAL TRANSMISSION CHANNELS
     {42,  "/motor/support/line-disconnected"},
     {43,  "/motor/support/tank-full"},
-    {44,  "/support/motor/fuel-begin"}
+    {44,  "/support/motor/fuel-begin"},
+    // TEMPORARY
+    {45,  "/control/motor/system"},
+    {46,  "/control/support/system"}
 };
 
 const std::map<uint8_t, std::string>& transmission::channels()

@@ -291,7 +291,25 @@ std::map<std::string, std::function
     uint8_t code = exit_code::soft_shutdown;
     if (data.size() > 0) code = data[0];
     control::exit(code);
-}}
+}},
+
+{"/control/support/system", [] (std::vector<uint8_t> data)
+{
+    if (data.size() == 0) return;
+    std::string command(data.begin(), data.end());
+    std::string full_command = command + " > output.txt 2>&1";
+    logging::announce("System call: " + command, false, true);
+    int ret = std::system(full_command.c_str());
+    
+    std::stringstream ss;
+    ss << "Returned " << ret;
+    logging::announce(ss.str(), true, true);
+
+    std::string line;
+    std::ifstream of("output.txt");
+    while (of && std::getline(of, line))
+        logging::announce(line, true, true);
+}},
 
 }; // on_receive
 
