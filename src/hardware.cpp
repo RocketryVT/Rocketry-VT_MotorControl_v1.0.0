@@ -7,8 +7,8 @@
 #include <iomanip>
 #include <cstdlib>
 #include <unistd.h>
-#include <gpio.hpp>
 #include <bitset>
+#include <gpio.hpp>
 
 #include <hardware.h>
 #include <logging.h>

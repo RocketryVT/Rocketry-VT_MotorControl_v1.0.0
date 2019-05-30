@@ -100,7 +100,7 @@ int set_value(unsigned int gpio, bool value)
     return 0;
 }
 
-int get_value(unsigned int gpio, int &value)
+int get_value(unsigned int gpio, unsigned int &value)
 {
     char buf[MAX_BUF];
     snprintf(buf, sizeof(buf), (SYSFS_GPIO_DIR +

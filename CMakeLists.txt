@@ -24,22 +24,17 @@ add_library(controller
     src/behavior.cpp
     src/comms.cpp
     src/predicates.cpp
-    src/filters.cpp
-    src/drivers/led.cpp
-    src/drivers/analog_sensor.cpp
-    src/drivers/gpio.cpp)
+    src/led.cpp
+    src/gpio.cpp
+    src/pin_driver.cpp)
 
 add_executable(main src/main.cpp)
 target_link_libraries(main controller)
 add_executable(bin2txt src/bin2txt.cpp)
 target_link_libraries(bin2txt controller)
-add_executable(pack src/pack.cpp)
-target_link_libraries(pack controller)
-add_executable(rand src/rand.cpp)
-target_link_libraries(rand controller)
-add_executable(drivertest src/drivers/test.cpp)
-target_link_libraries(drivertest controller)
-add_executable(readin src/readin.cpp)
-target_link_libraries(readin controller)
-add_executable(adctest src/drivers/adctest.cpp)
+add_executable(adctest src/adctest.cpp)
 target_link_libraries(adctest controller)
+add_executable(gpiotest src/gpiotest.cpp)
+target_link_libraries(gpiotest controller)
+add_executable(motor_demo src/motor_demo.cpp)
+target_link_libraries(motor_demo controller)
