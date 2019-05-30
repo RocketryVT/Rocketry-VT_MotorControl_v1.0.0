@@ -10,7 +10,7 @@
 #include <config.h>
 #include <comms.h>
 #include <hardware.h>
-#include <drivers/led.h>
+#include <led.h>
 
 namespace control
 {
