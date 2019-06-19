@@ -1,3 +1,0 @@
-stty raw -echo
-
-/dev/serial/by-id/usb-Arduino_Srl_Arduino_Mega_85535303636351714190-if00
